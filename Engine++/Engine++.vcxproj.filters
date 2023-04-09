@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{67cf2536-a911-47d6-8ace-b669d4445616}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Keyboard">
+      <UniqueIdentifier>{d551fada-d948-41a0-be4d-90b2dad28e1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Mouse">
+      <UniqueIdentifier>{b259988c-0b51-4443-a072-22a8cc88147e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Graphics">
+      <UniqueIdentifier>{fc3a2248-21fa-4fcd-83e7-a6a72d525ce2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Source\main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\StringConverter.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ErrorLogger.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\RenderWindow.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Engine.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\WindowContainer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Keyboard\KeyboardClass.cpp">
+      <Filter>Source\Keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Keyboard\KeyboardEvent.cpp">
+      <Filter>Source\Keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Mouse\MouseEvent.cpp">
+      <Filter>Source\Mouse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Mouse\MouseClass.cpp">
+      <Filter>Source\Mouse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\Graphics.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\AdapterReader.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Source\StringConverter.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ErrorLogger.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\RenderWindow.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Engine.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\WindowContainer.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Keyboard\KeyboardClass.h">
+      <Filter>Source\Keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Keyboard\KeyboardEvent.h">
+      <Filter>Source\Keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Mouse\MouseClass.h">
+      <Filter>Source\Mouse</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Mouse\MouseEvent.h">
+      <Filter>Source\Mouse</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\Graphics.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\AdapterReader.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\Vertex.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
