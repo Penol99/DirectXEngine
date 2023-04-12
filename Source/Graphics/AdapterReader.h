@@ -4,7 +4,7 @@
 #pragma comment(lib,"DirectXTK.lib")
 #pragma comment(lib,"DXGI.lib")
 
-#include "..\ErrorLogger.h"
+#include "..\ErrorLog.h"
 #include <d3d11.h>
 #include <wrl/client.h>
 #include <vector>

@@ -1,4 +1,6 @@
 #include "WindowContainer.h"
+
+
 RenderWindow::~RenderWindow()
 {
 	if (this->mHandle != NULL)
@@ -9,7 +11,7 @@ RenderWindow::~RenderWindow()
 	}
 }
 
-bool RenderWindow::Initialize(WindowContainer* pWindowContainer, HINSTANCE hInstance, std::string aWindowTitle, std::string aWindowClass, int aWidth, int aHeight)
+bool RenderWindow::Init(WindowContainer* pWindowContainer, HINSTANCE hInstance, std::string aWindowTitle, std::string aWindowClass, int aWidth, int aHeight)
 {
 	this->hInstance = hInstance;
 	this->mWidth = aWidth;
@@ -20,25 +22,36 @@ bool RenderWindow::Initialize(WindowContainer* pWindowContainer, HINSTANCE hInst
 	this->mWindowClassWide = StringConverter::StringToWide(this->mWindowClass);
 
 	this->RegisterWindowClass();
+
+
+	RECT windowRect;
+	windowRect.left = GetSystemMetrics(SM_CXSCREEN) / 2 - aWidth / 2;
+	windowRect.top = GetSystemMetrics(SM_CYSCREEN) / 2 - aHeight / 2;
+	windowRect.right = windowRect.left + aWidth;
+	windowRect.bottom = windowRect.top + aHeight;
+
+	AdjustWindowRect(&windowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
+
+
 	this->mHandle = CreateWindowEx
 	(
-		0, 
-		mWindowClassWide.c_str(), 
-		mWindowTitleWide.c_str(), 
-		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, 
-		0, 
 		0,
-		mWidth, 
-		mHeight, 
-		NULL, 
-		NULL, 
-		this->hInstance, 
+		mWindowClassWide.c_str(),
+		mWindowTitleWide.c_str(),
+		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
+		windowRect.left, // Window X 
+		windowRect.top, // Window Y 
+		windowRect.right - windowRect.left, // Window Width
+		windowRect.bottom - windowRect.top, // Window Height
+		NULL,
+		NULL,
+		this->hInstance,
 		pWindowContainer
 	);
 
 	if (this->mHandle == NULL)
 	{
-		ErrorLogger::Log(GetLastError(), "Failed to Create window with CreateWindowEX: " + this->mWindowTitle);
+		ErrorLog::Log(GetLastError(), "Failed to Create window with CreateWindowEX: " + this->mWindowTitle);
 		return false;
 	}
 	ShowWindow(this->mHandle, SW_SHOW);
@@ -101,7 +114,7 @@ LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		WindowContainer* pWindow = reinterpret_cast<WindowContainer*>(pCreate->lpCreateParams);
 		if (pWindow == nullptr)
 		{
-			ErrorLogger::Log("Error: Pointer to window container is null during WM_NCCREATE.");
+			ErrorLog::Log("Error: Pointer to window container is null during WM_NCCREATE.");
 			exit(-1);
 		}
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWindow));

@@ -1,21 +1,33 @@
 #include "Engine.h"
 
-
+void Run(void);
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,_In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-
-	Engine engine;
-	engine.Initialize(hInstance, "Engine++", "Window", 800, 600);
-	while (engine.ProcessMessages())
+	
+	HRESULT hr = CoInitialize(NULL);
+	if (FAILED(hr))
 	{
-		engine.Update(); 
-		engine.RenderFrame();
+		ErrorLog::Log(hr, "fucked up calling CoInitialize");
+		return -1;
+	}
+
+	Engine& engine = *Engine::GetInstance();
+	if(engine.Init(hInstance, "Engine++", "Window", 800, 600))
+	{
+		Run();
 	}
 	return 0;
 }
 
-// INPUT ASSEMBLER
-// VERTEX SHADER
-// RASTERIZER
-// PIXEL SHADER
-// OUTPUT MERGER
+void Run()
+{
+	Engine& engine = *Engine::GetInstance();
+
+	while (engine.ProcessMessages())
+	{
+		engine.Update();
+
+		engine.Render();
+	}
+}
+

@@ -14,7 +14,7 @@ std::vector<AdapterData> AdapterReader::GetAdapters()
     HRESULT hr = CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(pFactory.GetAddressOf()));
     if (FAILED(hr))
     {
-        ErrorLogger::Log(hr, "fucked up creating DXGIFactory for enumerating adapters");
+        ErrorLog::Log(hr, "fucked up creating DXGIFactory for enumerating adapters");
         exit(-1);
     }
 
@@ -36,6 +36,6 @@ AdapterData::AdapterData(IDXGIAdapter* pAdapter)
     HRESULT hr = mAdapter->GetDesc(&this->mDescription);
     if (FAILED(hr))
     {
-        ErrorLogger::Log(hr, "fucked up getting the description for IDXGIAdapter");
+        ErrorLog::Log(hr, "fucked up getting the description for IDXGIAdapter");
     }
 }

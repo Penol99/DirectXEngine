@@ -2,10 +2,17 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>E:\C++\Engine++\x64\Output\Engine++.exe</FullPath>
+      <FullPath>E:\GIT\DirectXEngine\x64\Output\Engine++.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
-  <ContentFiles />
+  <ContentFiles>
+    <ContentFile>
+      <FullPath>E:\GIT\DirectXEngine\x64\Output\pixelshader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>E:\GIT\DirectXEngine\x64\Output\vertexshader.cso</FullPath>
+    </ContentFile>
+  </ContentFiles>
   <SatelliteDlls />
   <NonRecipeFileRefs />
 </Project>

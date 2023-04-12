@@ -3,13 +3,12 @@
 
 struct Vertex
 {
-	Vertex()
-		:pos(0.f,0.f)
-	{
-	}
-	Vertex(float x, float y)
-		:pos(x,y)
+	Vertex() = default;
+	Vertex(float x, float y,float z, float u, float v)
+		:pos(x,y,z),
+		texCoord(u,v)
 	{ 
 	}
-	DirectX::XMFLOAT2 pos;
+	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT2 texCoord;
 };
