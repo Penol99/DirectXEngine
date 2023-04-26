@@ -1,136 +1,164 @@
+// InputHandler.cpp : Defines the functions for the static library.
+//
+#define WIN32_LEAN_AND_MEAN 
 #include "InputHandler.h"
-#include <iostream>
-bool InputHandler::UpdateEvents(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+
+
+InputHandler::InputHandler()
+	:myMousePos{ 0 },
+	myTentativeMouseWheelDelta(0),
+	myMouseWheelDelta(0),
+	myKeysCurrentState{ 0 },
+	myKeysPreviousState{ 0 }
 {
-	switch (uMsg)
+
+}
+InputHandler::~InputHandler()
+{
+
+}
+
+bool InputHandler::IsKeyDown(const int aKeyCode) const
+{
+	return myKeysCurrentState[aKeyCode];
+}
+
+bool InputHandler::IsKeyPressed(const int aKeyCode) const
+{
+	return !myKeysPreviousState[aKeyCode] && myKeysCurrentState[aKeyCode];
+}
+
+bool InputHandler::IsKeyReleased(const int aKeyCode) const
+{
+	return myKeysPreviousState[aKeyCode] && !myKeysCurrentState[aKeyCode];
+}
+float InputHandler::GetMouseWheelData()
+{
+	return myMouseWheelDelta;
+}
+
+bool InputHandler::IsMouseButtonDown(const int aKeyCode) const
+{
+	return myKeysCurrentState[aKeyCode];
+}
+
+bool InputHandler::IsMouseButtonReleased(const int aKeyCode) const
+{
+	return myKeysPreviousState[aKeyCode] && !myKeysCurrentState[aKeyCode];
+}
+
+POINT InputHandler::GetMousePosition() const
+{
+	return myMousePos;
+}
+
+POINT InputHandler::GetMouseLastPos() const
+{
+	return myMouseLastPos;
+}
+
+POINT InputHandler::GetMouseDelta() const
+{
+	auto m = myMouseDelta;
+	
+	return m;
+}
+
+LRESULT InputHandler::UpdateEvents(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+
+	switch (message)
 	{
-		// KEYBOARD MESSAGES
 	case WM_KEYDOWN:
-	{
-		unsigned char keycode = static_cast<unsigned char>(wParam);
-		if (mKeyboard.IsKeysAutoRepeat())
-		{
-			mKeyboard.OnKeyPressed(keycode);
-		}
-		else
-		{
-			const bool wasPressed = lParam & 0x40000000;
-			if (!wasPressed)
-			{
-				mKeyboard.OnKeyPressed(keycode);
-			}
-		}
-		return false;
-	}
+		myKeysTentativeState[wParam] = true;
+		return 0;
+
 	case WM_KEYUP:
-	{
-		unsigned char keycode = static_cast<unsigned char>(wParam);
-		mKeyboard.OnKeyReleased(keycode);
-		return false;
-	}
-	case WM_CHAR:
-	{
-		unsigned char ch = static_cast<unsigned char>(wParam);
-		if (mKeyboard.IsCharsAutoRepeat())
-		{
-			mKeyboard.OnChar(ch);
-		}
-		else
-		{
-			const bool wasPressed = lParam & 0x40000000;
-			if (!wasPressed)
-			{
-				mKeyboard.OnChar(ch);
-			}
-		}
-	}
-	// MOUSE MESSAGES
-	case WM_MOUSEMOVE:
-	{
-		int x = LOWORD(lParam);
-		int y = HIWORD(lParam);
-		mMouse.OnMouseMove(x, y);
-		return false;
-	}
+		myKeysTentativeState[wParam] = false;
+		return 0;
+
 	case WM_LBUTTONDOWN:
-	{
-		int x = LOWORD(lParam);
-		int y = HIWORD(lParam);
-		mMouse.OnLeftPressed(x, y);
-		return false;
-	}
-	case WM_RBUTTONDOWN:
-	{
-		int x = LOWORD(lParam);
-		int y = HIWORD(lParam);
-		mMouse.OnRightPressed(x, y);
-		return false;
-	}
-	case WM_MBUTTONDOWN:
-	{
-		int x = LOWORD(lParam);
-		int y = HIWORD(lParam);
-		mMouse.OnMiddlePressed(x, y);
-		return false;
-	}
+		myKeysTentativeState[VK_LBUTTON] = true;
+		return 0;
+
 	case WM_LBUTTONUP:
-	{
-		int x = LOWORD(lParam);
-		int y = HIWORD(lParam);
-		mMouse.OnLeftReleased(x, y);
-		return false;
-	}
+		myKeysTentativeState[VK_LBUTTON] = false;
+		return 0;
+
+	case WM_RBUTTONDOWN:
+		myKeysTentativeState[VK_RBUTTON] = true;
+		return 0;
+
 	case WM_RBUTTONUP:
-	{
-		int x = LOWORD(lParam);
-		int y = HIWORD(lParam);
-		mMouse.OnRightReleased(x, y);
-		return false;
-	}
+		myKeysTentativeState[VK_RBUTTON] = false;
+		return 0;
+
+	case WM_MBUTTONDOWN:
+		myKeysTentativeState[VK_MBUTTON] = true;
+		return 0;
+
 	case WM_MBUTTONUP:
+		myKeysTentativeState[VK_MBUTTON] = false;
+		return 0;
+
+	case WM_SYSKEYDOWN:
+		myKeysTentativeState[wParam] = true;
+		return 0;
+
+	case WM_SYSKEYUP:
+		myKeysTentativeState[wParam] = false;
+		return 0;
+
+	case WM_XBUTTONDOWN:
 	{
-		int x = LOWORD(lParam);
-		int y = HIWORD(lParam);
-		mMouse.OnMiddleReleased(x, y);
-		return false;
+		const int xButton = GET_XBUTTON_WPARAM(wParam);
+		if (xButton == 1)
+			myKeysTentativeState[VK_XBUTTON1] = true;
+		else
+			myKeysTentativeState[VK_XBUTTON2] = true;
+
+		return 0;
+	}
+
+	case WM_XBUTTONUP:
+	{
+		const int xButton = GET_XBUTTON_WPARAM(wParam);
+		if (xButton == 1)
+			myKeysTentativeState[VK_XBUTTON1] = false;
+		else
+			myKeysTentativeState[VK_XBUTTON2] = false;
+		return 0;
 	}
 	case WM_MOUSEWHEEL:
-	{
-		int x = LOWORD(lParam);
-		int y = HIWORD(lParam);
-		if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
-		{
-			mMouse.OnWheelUp(x, y);
-		}
-		else if (GET_WHEEL_DELTA_WPARAM(wParam) < 0)
-		{
-			mMouse.OnWheelDown(x, y);
-		}
-		return false;
-	}
-	case WM_INPUT:
-	{
-		UINT dataSize;
+		myTentativeMouseWheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+		return 0;
 
-		GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER));
+	case WM_MOUSEMOVE:
+		const int xPos = LOWORD(lParam);
+		const int yPos = HIWORD(lParam);
 
-		if (dataSize > 0)
-		{
-			std::unique_ptr<BYTE[]> rawData = std::make_unique<BYTE[]>(dataSize);
-			if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, rawData.get(), &dataSize, sizeof(RAWINPUTHEADER)) == dataSize)
-			{
-				RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(rawData.get());
-				if (raw->header.dwType == RIM_TYPEMOUSE)
-				{
-					mMouse.OnMouseMoveRaw(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-				}
-			}
-		}
-		return true;
+		myMousePos.x = static_cast<long>(xPos);
+		myMousePos.y = static_cast<long>(yPos);
+		//myMouseDelta.x = myMousePos.x - myMouseLastPos.x;
+		//myMouseDelta.y = myMousePos.y - myMouseLastPos.y;
+		//myMouseLastPos = myMousePos;
+		return 0;
 
 	}
-	default:
-		break;
-	}
-	return false;
+	return DefWindowProc(hwnd,message,wParam,lParam);
 }
+
+void InputHandler::Update()
+{
+	myMouseWheelDelta = myTentativeMouseWheelDelta / abs(myTentativeMouseWheelDelta);
+	myTentativeMouseWheelDelta = 0;
+
+	myKeysPreviousState = myKeysCurrentState;
+	myKeysCurrentState = myKeysTentativeState;
+
+	myMouseDelta.x = myMousePos.x - myMouseLastPos.x;
+	myMouseDelta.y = myMousePos.y - myMouseLastPos.y;
+	myMouseLastPos = myMousePos;
+}
+
+

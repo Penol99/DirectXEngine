@@ -1,5 +1,1 @@
-﻿  Graphics.cpp
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(163,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(164,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(249): warning C4715: 'Graphics::InitScene': not all control paths return a value
-  Engine++.vcxproj -> E:\GIT\DirectXEngine\x64\Output\Engine++.exe
+﻿  Engine++.vcxproj -> E:\GIT\DirectXEngine\x64\Output\Engine++.exe

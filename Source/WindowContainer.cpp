@@ -2,8 +2,8 @@
 #include <iostream>
 WindowContainer::WindowContainer()
 {
-	static bool rawInputInitd = false;
-	if (!rawInputInitd)
+	static bool rawInputInit = false;
+	if (!rawInputInit)
 	{
 		RAWINPUTDEVICE rid;
 		rid.usUsagePage = 0x01; // Mouse
@@ -16,16 +16,15 @@ WindowContainer::WindowContainer()
 			ErrorLog::Log(GetLastError(), "fucked up registering raw input devices lol.");
 			exit(-1);
 		}
-		rawInputInitd = true;
+		rawInputInit = true;
 	}
 }
-
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (mInput.UpdateEvents(hwnd, uMsg, wParam, lParam))
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam))
 	{
-		DefWindowProc(hwnd, uMsg, wParam, lParam);
+		return true;
 	}
-	
-    return DefWindowProc(hwnd,uMsg,wParam,lParam);
+	return mInput.UpdateEvents(hwnd, uMsg, wParam, lParam);
 }

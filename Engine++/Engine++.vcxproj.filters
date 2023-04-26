@@ -10,14 +10,11 @@
     <Filter Include="Source\Input">
       <UniqueIdentifier>{f4c82167-965f-468b-b45f-f20d90413f82}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Input\Mouse">
-      <UniqueIdentifier>{b259988c-0b51-4443-a072-22a8cc88147e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Input\Keyboard">
-      <UniqueIdentifier>{d551fada-d948-41a0-be4d-90b2dad28e1f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Shaders">
       <UniqueIdentifier>{b3a81d70-a6cd-4977-858a-5748d38178fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ImGui">
+      <UniqueIdentifier>{638cb199-fb83-407a-a633-9ed6aa923cf7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -39,29 +36,44 @@
     <ClCompile Include="..\Source\WindowContainer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Input\Keyboard\KeyboardInput.cpp">
-      <Filter>Source\Input\Keyboard</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Input\Keyboard\KeyboardEvent.cpp">
-      <Filter>Source\Input\Keyboard</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Input\Mouse\MouseEvent.cpp">
-      <Filter>Source\Input\Mouse</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Input\Mouse\MouseInput.cpp">
-      <Filter>Source\Input\Mouse</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\Graphics\Graphics.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Graphics\AdapterReader.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\Shaders\Shaders.cpp">
+      <Filter>Source\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\Camera.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="..\Source\Input\InputHandler.cpp">
       <Filter>Source\Input</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Shaders\Shaders.cpp">
-      <Filter>Source\Shaders</Filter>
+    <ClCompile Include="..\Source\Timer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ImGui\imgui.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ImGui\imgui_demo.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ImGui\imgui_draw.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ImGui\imgui_impl_dx11.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ImGui\imgui_impl_win32.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ImGui\imgui_tables.cpp">
+      <Filter>Source\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ImGui\imgui_widgets.cpp">
+      <Filter>Source\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -80,18 +92,6 @@
     <ClInclude Include="..\Source\WindowContainer.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Input\Keyboard\KeyboardInput.h">
-      <Filter>Source\Input\Keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Input\Keyboard\KeyboardEvent.h">
-      <Filter>Source\Input\Keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Input\Mouse\MouseInput.h">
-      <Filter>Source\Input\Mouse</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Input\Mouse\MouseEvent.h">
-      <Filter>Source\Input\Mouse</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\Graphics\Graphics.h">
       <Filter>Source\Graphics</Filter>
     </ClInclude>
@@ -101,11 +101,53 @@
     <ClInclude Include="..\Source\Graphics\Vertex.h">
       <Filter>Source\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\Shaders\Shaders.h">
+      <Filter>Source\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\VertexBuffer.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\IndexBuffer.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\ConstantBufferTypes.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\ConstantBuffer.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\Camera.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="..\Source\Input\InputHandler.h">
       <Filter>Source\Input</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Shaders\Shaders.h">
-      <Filter>Source\Shaders</Filter>
+    <ClInclude Include="..\Source\Timer.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ImGui\imconfig.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ImGui\imgui.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ImGui\imgui_impl_dx11.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ImGui\imgui_impl_win32.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ImGui\imgui_internal.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ImGui\imstb_rectpack.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ImGui\imstb_textedit.h">
+      <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ImGui\imstb_truetype.h">
+      <Filter>Source\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

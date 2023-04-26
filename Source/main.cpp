@@ -1,9 +1,18 @@
 #include "Engine.h"
+#include <Windows.h>
+#include "Timer.h"
 
+Timer Time;
 void Run(void);
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,_In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-	
+
+	// Open Visual Studio console Window
+	AllocConsole();
+	FILE* fp;
+	freopen_s(&fp, "CONOUT$", "w", stdout);
+
+
 	HRESULT hr = CoInitialize(NULL);
 	if (FAILED(hr))
 	{
@@ -12,7 +21,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,_In_opt_ HINSTANCE hPrevInstance,
 	}
 
 	Engine& engine = *Engine::GetInstance();
-	if(engine.Init(hInstance, "Engine++", "Window", 800, 600))
+	if(engine.Init(hInstance, "Engine++", "Window", 1200, 1000))
 	{
 		Run();
 	}
@@ -25,9 +34,10 @@ void Run()
 
 	while (engine.ProcessMessages())
 	{
-		engine.Update();
+		Time.Update();
+		engine.Update(Time.GetDeltaTime());
 
-		engine.Render();
+		engine.Render(Time.GetFPS());
 	}
 }
 

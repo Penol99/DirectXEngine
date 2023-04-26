@@ -6,8 +6,8 @@ public:
 	bool Init(HINSTANCE hInstance, std::string aWindowTitle, std::string aWindowClass, int aWidth, int aHeight);
 	bool ProcessMessages();
 
-	void Update();
-	void Render();
+	void Update(const float& aDeltaTime);
+	void Render(const int& aFPS);
 	
 
 	static inline Engine* GetInstance()

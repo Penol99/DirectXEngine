@@ -1,10 +1,12 @@
 #include "Graphics.h"
 
-#define VSYNC_ENABLED false
+#define VSYNC_ENABLED true
 
 bool Graphics::Init(HWND hwnd, int aWidth, int aHeight)
 {
-	if (!InitDirectX(hwnd, aWidth, aHeight))
+	mWidth = aWidth;
+	mHeight = aHeight;
+	if (!InitDirectX(hwnd))
 	{
 		return false;
 	}
@@ -16,10 +18,18 @@ bool Graphics::Init(HWND hwnd, int aWidth, int aHeight)
 	{
 		return false;
 	}
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplWin32_Init(hwnd);
+	ImGui_ImplDX11_Init(mDevice.Get(), mDeviceContext.Get());
+	ImGui::StyleColorsDark();
+
 	return true;
 }
 
-void Graphics::Render()
+void Graphics::Render(const int& aFPS)
 {
 
 	float backgroundColor[] = { 0.0f, 0.0f, 0.0f,1.0f };
@@ -35,21 +45,62 @@ void Graphics::Render()
 	mDeviceContext->VSSetShader(mVertexShader.GetShader(), NULL, 0);
 	mDeviceContext->PSSetShader(mPixelShader.GetShader(), NULL, 0);
 
-	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 
+	static float translationOffset[3] = { 0,0,0 };
+	XMMATRIX world = XMMatrixTranslation(translationOffset[0], translationOffset[1], translationOffset[2]);
+
+	mCBVSVertexShader.mData.mat = world * mCamera.GetViewMatrix() * mCamera.GetProjectionMatrix();
+	mCBVSVertexShader.mData.mat = XMMatrixTranspose(mCBVSVertexShader.mData.mat);
+	if (!mCBVSVertexShader.ApplyChanges())
+	{
+		return;
+	}
+	mDeviceContext->VSSetConstantBuffers(0, 1, mCBVSVertexShader.GetAddressOf());
+
+	mCBPSPixelShader.mData.alpha = 1.0f;
+	mCBPSPixelShader.ApplyChanges();
+	mDeviceContext->PSSetConstantBuffers(0, 1, mCBPSPixelShader.GetAddressOf());
+
+
+
 	mDeviceContext->PSSetShaderResources(0, 1, mTexture.GetAddressOf());
-	mDeviceContext->IASetVertexBuffers(0, 1, mVertexBuffer.GetAddressOf(), &stride, &offset);
-	mDeviceContext->Draw(6, 0);
+	mDeviceContext->IASetVertexBuffers(0, 1, mVertexBuffer.GetAddressOf(), mVertexBuffer.GetStridePtr(), &offset);
+	mDeviceContext->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	mDeviceContext->DrawIndexed(mIndexBuffer.GetBufferSize(), 0, 0);
 
 	mSpriteBatch->Begin();
-	mSpriteFont->DrawString(mSpriteBatch.get(), L"Hello bunghole", DirectX::XMFLOAT2(300, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));
+	std::wstring fpsCounter = L"FPS: ";
+	fpsCounter += std::to_wstring(aFPS);
+	mSpriteFont->DrawString(mSpriteBatch.get(), fpsCounter.c_str(), XMFLOAT2(0, 0), Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
 	mSpriteBatch->End();
+
+	static int counter = 0;
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	ImGui::Begin("Test");
+	//ImGui::Text("This is text");
+	//if (ImGui::Button("CLICK"))
+	//{
+	//	++counter;
+	//}
+	//std::string clickCount = "Click Count: " + std::to_string(counter);
+	//ImGui::Text(clickCount.c_str());
+
+	ImGui::SameLine();
+	ImGui::NewLine();
+	ImGui::DragFloat3("Translation X/Y/Z", translationOffset, 0.1f, -5.f, 5.f);
+	ImGui::End();
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+
 
 	mSwapChain->Present(VSYNC_ENABLED, NULL);
 }
 
-bool Graphics::InitDirectX(HWND hwnd, int aWidth, int aHeight)
+bool Graphics::InitDirectX(HWND hwnd)
 {
 	std::vector<AdapterData> adapters = AdapterReader::GetAdapters();
 
@@ -62,8 +113,8 @@ bool Graphics::InitDirectX(HWND hwnd, int aWidth, int aHeight)
 	DXGI_SWAP_CHAIN_DESC scd;
 	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
 
-	scd.BufferDesc.Width = aWidth;
-	scd.BufferDesc.Height = aHeight;
+	scd.BufferDesc.Width = mWidth;
+	scd.BufferDesc.Height = mHeight;
 	scd.BufferDesc.RefreshRate.Numerator = 144; // TODO: Fix so that it gets the refresh rate from the monitor instead.
 	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
@@ -115,8 +166,8 @@ bool Graphics::InitDirectX(HWND hwnd, int aWidth, int aHeight)
 	}
 
 	D3D11_TEXTURE2D_DESC depthTextureDesc;
-	depthTextureDesc.Width = aWidth;
-	depthTextureDesc.Height = aHeight;
+	depthTextureDesc.Width = mWidth;
+	depthTextureDesc.Height = mHeight;
 	depthTextureDesc.MipLevels = 1;
 	depthTextureDesc.ArraySize = 1;
 	depthTextureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -160,8 +211,8 @@ bool Graphics::InitDirectX(HWND hwnd, int aWidth, int aHeight)
 
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
-	viewport.Width = aWidth;
-	viewport.Height = aHeight;
+	viewport.Width = mWidth;
+	viewport.Height = mHeight;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	mDeviceContext->RSSetViewports(1, &viewport);
@@ -173,15 +224,15 @@ bool Graphics::InitDirectX(HWND hwnd, int aWidth, int aHeight)
 	rasterizerDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_BACK;
 
 	hr = mDevice->CreateRasterizerState(&rasterizerDesc, mRasterizerState.GetAddressOf());
-	if (hr != S_OK)
+	if (FAILED(hr))
 	{
 		ErrorLog::Log(hr, "dick and balls failed to create rasterizer state.");
 		return false;
 	}
 
 	// TODO: Create a font manager;
-	mSpriteBatch = std::make_unique<DirectX::SpriteBatch>(mDeviceContext.Get());
-	mSpriteFont = std::make_unique<DirectX::SpriteFont>(mDevice.Get(), L"../Assets/Fonts/Arial_DX.spriteFont");
+	mSpriteBatch = std::make_unique<SpriteBatch>(mDeviceContext.Get());
+	mSpriteFont = std::make_unique<SpriteFont>(mDevice.Get(), L"../Assets/Fonts/Arial_DX.spriteFont");
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
@@ -230,48 +281,46 @@ bool Graphics::InitScene()
 {
 	Vertex v[] =
 	{
-		Vertex(-0.5f, -0.5f, 1.0f, 0.0f, 1.0f),
-		Vertex(-0.5f, 0.5f, 1.0f, 0.0f,0.0f),
-		Vertex(0.5f, 0.5f, 1.0f,1.0f,0.0f),
-
-		Vertex(-0.5f, -0.5f, 1.0f, 0.0f, 1.0f),
-		Vertex(0.5f, 0.5f, 1.0f, 1.0f,0.0f),
-		Vertex(0.5f, -0.5f, 1.0f, 1.0f,1.0f),
+		Vertex(-0.5f, -0.5f, 0.0f, 0.0f, 1.0f), // Bottom Left [0]
+		Vertex(-0.5f, 0.5f, 0.0f, 0.0f,0.0f),	// Top Left [1]
+		Vertex(0.5f, 0.5f, 0.0f,1.0f,0.0f),		// Top Right [2]
+		Vertex(0.5f, -0.5f, 0.0f, 1.0f,1.0f),	// Bottom Right [3] 
 
 	};
-	if (!CreateVertexBuffer(mVertexBuffer, v, ARRAYSIZE(v),L"../Assets/Textures/bts.png"))
-	{
-		return false;
-	}
 
-
-	
-}
-
-bool Graphics::CreateVertexBuffer(ComPtr<ID3D11Buffer>& aVertexBuffer, Vertex* someVertices, int numElements, std::wstring aTexturePath)
-{
-	D3D11_BUFFER_DESC vertexBufferDesc;
-	ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
-
-	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(Vertex) * numElements;
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.CPUAccessFlags = 0;
-	vertexBufferDesc.MiscFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA vertexBufferData;
-	ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
-
-
-	vertexBufferData.pSysMem = someVertices;
-
-	HRESULT hr = mDevice->CreateBuffer(&vertexBufferDesc, &vertexBufferData, aVertexBuffer.GetAddressOf());
+	HRESULT hr = mVertexBuffer.Init(mDevice.Get(), v, ARRAYSIZE(v));
 	if (FAILED(hr))
 	{
-		ErrorLog::Log(hr, "fucked up creating vertex buffer");
+		ErrorLog::Log(hr, "fucked up creating vertex buffer.");
+	}
+
+	DWORD indicies[] =
+	{
+		0,1,2,
+		0,2,3
+	};
+
+
+	hr = mIndexBuffer.Init(mDevice.Get(), indicies, ARRAYSIZE(indicies));
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "fucked up creating index buffer.");
+		return false;
+	}
+	hr = CreateWICTextureFromFile(mDevice.Get(), L"../Assets/Textures/bts.png", nullptr, mTexture.GetAddressOf());
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "fucked up creating texture from file.");
+		return false;
+	}
+	hr = mCBVSVertexShader.Init(mDevice.Get(), mDeviceContext.Get());
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "fucked up creating constant buffer.");
 		return false;
 	}
 
-	hr = DirectX::CreateWICTextureFromFile(mDevice.Get(), aTexturePath.c_str(), nullptr, mTexture.GetAddressOf());
+	mCamera.SetPosition(0.0f, 0.0f, -2.0f);
+	mCamera.SetProjectionValues(90.f, static_cast<float>(mWidth) / static_cast<float>(mHeight), 0.1f, 1000.f);
 	return true;
 }
