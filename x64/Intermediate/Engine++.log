@@ -1,18 +1,8 @@
 ﻿  Graphics.cpp
 E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(216,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
 E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(217,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(365,35): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-          with
-          [
-              T=fbxsdk::FbxDouble
-          ]
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(365,28): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-          with
-          [
-              T=fbxsdk::FbxDouble
-          ]
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(393,79): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(400,68): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
+E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(381,79): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
+E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(388,68): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
 E:\Microsoft Visual Studio\2022\VC\Tools\MSVC\14.32.31326\include\memory(3422,1): warning C4267: 'initializing': conversion from 'size_t' to 'UINT', possible loss of data
 E:\GIT\DirectXEngine\Source\Graphics\VertexBuffer.h(49): message : see reference to function template instantiation 'std::unique_ptr<UINT,std::default_delete<UINT>> std::make_unique<UINT,size_t,0>(size_t &&)' being compiled
 E:\GIT\DirectXEngine\Source\Graphics\VertexBuffer.h(41): message : while compiling class template member function 'HRESULT VertexBuffer<Vertex>::Init(ID3D11Device *,T *,UINT)'
@@ -20,7 +10,7 @@ E:\GIT\DirectXEngine\Source\Graphics\VertexBuffer.h(41): message : while compili
           [
               T=Vertex
           ]
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(393): message : see reference to function template instantiation 'HRESULT VertexBuffer<Vertex>::Init(ID3D11Device *,T *,UINT)' being compiled
+E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(381): message : see reference to function template instantiation 'HRESULT VertexBuffer<Vertex>::Init(ID3D11Device *,T *,UINT)' being compiled
           with
           [
               T=Vertex

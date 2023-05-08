@@ -291,7 +291,7 @@ bool Graphics::InitScene()
 	FbxImporter* fbxImporter = FbxImporter::Create(fbxManager, "");
 	FbxScene* fbxScene = FbxScene::Create(fbxManager, "Scene");
 
-	const char* filePath = "../Assets/Meshes/snook.fbx";
+	const char* filePath = "../Assets/Meshes/Scooter.fbx";
 	bool success = fbxImporter->Initialize(filePath, -1, fbxManager->GetIOSettings());
 	if (!success)
 	{
@@ -324,23 +324,22 @@ bool Graphics::InitScene()
 
 			if (mesh)
 			{
-
-
 				// Triangulate the mesh
 				if (!mesh->IsTriangleMesh())
 				{
 					FbxGeometryConverter converter(mesh->GetFbxManager());
-					if (!converter.Triangulate(mesh, false))
-					{
-						ErrorLog::Log("Failed to triangulate mesh");
-					}
+					converter.Triangulate(mesh, true);
 				}
+
 				int numVertices = mesh->GetControlPointsCount();
 				std::vector<FbxVector4> controlPoints(numVertices);
 
+				// Retrieve UV coordinates
+				FbxLayerElementUV* uvLayer = mesh->GetLayer(0)->GetUVs();
+				FbxArray<FbxVector2> uvCoords;
+				mesh->GetPolygonVertexUVs(uvLayer->GetName(), uvCoords);
 
-				// Extract the control points
-				// Extract the control points
+				// Extract the control points and UV coordinates
 				for (int j = 0; j < numVertices; j++)
 				{
 					FbxVector4 vertex = mesh->GetControlPointAt(j);
@@ -348,21 +347,10 @@ bool Graphics::InitScene()
 					float y = static_cast<float>(vertex[1]);
 					float z = static_cast<float>(vertex[2]);
 
-					// Retrieve UV coordinates
-					FbxLayerElementUV* uvLayer = mesh->GetLayer(0)->GetUVs();
-					FbxVector2 uv;
-					int uvIndex = 0;
-					if (uvLayer && uvLayer->GetReferenceMode() == FbxLayerElement::eDirect)
-					{
-						uv = uvLayer->GetDirectArray().GetAt(j);
-					}
-					else if (uvLayer && uvLayer->GetReferenceMode() == FbxLayerElement::eIndexToDirect)
-					{
-						uvIndex = uvLayer->GetIndexArray().GetAt(j);
-						uv = uvLayer->GetDirectArray().GetAt(uvIndex);
-					}
+					// Retrieve the UV coordinate for the vertex
+					FbxVector2 uv = uvCoords[j];
 
-					Vertex v(x, y, z, uv[0], uv[1]);
+					Vertex v(x, y, z, static_cast<float>(uv[0]), static_cast<float>(uv[1]));
 					vertices.push_back(v);
 					controlPoints[j] = vertex;
 				}
@@ -405,7 +393,7 @@ bool Graphics::InitScene()
 		}
 	}
 
-	HRESULT hr = CreateWICTextureFromFile(mDevice.Get(), L"../Assets/Textures/seamless_grass.jpg", nullptr, mTexture.GetAddressOf());
+	HRESULT hr = CreateWICTextureFromFile(mDevice.Get(), L"../Assets/Textures/Scooter.png", nullptr, mTexture.GetAddressOf());
 	if (FAILED(hr))
 	{
 		ErrorLog::Log(hr, "fucked up creating texture from file.");
