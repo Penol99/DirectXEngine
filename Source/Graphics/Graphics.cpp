@@ -1,5 +1,7 @@
 #include "Graphics.h"
-
+#include <fbxsdk.h>
+#include <fbxsdk/core/math/fbxmath.h>
+#include <fbxsdk/core/math/fbxquaternion.h>
 #define VSYNC_ENABLED true
 
 bool Graphics::Init(HWND hwnd, int aWidth, int aHeight)
@@ -279,46 +281,153 @@ bool Graphics::InitShaders()
 
 bool Graphics::InitScene()
 {
-	Vertex v[] =
+
+
+
+	FbxManager* fbxManager = FbxManager::Create();
+	FbxIOSettings* ioSettings = FbxIOSettings::Create(fbxManager, IOSROOT);
+	fbxManager->SetIOSettings(ioSettings);
+
+	FbxImporter* fbxImporter = FbxImporter::Create(fbxManager, "");
+	FbxScene* fbxScene = FbxScene::Create(fbxManager, "Scene");
+
+	const char* filePath = "../Assets/Meshes/snook.fbx";
+	bool success = fbxImporter->Initialize(filePath, -1, fbxManager->GetIOSettings());
+	if (!success)
 	{
-		Vertex(-0.5f, -0.5f, 0.0f, 0.0f, 1.0f), // Bottom Left [0]
-		Vertex(-0.5f, 0.5f, 0.0f, 0.0f,0.0f),	// Top Left [1]
-		Vertex(0.5f, 0.5f, 0.0f,1.0f,0.0f),		// Top Right [2]
-		Vertex(0.5f, -0.5f, 0.0f, 1.0f,1.0f),	// Bottom Right [3] 
-
-	};
-
-	HRESULT hr = mVertexBuffer.Init(mDevice.Get(), v, ARRAYSIZE(v));
-	if (FAILED(hr))
-	{
-		ErrorLog::Log(hr, "fucked up creating vertex buffer.");
-	}
-
-	DWORD indicies[] =
-	{
-		0,1,2,
-		0,2,3
-	};
-
-
-	hr = mIndexBuffer.Init(mDevice.Get(), indicies, ARRAYSIZE(indicies));
-	if (FAILED(hr))
-	{
-		ErrorLog::Log(hr, "fucked up creating index buffer.");
+		ErrorLog::Log("Failed loading fbx file");
 		return false;
 	}
-	hr = CreateWICTextureFromFile(mDevice.Get(), L"../Assets/Textures/bts.png", nullptr, mTexture.GetAddressOf());
+
+	success = fbxImporter->Import(fbxScene);
+	if (!success)
+	{
+		ErrorLog::Log("Failed importing fbx scene");
+		return false;
+	}
+
+	fbxImporter->Destroy();
+
+
+
+
+	FbxNode* rootNode = fbxScene->GetRootNode();
+	if (rootNode)
+	{
+		std::vector<Vertex> vertices;
+		std::vector<DWORD> indices;
+		int numChildren = rootNode->GetChildCount();
+		for (int i = 0; i < numChildren; i++)
+		{
+			FbxNode* childNode = rootNode->GetChild(i);
+			FbxMesh* mesh = childNode->GetMesh();
+
+			if (mesh)
+			{
+
+
+				// Triangulate the mesh
+				if (!mesh->IsTriangleMesh())
+				{
+					FbxGeometryConverter converter(mesh->GetFbxManager());
+					if (!converter.Triangulate(mesh, false))
+					{
+						ErrorLog::Log("Failed to triangulate mesh");
+					}
+				}
+				int numVertices = mesh->GetControlPointsCount();
+				std::vector<FbxVector4> controlPoints(numVertices);
+
+
+				// Extract the control points
+				// Extract the control points
+				for (int j = 0; j < numVertices; j++)
+				{
+					FbxVector4 vertex = mesh->GetControlPointAt(j);
+					float x = static_cast<float>(vertex[0]);
+					float y = static_cast<float>(vertex[1]);
+					float z = static_cast<float>(vertex[2]);
+
+					// Retrieve UV coordinates
+					FbxLayerElementUV* uvLayer = mesh->GetLayer(0)->GetUVs();
+					FbxVector2 uv;
+					int uvIndex = 0;
+					if (uvLayer && uvLayer->GetReferenceMode() == FbxLayerElement::eDirect)
+					{
+						uv = uvLayer->GetDirectArray().GetAt(j);
+					}
+					else if (uvLayer && uvLayer->GetReferenceMode() == FbxLayerElement::eIndexToDirect)
+					{
+						uvIndex = uvLayer->GetIndexArray().GetAt(j);
+						uv = uvLayer->GetDirectArray().GetAt(uvIndex);
+					}
+
+					Vertex v(x, y, z, uv[0], uv[1]);
+					vertices.push_back(v);
+					controlPoints[j] = vertex;
+				}
+
+				// Extract the triangles
+				int numPolygons = mesh->GetPolygonCount();
+				for (int polygonIndex = 0; polygonIndex < numPolygons; polygonIndex++)
+				{
+					int polygonSize = mesh->GetPolygonSize(polygonIndex);
+					if (polygonSize != 3)
+					{
+						// Skip polygons that are not triangles
+						continue;
+					}
+
+					for (int vertexIndex = 0; vertexIndex < polygonSize; vertexIndex++)
+					{
+						// Get the control point index for the vertex
+						int controlPointIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
+
+						// Add the index to the indices vector
+						indices.push_back(static_cast<DWORD>(controlPointIndex));
+					}
+				}
+			}
+		}
+
+		HRESULT hr = mVertexBuffer.Init(mDevice.Get(), &vertices[0], vertices.size());
+		if (FAILED(hr))
+		{
+			ErrorLog::Log(hr, "Failed to create vertex buffer.");
+			return false;
+		}
+
+		hr = mIndexBuffer.Init(mDevice.Get(), &indices[0], indices.size());
+		if (FAILED(hr))
+		{
+			ErrorLog::Log(hr, "Failed to create index buffer.");
+			return false;
+		}
+	}
+
+	HRESULT hr = CreateWICTextureFromFile(mDevice.Get(), L"../Assets/Textures/seamless_grass.jpg", nullptr, mTexture.GetAddressOf());
 	if (FAILED(hr))
 	{
 		ErrorLog::Log(hr, "fucked up creating texture from file.");
 		return false;
 	}
+
 	hr = mCBVSVertexShader.Init(mDevice.Get(), mDeviceContext.Get());
 	if (FAILED(hr))
 	{
 		ErrorLog::Log(hr, "fucked up creating constant buffer.");
 		return false;
 	}
+	hr = mCBPSPixelShader.Init(mDevice.Get(), mDeviceContext.Get());
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "fucked up creating constant buffer.");
+		return false;
+	}
+
+	fbxScene->Destroy();
+	ioSettings->Destroy();
+	fbxManager->Destroy();
 
 	mCamera.SetPosition(0.0f, 0.0f, -2.0f);
 	mCamera.SetProjectionValues(90.f, static_cast<float>(mWidth) / static_cast<float>(mHeight), 0.1f, 1000.f);
