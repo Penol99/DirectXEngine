@@ -37,7 +37,7 @@ void Run()
 		Time.Update();
 		engine.Update(Time.GetDeltaTime());
 
-		engine.Render(Time.GetFPS());
+		engine.Render(Time.GetFPS(), Time.GetDeltaTime());
 	}
 }
 

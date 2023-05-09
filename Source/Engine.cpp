@@ -13,6 +13,7 @@ bool Engine::Init(HINSTANCE hInstance, std::string aWindowTitle, std::string aWi
 	{
 		return false;
 	}
+
 	return true;
 }
 
@@ -27,8 +28,8 @@ void Engine::Update(const float &aDeltaTime)
 	if (mInput.IsMouseButtonDown(VK_RBUTTON))
 	{
 		const float camRotSpeed = 2.f * aDeltaTime;
-		float camSpeed = 5.f* aDeltaTime;
 		mGfx.mCamera.AdjustRotation((float)mInput.GetMouseDelta().y * camRotSpeed, (float)mInput.GetMouseDelta().x * camRotSpeed, 0.f);
+		float camSpeed = mGfx.mCameraSpeed*aDeltaTime;
 		if (mInput.IsKeyDown(VK_SHIFT))
 		{
 		    camSpeed *= 2;
@@ -51,7 +52,7 @@ void Engine::Update(const float &aDeltaTime)
 		}
 		if (mInput.IsKeyDown(VK_SPACE))
 		{
-			mGfx.mCamera.AdjustPosition(0, camSpeed, 0.f);
+			mGfx.mCamera.AdjustPosition(0, camSpeed , 0.f);
 		}
 		if (mInput.IsKeyDown(VK_CONTROL))
 		{
@@ -60,7 +61,10 @@ void Engine::Update(const float &aDeltaTime)
 	}
 }
 
-void Engine::Render(const int &aFPS)
+void Engine::Render(const int &aFPS, const float& aDeltaTime)
 {
-	mGfx.Render(aFPS);
+
+
+	mGfx.Render(aFPS,aDeltaTime);
+
 }

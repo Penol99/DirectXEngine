@@ -7,7 +7,7 @@ public:
 	bool ProcessMessages();
 
 	void Update(const float& aDeltaTime);
-	void Render(const int& aFPS);
+	void Render(const int& aFPS, const float& aDeltaTime);
 	
 
 	static inline Engine* GetInstance()

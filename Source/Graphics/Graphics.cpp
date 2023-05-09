@@ -1,11 +1,17 @@
 #include "Graphics.h"
-
 //#include <fbxsdk.h>
 //#include <fbxsdk/core/math/fbxmath.h>
 //#include <fbxsdk/core/math/fbxquaternion.h>
 
 
 #define VSYNC_ENABLED true
+
+
+// Global variables
+bool gShowFBXWindow = true;
+bool gShowTextureWindow = false;
+std::string gFBXFilePath;
+std::wstring gTextureFilePath;
 
 bool Graphics::Init(HWND hwnd, int aWidth, int aHeight)
 {
@@ -34,7 +40,7 @@ bool Graphics::Init(HWND hwnd, int aWidth, int aHeight)
 	return true;
 }
 
-void Graphics::Render(const int& aFPS)
+void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 {
 
 	float backgroundColor[] = { 0.0f, 0.0f, 0.0f,1.0f };
@@ -47,37 +53,14 @@ void Graphics::Render(const int& aFPS)
 	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0);
 	mDeviceContext->PSSetSamplers(0, 1, mSamplerState.GetAddressOf());
 
-	//mDeviceContext->VSSetShader(mVertexShader.GetShader(), NULL, 0);
-	//mDeviceContext->PSSetShader(mPixelShader.GetShader(), NULL, 0);
 
-	//UINT offset = 0;
-
-	static float worldScale[3] = { .5f,.5f,.5f };
-	static float worldTranslationOffset[3] = { 0,0,0 };
-	// Scale the object uniformly by 0.5
-	XMMATRIX scale = XMMatrixScaling(worldScale[0], worldScale[1], worldScale[2]);
-	XMMATRIX translationOffset = XMMatrixTranslation(worldTranslationOffset[0], worldTranslationOffset[1], worldTranslationOffset[2]);
-	XMMATRIX world = scale * translationOffset;
-
-	mCBVSVertexShader.mData.mat = world * mCamera.GetViewMatrix() * mCamera.GetProjectionMatrix();
-	mCBVSVertexShader.mData.mat = XMMatrixTranspose(mCBVSVertexShader.mData.mat);
-	if (!mCBVSVertexShader.ApplyChanges())
+	//myPlayer.Render(mDeviceContext.Get());
+	//myScooter.Render(mDeviceContext.Get());
+	for (auto& m : myModels)
 	{
-		return;
+		m.Render(mDeviceContext.Get());
 	}
-	mDeviceContext->VSSetConstantBuffers(0, 1, mCBVSVertexShader.GetAddressOf());
-
-	mCBPSPixelShader.mData.alpha = 1.0f;
-	mCBPSPixelShader.ApplyChanges();
-	mDeviceContext->PSSetConstantBuffers(0, 1, mCBPSPixelShader.GetAddressOf());
-
-
-	myPlayer.Render(mDeviceContext.Get());
-	myScooter.Render(mDeviceContext.Get());
-	//mDeviceContext->PSSetShaderResources(0, 1, mTexture.GetAddressOf());
-	//mDeviceContext->IASetVertexBuffers(0, 1, mVertexBuffer.GetAddressOf(), mVertexBuffer.GetStridePtr(), &offset);
-	//mDeviceContext->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	//mDeviceContext->DrawIndexed(mIndexBuffer.GetBufferSize(), 0, 0);
+	
 
 	mSpriteBatch->Begin();
 	std::wstring fpsCounter = L"FPS: ";
@@ -85,22 +68,63 @@ void Graphics::Render(const int& aFPS)
 	mSpriteFont->DrawString(mSpriteBatch.get(), fpsCounter.c_str(), XMFLOAT2(0, 0), Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
 	mSpriteBatch->End();
 
-	static int counter = 0;
+
+	//ImGui_ImplDX11_NewFrame();
+	//ImGui_ImplWin32_NewFrame();
+	//ImGui::NewFrame();
+
+	// First ImGui window
+	/*ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(mWidth / 2, 150));
+	ImGui::Begin("Transforms");
+
+	float newPos[3] = { myPlayer.GetPosition().x, myPlayer.GetPosition().y, myPlayer.GetPosition().z };
+	float newRot[3] = { 0, 2 * aDeltaTime, 0 };
+	ImGui::DragFloat3("Player Position", newPos, 0.1f, -50000.f, 50000.f);
+	ImGui::DragFloat3("Player Rotation", newRot, 0.1f, -360.f, 360.f);
+
+	myPlayer.SetPosition(XMFLOAT3(newPos[0], newPos[1], newPos[2]));
+	myPlayer.TranslateRotation(XMFLOAT3(newRot[0], newRot[1], newRot[2]));
+
+	ImGui::End();*/
+
+	// Second ImGui window
+	//ImGui::SetNextWindowPos(ImVec2(mWidth - (mWidth / 4), 0));
+	//ImGui::SetNextWindowSize(ImVec2(mWidth / 4, 150));
+	//ImGui::Begin("Camera");
+
+	//ImGui::DragFloat("Camera Speed", &mCameraSpeed, 0.1f, -50000.f, 50000.f);
+
+	//ImGui::End();
+
+
+
+	// Start the ImGui frame
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	ImGui::Begin("Test");
+	
+	
+	ImGui::Begin("FBX", &gShowFBXWindow, ImGuiWindowFlags_AlwaysAutoResize);
 
-
-	ImGui::SameLine();
-	ImGui::NewLine();
-	ImGui::SetWindowPos(ImVec2( 0, 0 ));
-	ImGui::SetWindowSize(ImVec2(mWidth, 150));
-	ImGui::DragFloat3("World Scale", worldScale, 0.1f, -5.f, 5.f);
-	ImGui::DragFloat3("World Translation", worldTranslationOffset, 0.1f, -5.f, 5.f);
+	if (gShowFBXWindow)
+	{
+		ShowFBXWindow();
+	}
+	else if (gShowTextureWindow)
+	{
+		ShowTextureWindow();
+	}
+	else
+	{
+	}
 	ImGui::End();
+
+	// Rendering
+	// Added line to end the "Files" window
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
 
 
 
@@ -270,58 +294,105 @@ bool Graphics::InitShaders()
 bool Graphics::InitScene()
 {
 
-	myPlayer.Init(mDevice, "../Assets/Meshes/SK_Player.fbx", L"../Assets/Textures/SK_Player_c.dds");
-	myScooter.Init(mDevice, "../Assets/Meshes/Scooter.fbx", L"../Assets/Textures/Scooter.png");
+	//myPlayer.Init(mDevice, mDeviceContext,"../Assets/Meshes/SK_Player.fbx", L"../Assets/Textures/SK_Player_c.dds", mCamera);
+	//myScooter.Init(mDevice, mDeviceContext,"../Assets/Meshes/Scooter.fbx", L"../Assets/Textures/Scooter.png", mCamera);
 
-	HRESULT hr = mCBVSVertexShader.Init(mDevice.Get(), mDeviceContext.Get());
-	if (FAILED(hr))
-	{
-		ErrorLog::Log(hr, "fucked up creating constant buffer.");
-		return false;
-	}
-	hr = mCBPSPixelShader.Init(mDevice.Get(), mDeviceContext.Get());
-	if (FAILED(hr))
-	{
-		ErrorLog::Log(hr, "fucked up creating constant buffer.");
-		return false;
-	}
 
 	mCamera.SetPosition(0.0f, 0.0f, -2.0f);
 	mCamera.SetProjectionValues(90.f, static_cast<float>(mWidth) / static_cast<float>(mHeight), 0.1f, 1000.f);
 	return true;
 }
 
-//void Graphics::ProcessNode(const aiNode* node, const aiScene* scene, std::vector<Vertex>& vertices, std::vector<DWORD>& indices)
-//{
-//	// Process mesh data
-//	for (unsigned int i = 0; i < node->mNumMeshes; i++)
-//	{
-//		const aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-//
-//		// Process vertices
-//		for (unsigned int j = 0; j < mesh->mNumVertices; j++)
-//		{
-//			const aiVector3D& vertex = mesh->mVertices[j];
-//			const aiVector3D& uv = mesh->mTextureCoords[0][j];
-//
-//			Vertex v(vertex.x, vertex.y, vertex.z, uv.x, uv.y);
-//			vertices.push_back(v);
-//		}
-//
-//		// Process indices
-//		for (unsigned int j = 0; j < mesh->mNumFaces; j++)
-//		{
-//			const aiFace& face = mesh->mFaces[j];
-//			for (unsigned int k = 0; k < face.mNumIndices; k++)
-//			{
-//				indices.push_back(face.mIndices[k]);
-//			}
-//		}
-//	}
-//
-//	// Process child nodes recursively
-//	for (unsigned int i = 0; i < node->mNumChildren; i++)
-//	{
-//		ProcessNode(node->mChildren[i], scene, vertices, indices);
-//	}
-//}
+void Graphics::LoadFBX(std::string& filePath, std::wstring& aTexturePath)
+{
+	Model model;
+	myModels.push_back(model);
+
+	myModels.back().Init(mDevice, mDeviceContext, filePath, aTexturePath, mCamera);
+
+}
+
+
+void Graphics::ShowFBXWindow()
+{
+	//ImGui::Begin("FBX File Selection", &gShowFBXWindow, ImGuiWindowFlags_AlwaysAutoResize);
+
+	// Specify the directory path where FBX files are located
+	std::string fbxDirectoryPath = "../Assets/Meshes/";
+
+	// Iterate over the files in the directory
+	WIN32_FIND_DATA ffd;
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+	std::string fbxFilePattern = fbxDirectoryPath + "/*.fbx";
+	hFind = FindFirstFile(StringConverter::StringToWide(fbxFilePattern).c_str(), &ffd);
+
+	if (hFind != INVALID_HANDLE_VALUE)
+	{
+		do
+		{
+			// Display each FBX file as a selectable item
+			if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			{
+				int bufferSize = WideCharToMultiByte(CP_UTF8, 0, ffd.cFileName, -1, nullptr, 0, nullptr, nullptr);
+				std::string fileName(bufferSize, 0);
+				WideCharToMultiByte(CP_UTF8, 0, ffd.cFileName, -1, &fileName[0], bufferSize, nullptr, nullptr);
+				if (ImGui::Selectable(fileName.c_str()))
+				{
+					gFBXFilePath = fbxDirectoryPath + "/" + fileName;
+					gShowFBXWindow = false;
+					gShowTextureWindow = true;
+				}
+			}
+		} while (FindNextFile(hFind, &ffd) != 0);
+		FindClose(hFind);
+	}
+
+	//ImGui::End();
+}
+
+// ImGui window for selecting texture file
+void Graphics::ShowTextureWindow()
+{
+	ImGui::Begin("Texture Selection", &gShowTextureWindow, ImGuiWindowFlags_AlwaysAutoResize);
+
+	std::wstring textureDirectoryPath = L"../Assets/Textures";
+
+	// Specify the file extensions you want to include
+	std::vector<std::wstring> supportedExtensions = { L".png", L".dds", L".jpg" };
+
+	// Iterate over the files in the directory
+	WIN32_FIND_DATAW ffd;
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+
+	for (const auto& extension : supportedExtensions)
+	{
+		std::wstring textureFilePattern = textureDirectoryPath + L"/*" + extension;
+		hFind = FindFirstFileW(textureFilePattern.c_str(), &ffd);
+		if (hFind != INVALID_HANDLE_VALUE)
+		{
+			do
+			{
+				// Display each texture file as a selectable item
+				if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+				{
+					int bufferSize = WideCharToMultiByte(CP_UTF8, 0, ffd.cFileName, -1, nullptr, 0, nullptr, nullptr);
+					std::string fileName(bufferSize, 0);
+					WideCharToMultiByte(CP_UTF8, 0, ffd.cFileName, -1, &fileName[0], bufferSize, nullptr, nullptr);
+					if (ImGui::Selectable(fileName.c_str()))
+					{
+						gTextureFilePath = textureDirectoryPath + L"/" + ffd.cFileName;
+						gShowTextureWindow = false;
+						LoadFBX(gFBXFilePath, gTextureFilePath);
+						gShowFBXWindow = true;
+					}
+				}
+			} while (FindNextFileW(hFind, &ffd) != 0);
+
+			FindClose(hFind);
+		}
+	}
+
+	ImGui::End();
+}
+
+

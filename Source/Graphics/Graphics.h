@@ -12,9 +12,7 @@
 #include "../ImGui/imgui.h"
 #include "../ImGui/imgui_impl_win32.h"
 #include "../ImGui/imgui_impl_dx11.h"
-//#include <assimp/Importer.hpp>
-//#include <assimp/scene.h>
-//#include <assimp/postprocess.h>
+
 #include "Model.h"
 
 
@@ -22,15 +20,19 @@
 using namespace Microsoft::WRL;
 class Graphics
 {
+
 public:
 	bool Init(HWND hwnd, int aWidth, int aHeight);
-	void Render(const int& aFPS);
+	void Render(const int& aFPS, const float& aDeltaTime);
 	Camera mCamera;
 private:
 	bool InitDirectX(HWND hwnd);
 	bool InitShaders();
 	bool InitScene();
-	//void ProcessNode(const aiNode* node, const aiScene* scene, std::vector<Vertex>& vertices, std::vector<DWORD>& indices);
+	void LoadFBX(std::string& filePath, std::wstring& aTexturePath);
+	void ShowFBXWindow();
+	void ShowTextureWindow();
+
 	ComPtr<ID3D11Device> mDevice;
 	ComPtr<ID3D11DeviceContext> mDeviceContext;
 	ComPtr<IDXGISwapChain> mSwapChain;
@@ -57,11 +59,15 @@ private:
 
 	ComPtr<ID3D11SamplerState> mSamplerState;
 	ComPtr<ID3D11ShaderResourceView> mTexture;
-	Model myPlayer;
-	Model myScooter;
+	//Model myPlayer;
+	//Model myScooter;
 
+	std::vector<Model> myModels;
 
 	int mWidth;
 	int mHeight;
 
+	float mCameraSpeed = 10.0f;
+
+	friend class Engine;
 };

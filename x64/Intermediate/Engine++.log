@@ -1,10 +1,4 @@
-﻿  Engine.cpp
-  Graphics.cpp
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(98,30): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(221,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(222,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-  RenderWindow.cpp
-  WindowContainer.cpp
-  main.cpp
-  Generating Code...
+﻿  Graphics.cpp
+E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(245,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
+E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(246,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
   Engine++.vcxproj -> E:\GIT\DirectXEngine\x64\Output\Engine++.exe
