@@ -23,9 +23,10 @@ public:
     void TranslateRotation(DirectX::XMFLOAT3 aRot);
     void SetPosition(DirectX::XMFLOAT3 aPos);
     void SetRotation(DirectX::XMFLOAT3 aRot);
-    
     XMFLOAT3 GetPosition();
     XMFLOAT3 GetRotation();
+    void SetName(std::string aName);
+    std::string GetName();
 private:
     std::vector<Mesh> mMeshes;
     std::wstring mTexturePath;
@@ -33,4 +34,5 @@ private:
     ConstantBuffer<CB_PS_PixelShader> mCBPSPixelShader;
     Camera* myCamera;
     void ProcessNode(const aiNode* node, const aiScene* scene, ComPtr<ID3D11Device>& aDevice);
+    std::string myName;
 };

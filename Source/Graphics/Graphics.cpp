@@ -42,6 +42,9 @@ bool Graphics::Init(HWND hwnd, int aWidth, int aHeight)
 
 void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 {
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
 
 	float backgroundColor[] = { 0.0f, 0.0f, 0.0f,1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView.Get(), backgroundColor);
@@ -56,53 +59,39 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 
 	//myPlayer.Render(mDeviceContext.Get());
 	//myScooter.Render(mDeviceContext.Get());
-	for (auto& m : myModels)
-	{
-		m.Render(mDeviceContext.Get());
-	}
+
+	//for (auto& m : myModels)
+	//{
+	//	m.Render(mDeviceContext.Get());
+	//}
 	
+	for (auto& model : myModels)
+	{
+		// Create a unique window for each model
+		ImGui::Begin(model.GetName().c_str());
+
+		// Display position and rotation fields using ImGui input functions
+		ImGui::Text("Position");
+		ImGui::DragFloat("X##Pos", &model.mPosition.x, 0.1f);
+		ImGui::DragFloat("Y##Pos", &model.mPosition.y, 0.1f);
+		ImGui::DragFloat("Z##Pos", &model.mPosition.z, 0.1f);
+
+		ImGui::Text("Rotation");
+		ImGui::DragFloat("X##Rot", &model.mRotationAngles.x, 0.1f);
+		ImGui::DragFloat("Y##Rot", &model.mRotationAngles.y, 0.1f);
+		ImGui::DragFloat("Z##Rot", &model.mRotationAngles.z, 0.1f);
+
+		ImGui::End();
+
+		// Render the model using the updated position and rotation
+		model.Render(mDeviceContext.Get());
+	}
 
 	mSpriteBatch->Begin();
 	std::wstring fpsCounter = L"FPS: ";
 	fpsCounter += std::to_wstring(aFPS);
 	mSpriteFont->DrawString(mSpriteBatch.get(), fpsCounter.c_str(), XMFLOAT2(0, 0), Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
 	mSpriteBatch->End();
-
-
-	//ImGui_ImplDX11_NewFrame();
-	//ImGui_ImplWin32_NewFrame();
-	//ImGui::NewFrame();
-
-	// First ImGui window
-	/*ImGui::SetNextWindowPos(ImVec2(0, 0));
-	ImGui::SetNextWindowSize(ImVec2(mWidth / 2, 150));
-	ImGui::Begin("Transforms");
-
-	float newPos[3] = { myPlayer.GetPosition().x, myPlayer.GetPosition().y, myPlayer.GetPosition().z };
-	float newRot[3] = { 0, 2 * aDeltaTime, 0 };
-	ImGui::DragFloat3("Player Position", newPos, 0.1f, -50000.f, 50000.f);
-	ImGui::DragFloat3("Player Rotation", newRot, 0.1f, -360.f, 360.f);
-
-	myPlayer.SetPosition(XMFLOAT3(newPos[0], newPos[1], newPos[2]));
-	myPlayer.TranslateRotation(XMFLOAT3(newRot[0], newRot[1], newRot[2]));
-
-	ImGui::End();*/
-
-	// Second ImGui window
-	//ImGui::SetNextWindowPos(ImVec2(mWidth - (mWidth / 4), 0));
-	//ImGui::SetNextWindowSize(ImVec2(mWidth / 4, 150));
-	//ImGui::Begin("Camera");
-
-	//ImGui::DragFloat("Camera Speed", &mCameraSpeed, 0.1f, -50000.f, 50000.f);
-
-	//ImGui::End();
-
-
-
-	// Start the ImGui frame
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
 	
 	
 	ImGui::Begin("FBX", &gShowFBXWindow, ImGuiWindowFlags_AlwaysAutoResize);
@@ -306,18 +295,13 @@ bool Graphics::InitScene()
 void Graphics::LoadFBX(std::string& filePath, std::wstring& aTexturePath)
 {
 	Model model;
+	model.Init(mDevice, mDeviceContext, filePath, aTexturePath, mCamera);
 	myModels.push_back(model);
-
-	myModels.back().Init(mDevice, mDeviceContext, filePath, aTexturePath, mCamera);
-
 }
 
 
 void Graphics::ShowFBXWindow()
 {
-	//ImGui::Begin("FBX File Selection", &gShowFBXWindow, ImGuiWindowFlags_AlwaysAutoResize);
-
-	// Specify the directory path where FBX files are located
 	std::string fbxDirectoryPath = "../Assets/Meshes/";
 
 	// Iterate over the files in the directory
@@ -346,8 +330,6 @@ void Graphics::ShowFBXWindow()
 		} while (FindNextFile(hFind, &ffd) != 0);
 		FindClose(hFind);
 	}
-
-	//ImGui::End();
 }
 
 // ImGui window for selecting texture file

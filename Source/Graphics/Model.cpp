@@ -2,20 +2,21 @@
 
 Model::Model()
 {
-	
-	mPosition.x = 0.f;
-	mPosition.y = 0.f;
-	mPosition.z = 0.f;
+	mPosition.x = 0;
+	mPosition.y = 0;
+	mPosition.z = 0;
 }
 
 Model::Model(const Model& other)
 {
+	mPosition = other.mPosition;
+	mRotationAngles = other.mRotationAngles;
 	mMeshes = other.mMeshes;
 	mTexturePath = other.mTexturePath;
 	myCamera = other.myCamera;
 	mCBVSVertexShader = other.mCBVSVertexShader;
 	mCBPSPixelShader = other.mCBPSPixelShader;
-
+	myName = other.myName;
 	for (const auto& mesh : other.mMeshes)
 	{
 		mMeshes.push_back(Mesh(mesh));
@@ -24,6 +25,16 @@ Model::Model(const Model& other)
 
 bool Model::Init(ComPtr<ID3D11Device>& aDevice, ComPtr<ID3D11DeviceContext>& aDeviceContext, const std::string& filePath, const std::wstring& aTexturePath, Camera& aCamera)
 {
+
+	size_t lastSlash = filePath.find_last_of("/\\");
+	if (lastSlash != std::string::npos)
+	{
+		myName = filePath.substr(lastSlash + 1);
+	}
+	else
+	{
+		myName = filePath;
+	}
 	myCamera = &aCamera;
 	mTexturePath = aTexturePath;
 	Assimp::Importer importer;
@@ -115,6 +126,16 @@ XMFLOAT3 Model::GetPosition()
 XMFLOAT3 Model::GetRotation()
 {
 	return mRotationAngles;
+}
+
+void Model::SetName(std::string aName)
+{
+	myName = aName;
+}
+
+std::string Model::GetName()
+{
+	return myName;
 }
 
 void Model::ProcessNode(const aiNode* node, const aiScene* scene, ComPtr<ID3D11Device>& aDevice)

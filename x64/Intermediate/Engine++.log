@@ -1,4 +1,2 @@
-﻿  Graphics.cpp
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(245,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(246,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
+﻿  Model.cpp
   Engine++.vcxproj -> E:\GIT\DirectXEngine\x64\Output\Engine++.exe
