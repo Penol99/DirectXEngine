@@ -3,6 +3,7 @@
 #define VertexBuffer_h__
 #include <d3d11.h>
 #include <wrl/client.h>
+#include <memory>
 using namespace Microsoft::WRL;
 
 template<class T>
@@ -11,7 +12,7 @@ class VertexBuffer
 private:
 	VertexBuffer(const VertexBuffer<T>& rhs);
 	ComPtr<ID3D11Buffer> mBuffer;
-	std::unique_ptr<UINT> mStride;
+	std::shared_ptr<UINT> mStride;
 	UINT mBufferSize = 0;
 public:
 	VertexBuffer(){}
@@ -46,7 +47,7 @@ public:
 		mBufferSize = numVertices;
 		if (mStride == nullptr)
 		{
-			mStride = std::make_unique<UINT>(sizeof(T));
+			mStride = std::make_shared<UINT>(sizeof(T));
 		}
 
 		D3D11_BUFFER_DESC vertexBufferDesc;

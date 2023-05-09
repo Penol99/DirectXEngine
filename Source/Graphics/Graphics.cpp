@@ -1,7 +1,10 @@
 #include "Graphics.h"
-#include <fbxsdk.h>
-#include <fbxsdk/core/math/fbxmath.h>
-#include <fbxsdk/core/math/fbxquaternion.h>
+
+//#include <fbxsdk.h>
+//#include <fbxsdk/core/math/fbxmath.h>
+//#include <fbxsdk/core/math/fbxquaternion.h>
+
+
 #define VSYNC_ENABLED true
 
 bool Graphics::Init(HWND hwnd, int aWidth, int aHeight)
@@ -38,19 +41,23 @@ void Graphics::Render(const int& aFPS)
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView.Get(), backgroundColor);
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
-	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
+	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	mDeviceContext->RSSetState(mRasterizerState.Get());
 	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0);
 	mDeviceContext->PSSetSamplers(0, 1, mSamplerState.GetAddressOf());
 
-	mDeviceContext->VSSetShader(mVertexShader.GetShader(), NULL, 0);
-	mDeviceContext->PSSetShader(mPixelShader.GetShader(), NULL, 0);
+	//mDeviceContext->VSSetShader(mVertexShader.GetShader(), NULL, 0);
+	//mDeviceContext->PSSetShader(mPixelShader.GetShader(), NULL, 0);
 
-	UINT offset = 0;
+	//UINT offset = 0;
 
-	static float translationOffset[3] = { 0,0,0 };
-	XMMATRIX world = XMMatrixTranslation(translationOffset[0], translationOffset[1], translationOffset[2]);
+	static float worldScale[3] = { .5f,.5f,.5f };
+	static float worldTranslationOffset[3] = { 0,0,0 };
+	// Scale the object uniformly by 0.5
+	XMMATRIX scale = XMMatrixScaling(worldScale[0], worldScale[1], worldScale[2]);
+	XMMATRIX translationOffset = XMMatrixTranslation(worldTranslationOffset[0], worldTranslationOffset[1], worldTranslationOffset[2]);
+	XMMATRIX world = scale * translationOffset;
 
 	mCBVSVertexShader.mData.mat = world * mCamera.GetViewMatrix() * mCamera.GetProjectionMatrix();
 	mCBVSVertexShader.mData.mat = XMMatrixTranspose(mCBVSVertexShader.mData.mat);
@@ -65,11 +72,12 @@ void Graphics::Render(const int& aFPS)
 	mDeviceContext->PSSetConstantBuffers(0, 1, mCBPSPixelShader.GetAddressOf());
 
 
-
-	mDeviceContext->PSSetShaderResources(0, 1, mTexture.GetAddressOf());
-	mDeviceContext->IASetVertexBuffers(0, 1, mVertexBuffer.GetAddressOf(), mVertexBuffer.GetStridePtr(), &offset);
-	mDeviceContext->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	mDeviceContext->DrawIndexed(mIndexBuffer.GetBufferSize(), 0, 0);
+	myPlayer.Render(mDeviceContext.Get());
+	myScooter.Render(mDeviceContext.Get());
+	//mDeviceContext->PSSetShaderResources(0, 1, mTexture.GetAddressOf());
+	//mDeviceContext->IASetVertexBuffers(0, 1, mVertexBuffer.GetAddressOf(), mVertexBuffer.GetStridePtr(), &offset);
+	//mDeviceContext->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	//mDeviceContext->DrawIndexed(mIndexBuffer.GetBufferSize(), 0, 0);
 
 	mSpriteBatch->Begin();
 	std::wstring fpsCounter = L"FPS: ";
@@ -82,17 +90,14 @@ void Graphics::Render(const int& aFPS)
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	ImGui::Begin("Test");
-	//ImGui::Text("This is text");
-	//if (ImGui::Button("CLICK"))
-	//{
-	//	++counter;
-	//}
-	//std::string clickCount = "Click Count: " + std::to_string(counter);
-	//ImGui::Text(clickCount.c_str());
+
 
 	ImGui::SameLine();
 	ImGui::NewLine();
-	ImGui::DragFloat3("Translation X/Y/Z", translationOffset, 0.1f, -5.f, 5.f);
+	ImGui::SetWindowPos(ImVec2( 0, 0 ));
+	ImGui::SetWindowSize(ImVec2(mWidth, 150));
+	ImGui::DragFloat3("World Scale", worldScale, 0.1f, -5.f, 5.f);
+	ImGui::DragFloat3("World Translation", worldTranslationOffset, 0.1f, -5.f, 5.f);
 	ImGui::End();
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -258,23 +263,6 @@ bool Graphics::InitDirectX(HWND hwnd)
 
 bool Graphics::InitShaders()
 {
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{"POSITION",0, DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0},
-		{"TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,0}
-	};
-
-	UINT numElements = ARRAYSIZE(layout);
-
-	if (!mVertexShader.Init(mDevice, L"../x64/Output/vertexshader.cso", layout, numElements))
-	{
-		return false;
-	}
-
-	if (!mPixelShader.Init(mDevice, L"../x64/Output/pixelshader.cso"))
-	{
-		return false;
-	}
 
 	return true;
 }
@@ -282,125 +270,10 @@ bool Graphics::InitShaders()
 bool Graphics::InitScene()
 {
 
+	myPlayer.Init(mDevice, "../Assets/Meshes/SK_Player.fbx", L"../Assets/Textures/SK_Player_c.dds");
+	myScooter.Init(mDevice, "../Assets/Meshes/Scooter.fbx", L"../Assets/Textures/Scooter.png");
 
-
-	FbxManager* fbxManager = FbxManager::Create();
-	FbxIOSettings* ioSettings = FbxIOSettings::Create(fbxManager, IOSROOT);
-	fbxManager->SetIOSettings(ioSettings);
-
-	FbxImporter* fbxImporter = FbxImporter::Create(fbxManager, "");
-	FbxScene* fbxScene = FbxScene::Create(fbxManager, "Scene");
-
-	const char* filePath = "../Assets/Meshes/Scooter.fbx";
-	bool success = fbxImporter->Initialize(filePath, -1, fbxManager->GetIOSettings());
-	if (!success)
-	{
-		ErrorLog::Log("Failed loading fbx file");
-		return false;
-	}
-
-	success = fbxImporter->Import(fbxScene);
-	if (!success)
-	{
-		ErrorLog::Log("Failed importing fbx scene");
-		return false;
-	}
-
-	fbxImporter->Destroy();
-
-
-
-
-	FbxNode* rootNode = fbxScene->GetRootNode();
-	if (rootNode)
-	{
-		std::vector<Vertex> vertices;
-		std::vector<DWORD> indices;
-		int numChildren = rootNode->GetChildCount();
-		for (int i = 0; i < numChildren; i++)
-		{
-			FbxNode* childNode = rootNode->GetChild(i);
-			FbxMesh* mesh = childNode->GetMesh();
-
-			if (mesh)
-			{
-				// Triangulate the mesh
-				if (!mesh->IsTriangleMesh())
-				{
-					FbxGeometryConverter converter(mesh->GetFbxManager());
-					converter.Triangulate(mesh, true);
-				}
-
-				int numVertices = mesh->GetControlPointsCount();
-				std::vector<FbxVector4> controlPoints(numVertices);
-
-				// Retrieve UV coordinates
-				FbxLayerElementUV* uvLayer = mesh->GetLayer(0)->GetUVs();
-				FbxArray<FbxVector2> uvCoords;
-				mesh->GetPolygonVertexUVs(uvLayer->GetName(), uvCoords);
-
-				// Extract the control points and UV coordinates
-				for (int j = 0; j < numVertices; j++)
-				{
-					FbxVector4 vertex = mesh->GetControlPointAt(j);
-					float x = static_cast<float>(vertex[0]);
-					float y = static_cast<float>(vertex[1]);
-					float z = static_cast<float>(vertex[2]);
-
-					// Retrieve the UV coordinate for the vertex
-					FbxVector2 uv = uvCoords[j];
-
-					Vertex v(x, y, z, static_cast<float>(uv[0]), static_cast<float>(uv[1]));
-					vertices.push_back(v);
-					controlPoints[j] = vertex;
-				}
-
-				// Extract the triangles
-				int numPolygons = mesh->GetPolygonCount();
-				for (int polygonIndex = 0; polygonIndex < numPolygons; polygonIndex++)
-				{
-					int polygonSize = mesh->GetPolygonSize(polygonIndex);
-					if (polygonSize != 3)
-					{
-						// Skip polygons that are not triangles
-						continue;
-					}
-
-					for (int vertexIndex = 0; vertexIndex < polygonSize; vertexIndex++)
-					{
-						// Get the control point index for the vertex
-						int controlPointIndex = mesh->GetPolygonVertex(polygonIndex, vertexIndex);
-
-						// Add the index to the indices vector
-						indices.push_back(static_cast<DWORD>(controlPointIndex));
-					}
-				}
-			}
-		}
-
-		HRESULT hr = mVertexBuffer.Init(mDevice.Get(), &vertices[0], vertices.size());
-		if (FAILED(hr))
-		{
-			ErrorLog::Log(hr, "Failed to create vertex buffer.");
-			return false;
-		}
-
-		hr = mIndexBuffer.Init(mDevice.Get(), &indices[0], indices.size());
-		if (FAILED(hr))
-		{
-			ErrorLog::Log(hr, "Failed to create index buffer.");
-			return false;
-		}
-	}
-
-	HRESULT hr = CreateWICTextureFromFile(mDevice.Get(), L"../Assets/Textures/Scooter.png", nullptr, mTexture.GetAddressOf());
-	if (FAILED(hr))
-	{
-		ErrorLog::Log(hr, "fucked up creating texture from file.");
-		return false;
-	}
-
-	hr = mCBVSVertexShader.Init(mDevice.Get(), mDeviceContext.Get());
+	HRESULT hr = mCBVSVertexShader.Init(mDevice.Get(), mDeviceContext.Get());
 	if (FAILED(hr))
 	{
 		ErrorLog::Log(hr, "fucked up creating constant buffer.");
@@ -413,11 +286,42 @@ bool Graphics::InitScene()
 		return false;
 	}
 
-	fbxScene->Destroy();
-	ioSettings->Destroy();
-	fbxManager->Destroy();
-
 	mCamera.SetPosition(0.0f, 0.0f, -2.0f);
 	mCamera.SetProjectionValues(90.f, static_cast<float>(mWidth) / static_cast<float>(mHeight), 0.1f, 1000.f);
 	return true;
 }
+
+//void Graphics::ProcessNode(const aiNode* node, const aiScene* scene, std::vector<Vertex>& vertices, std::vector<DWORD>& indices)
+//{
+//	// Process mesh data
+//	for (unsigned int i = 0; i < node->mNumMeshes; i++)
+//	{
+//		const aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+//
+//		// Process vertices
+//		for (unsigned int j = 0; j < mesh->mNumVertices; j++)
+//		{
+//			const aiVector3D& vertex = mesh->mVertices[j];
+//			const aiVector3D& uv = mesh->mTextureCoords[0][j];
+//
+//			Vertex v(vertex.x, vertex.y, vertex.z, uv.x, uv.y);
+//			vertices.push_back(v);
+//		}
+//
+//		// Process indices
+//		for (unsigned int j = 0; j < mesh->mNumFaces; j++)
+//		{
+//			const aiFace& face = mesh->mFaces[j];
+//			for (unsigned int k = 0; k < face.mNumIndices; k++)
+//			{
+//				indices.push_back(face.mIndices[k]);
+//			}
+//		}
+//	}
+//
+//	// Process child nodes recursively
+//	for (unsigned int i = 0; i < node->mNumChildren; i++)
+//	{
+//		ProcessNode(node->mChildren[i], scene, vertices, indices);
+//	}
+//}

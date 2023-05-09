@@ -53,6 +53,9 @@
     <OutDir>$(SolutionDir)$(Platform)\Output\</OutDir>
     <IntDir>$(SolutionDir)$(Platform)\Intermediate\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <VcpkgUseStatic>false</VcpkgUseStatic>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -79,7 +82,7 @@
       <AdditionalIncludeDirectories>${SolutionDir}Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows (/SUBSYSTEM:CONSOLE)</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -93,6 +96,8 @@
     <ClCompile Include="..\Source\Graphics\AdapterReader.cpp" />
     <ClCompile Include="..\Source\Graphics\Camera.cpp" />
     <ClCompile Include="..\Source\Graphics\Graphics.cpp" />
+    <ClCompile Include="..\Source\Graphics\Mesh.cpp" />
+    <ClCompile Include="..\Source\Graphics\Model.cpp" />
     <ClCompile Include="..\Source\ImGui\imgui.cpp" />
     <ClCompile Include="..\Source\ImGui\imgui_demo.cpp" />
     <ClCompile Include="..\Source\ImGui\imgui_draw.cpp" />
@@ -117,6 +122,8 @@
     <ClInclude Include="..\Source\Graphics\ConstantBufferTypes.h" />
     <ClInclude Include="..\Source\Graphics\Graphics.h" />
     <ClInclude Include="..\Source\Graphics\IndexBuffer.h" />
+    <ClInclude Include="..\Source\Graphics\Mesh.h" />
+    <ClInclude Include="..\Source\Graphics\Model.h" />
     <ClInclude Include="..\Source\Graphics\Vertex.h" />
     <ClInclude Include="..\Source\Graphics\VertexBuffer.h" />
     <ClInclude Include="..\Source\ImGui\imconfig.h" />

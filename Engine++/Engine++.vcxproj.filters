@@ -75,6 +75,12 @@
     <ClCompile Include="..\Source\ImGui\imgui_widgets.cpp">
       <Filter>Source\ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\Graphics\Mesh.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\Model.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\StringConverter.h">
@@ -148,6 +154,12 @@
     </ClInclude>
     <ClInclude Include="..\Source\ImGui\imstb_truetype.h">
       <Filter>Source\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\Model.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\Mesh.h">
+      <Filter>Source\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

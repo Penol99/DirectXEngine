@@ -12,6 +12,13 @@
 #include "../ImGui/imgui.h"
 #include "../ImGui/imgui_impl_win32.h"
 #include "../ImGui/imgui_impl_dx11.h"
+//#include <assimp/Importer.hpp>
+//#include <assimp/scene.h>
+//#include <assimp/postprocess.h>
+#include "Model.h"
+
+
+
 using namespace Microsoft::WRL;
 class Graphics
 {
@@ -23,6 +30,7 @@ private:
 	bool InitDirectX(HWND hwnd);
 	bool InitShaders();
 	bool InitScene();
+	//void ProcessNode(const aiNode* node, const aiScene* scene, std::vector<Vertex>& vertices, std::vector<DWORD>& indices);
 	ComPtr<ID3D11Device> mDevice;
 	ComPtr<ID3D11DeviceContext> mDeviceContext;
 	ComPtr<IDXGISwapChain> mSwapChain;
@@ -49,6 +57,9 @@ private:
 
 	ComPtr<ID3D11SamplerState> mSamplerState;
 	ComPtr<ID3D11ShaderResourceView> mTexture;
+	Model myPlayer;
+	Model myScooter;
+
 
 	int mWidth;
 	int mHeight;
