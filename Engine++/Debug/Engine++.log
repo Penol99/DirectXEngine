@@ -1,0 +1,36 @@
+﻿D:\C++\DirectXEngine\Source\Shaders\pixelshader.hlsl(17,12-75): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see D:\C++\DirectXEngine\Debug\pixelshader.cso
+  compilation object save succeeded; see D:\C++\DirectXEngine\Debug\vertexshader.cso
+  Engine.cpp
+  ErrorLog.cpp
+  AdapterReader.cpp
+  Camera.cpp
+D:\C++\DirectXEngine\Source\Graphics\Camera.cpp(124,36): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\C++\DirectXEngine\Source\Graphics\Camera.cpp(124,30): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+D:\C++\DirectXEngine\Source\Graphics\Camera.cpp(125,21): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\C++\DirectXEngine\Source\Graphics\Camera.cpp(129,19): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  Graphics.cpp
+D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(234,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
+D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(235,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
+  Mesh.cpp
+  Model.cpp
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_dx11.cpp
+  imgui_impl_win32.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  InputHandler.cpp
+  main.cpp
+  RenderWindow.cpp
+  Shaders.cpp
+  StringConverter.cpp
+  Timer.cpp
+D:\C++\DirectXEngine\Source\Timer.cpp(27,11): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+  Generating Code...
+  Compiling...
+  WindowContainer.cpp
+  Generating Code...
+  Engine++.vcxproj -> D:\C++\DirectXEngine\Debug\Engine++.exe

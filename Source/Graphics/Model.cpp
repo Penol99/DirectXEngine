@@ -38,7 +38,7 @@ bool Model::Init(ComPtr<ID3D11Device>& aDevice, ComPtr<ID3D11DeviceContext>& aDe
 	myCamera = &aCamera;
 	mTexturePath = aTexturePath;
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate);
+	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_Triangulate);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{

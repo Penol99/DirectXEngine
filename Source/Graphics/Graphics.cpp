@@ -283,10 +283,6 @@ bool Graphics::InitShaders()
 bool Graphics::InitScene()
 {
 
-	//myPlayer.Init(mDevice, mDeviceContext,"../Assets/Meshes/SK_Player.fbx", L"../Assets/Textures/SK_Player_c.dds", mCamera);
-	//myScooter.Init(mDevice, mDeviceContext,"../Assets/Meshes/Scooter.fbx", L"../Assets/Textures/Scooter.png", mCamera);
-
-
 	mCamera.SetPosition(0.0f, 0.0f, -2.0f);
 	mCamera.SetProjectionValues(90.f, static_cast<float>(mWidth) / static_cast<float>(mHeight), 0.1f, 1000.f);
 	return true;
@@ -322,6 +318,8 @@ void Graphics::ShowFBXWindow()
 				WideCharToMultiByte(CP_UTF8, 0, ffd.cFileName, -1, &fileName[0], bufferSize, nullptr, nullptr);
 				if (ImGui::Selectable(fileName.c_str()))
 				{
+					//gFBXFilePath = fbxDirectoryPath + "/" + fileName;
+
 					gFBXFilePath = fbxDirectoryPath + "/" + fileName;
 					gShowFBXWindow = false;
 					gShowTextureWindow = true;

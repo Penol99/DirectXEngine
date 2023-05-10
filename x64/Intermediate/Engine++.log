@@ -1,2 +1,13 @@
-﻿  Model.cpp
-  Engine++.vcxproj -> E:\GIT\DirectXEngine\x64\Output\Engine++.exe
+﻿D:\C++\DirectXEngine\Source\Shaders\pixelshader.hlsl(17,12-83): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see D:\C++\DirectXEngine\x64\Output\pixelshader.cso
+  Engine.cpp
+  Graphics.cpp
+D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(234,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
+D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(235,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
+  Model.cpp
+  RenderWindow.cpp
+  WindowContainer.cpp
+  main.cpp
+  Generating Code...
+  Engine++.vcxproj -> D:\C++\DirectXEngine\x64\Output\Engine++.exe

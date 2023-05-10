@@ -2,10 +2,13 @@
 #pragma once
 #include <iostream>
 #include <vector>
+//#include "../../Include/assimp/Importer.hpp"
+//#include "../../Include/assimp/scene.h"
+//#include "../../Include/assimp/postprocess.h"
+#include <../assimp/Importer.hpp>
+#include <../assimp/scene.h>
+#include <../assimp/postprocess.h>
 #include "Mesh.h"
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 #include "ConstantBuffer.h"
 #include "Camera.h"
 class Model
