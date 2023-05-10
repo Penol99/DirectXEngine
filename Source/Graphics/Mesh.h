@@ -27,7 +27,7 @@ public:
 	void Render(ID3D11DeviceContext* aDeviceContext);
 
 private:
-	bool Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, std::vector<DWORD>& indices, std::wstring& aTexturePath);
+	bool Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, std::vector<DWORD>& indices, UINT numVertices, UINT numIndices, std::wstring& aTexturePath);
 
 	VertexBuffer<Vertex> mVertexBuffer; 
 	IndexBuffer mIndexBuffer;

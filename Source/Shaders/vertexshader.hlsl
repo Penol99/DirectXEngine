@@ -10,13 +10,13 @@ cbuffer cBuffer : register(b0)
 struct VS_INPUT
 {
     float3 inPos : POSITION;
-    float2 inTexCoord : TEXCOORD;
+    float2 inTexCoord : TEXCOORD0;
 };
 
 struct VS_OUTPUT
 {
     float4 outPosition : SV_POSITION;
-    float2 outTexCoord : TEXCOORD;
+    float2 outTexCoord : TEXCOORD0;
     
 };
 

@@ -12,7 +12,7 @@ class VertexBuffer
 private:
 	VertexBuffer(const VertexBuffer<T>& rhs);
 	ComPtr<ID3D11Buffer> mBuffer;
-	std::shared_ptr<UINT> mStride;
+	UINT mStride = sizeof(T);
 	UINT mBufferSize = 0;
 public:
 	VertexBuffer(){}
@@ -36,7 +36,7 @@ public:
 	}
 	const UINT *GetStridePtr() const
 	{
-		return mStride.get();
+		return &mStride;
 	}
 	HRESULT Init(ID3D11Device* aDevice, T* someData, UINT numVertices)
 	{
@@ -45,10 +45,7 @@ public:
 			mBuffer.Reset();
 		}
 		mBufferSize = numVertices;
-		if (mStride == nullptr)
-		{
-			mStride = std::make_shared<UINT>(sizeof(T));
-		}
+
 
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));

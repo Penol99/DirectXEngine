@@ -25,9 +25,9 @@ void Mesh::Render(ID3D11DeviceContext* aDeviceContext)
 	aDeviceContext->DrawIndexed(mIndexBuffer.GetBufferSize(), 0, 0);
 }
 
-bool Mesh::Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, std::vector<DWORD>& indices, std::wstring& aTexturePath)
+bool Mesh::Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, std::vector<DWORD>& indices,UINT numVertices, UINT numIndices, std::wstring& aTexturePath)
 {
-	HRESULT hr = mVertexBuffer.Init(aDevice.Get(), &vertices[0], vertices.size());
+	HRESULT hr = mVertexBuffer.Init(aDevice.Get(), &vertices[0], numVertices);
 	if (FAILED(hr))
 	{
 		ErrorLog::Log(hr, "Failed to create vertex buffer.");
@@ -35,7 +35,7 @@ bool Mesh::Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, st
 
 	}
 
-	hr = mIndexBuffer.Init(aDevice.Get(), &indices[0], indices.size());
+	hr = mIndexBuffer.Init(aDevice.Get(), &indices[0], numIndices);
 	if (FAILED(hr))
 	{
 		ErrorLog::Log(hr, "Failed to create index buffer.");

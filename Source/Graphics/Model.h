@@ -35,7 +35,7 @@ private:
     std::wstring mTexturePath;
     ConstantBuffer<CB_VS_VertexShader> mCBVSVertexShader;
     ConstantBuffer<CB_PS_PixelShader> mCBPSPixelShader;
-    Camera* myCamera;
+    Camera* myCamera = nullptr;
     void ProcessNode(const aiNode* node, const aiScene* scene, ComPtr<ID3D11Device>& aDevice);
     std::string myName;
 };

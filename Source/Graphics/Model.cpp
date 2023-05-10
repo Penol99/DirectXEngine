@@ -38,7 +38,7 @@ bool Model::Init(ComPtr<ID3D11Device>& aDevice, ComPtr<ID3D11DeviceContext>& aDe
 	myCamera = &aCamera;
 	mTexturePath = aTexturePath;
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_Triangulate);
+	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -148,14 +148,14 @@ void Model::ProcessNode(const aiNode* node, const aiScene* scene, ComPtr<ID3D11D
 
 		std::vector<Vertex> vertices;
 		std::vector<DWORD> indices;
-
+		
 		// Process vertices
 		for (unsigned int j = 0; j < mesh->mNumVertices; j++)
 		{
 			const aiVector3D& vertex = mesh->mVertices[j];
 			const aiVector3D& uv = mesh->mTextureCoords[0][j];
 
-			Vertex v(vertex.x, vertex.y, vertex.z, uv.x, uv.y);
+			Vertex v(vertex.x, vertex.y, vertex.z, (float)uv.x, (float)uv.y);
 			vertices.push_back(v);
 		}
 
@@ -163,14 +163,16 @@ void Model::ProcessNode(const aiNode* node, const aiScene* scene, ComPtr<ID3D11D
 		for (unsigned int j = 0; j < mesh->mNumFaces; j++)
 		{
 			const aiFace& face = mesh->mFaces[j];
+
 			for (unsigned int k = 0; k < face.mNumIndices; k++)
 			{
 				indices.push_back(face.mIndices[k]);
 			}
 		}
-
+		UINT numVertices = static_cast<UINT>(vertices.size());
+		UINT numIndices = static_cast<UINT>(indices.size());
 		Mesh newMesh;
-		if (!newMesh.Init(aDevice, vertices, indices, mTexturePath))
+		if (!newMesh.Init(aDevice, vertices, indices, numVertices, numIndices, mTexturePath))
 		{
 			ErrorLog::Log("Failed to initialize new mesh when processing node");
 			return;
