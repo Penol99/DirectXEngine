@@ -77,3 +77,4 @@
 .vs/Engine++/v17/ipch/AutoPCH/c81548ba62debd5a/IMGUI_IMPL_DX11.ipch
 .vs/Engine++/v17/ipch/AutoPCH/c8cc6022cebb5360/ENGINE.ipch
 .vs/Engine++/v17/ipch/AutoPCH/e49c8553a35d6e2c/IMGUI.ipch
+*.vsidx
