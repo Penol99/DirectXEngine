@@ -6,7 +6,7 @@ struct CB_VS_VertexShader
 	DirectX::XMMATRIX worldMatrix;
 	DirectX::XMFLOAT3 modelRotation;
 	float padding0;
-	DirectX::XMFLOAT3 gModelPosition;
+	DirectX::XMFLOAT3 modelPosition;
 	float padding1;
 };
 

@@ -32,7 +32,8 @@ private:
 	void LoadGrid();
 	void ShowFBXWindow(ImGuiWindowFlags& someFlags);
 	void ShowTextureWindow(ImGuiWindowFlags& someFlags);
-
+	bool InitGrid();
+	void RenderGrid();
 	ComPtr<ID3D11Device> myDevice;
 	ComPtr<ID3D11DeviceContext> myDeviceContext;
 	ComPtr<IDXGISwapChain> mySwapChain;
@@ -56,6 +57,14 @@ private:
 	ComPtr<ID3D11ShaderResourceView> myTexture;
 
 	std::vector<Model> myModels;
+
+	VertexBuffer<Vertex> myGridVertexBuffer;
+	IndexBuffer myGridIndexBuffer;
+	ConstantBuffer<CB_VS_VertexShader> myGridConstantBuffer;
+
+	VertexShader myLineVertexShader;
+	PixelShader myLinePixelShader;
+
 
 	int myWidth;
 	int myHeight;

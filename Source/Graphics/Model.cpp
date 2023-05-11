@@ -77,7 +77,7 @@ void Model::Render(ID3D11DeviceContext* aDeviceContext)
 	XMMATRIX translationOffset = XMMatrixTranslation(worldTranslationOffset[0], worldTranslationOffset[1], worldTranslationOffset[2]);
 	XMMATRIX world = scale * translationOffset;
 
-	myCBVSVertexShader.myData.gModelPosition = myPosition;
+	myCBVSVertexShader.myData.modelPosition = myPosition;
 	myCBVSVertexShader.myData.modelRotation = myRotationAngles;
 	myCBVSVertexShader.myData.worldMatrix = world * myCamera->GetViewMatrix() * myCamera->GetProjectionMatrix();
 	myCBVSVertexShader.myData.worldMatrix = XMMatrixTranspose(myCBVSVertexShader.myData.worldMatrix);

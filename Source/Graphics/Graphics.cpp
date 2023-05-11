@@ -6,7 +6,7 @@
 //#include <fbxsdk/core/math/fbxmath.h>
 //#include <fbxsdk/core/math/fbxquaternion.h>
 
-#define VSYNC_ENABLED true
+#define VSYNC_ENABLED false
 
 
 // Global variables
@@ -24,6 +24,10 @@ bool Graphics::Init(HWND hwnd, int aWidth, int aHeight)
 		return false;
 	}
 	if (!InitScene())
+	{
+		return false;
+	}
+	if (!InitGrid())
 	{
 		return false;
 	}
@@ -49,73 +53,78 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 	windowFlags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
 	windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
-	float backgroundColor[] = { 0.0f, 0.0f, 0.0f,1.0f };
+	//float backgroundColor[] = { 0.0f, 50.0f, 200.0f,1.0f };
+	float backgroundColor[] = { 0.0f, 0.0f, 0.f , 1.0f };
 	myDeviceContext->ClearRenderTargetView(myRenderTargetView.Get(), backgroundColor);
 	myDeviceContext->ClearDepthStencilView(myDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+
 
 	myDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	myDeviceContext->RSSetState(myRasterizerState.Get());
 	myDeviceContext->OMSetDepthStencilState(myDepthStencilState.Get(), 0);
 	myDeviceContext->PSSetSamplers(0, 1, mySamplerState.GetAddressOf());
-	
+
 	int modelIndex = 0;
 	int previousImGuiWindowHeight = 0;
 	const int myWidthOffset = 240;
 	const int myHeightOffset = 0;
 	for (auto& model : myModels)
 	{
-		if (model.ShouldDrawImgui())
+
+
+		ImGui::SetNextWindowPos(ImVec2((myWidth - myWidthOffset), myHeightOffset + (modelIndex * previousImGuiWindowHeight)));
+		ImGui::SetNextWindowSize(ImVec2(0, 0));
+		ImGui::SetNextWindowViewport(viewport->ID);
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+
+
+		ImGui::Begin(model.GetName().c_str(), nullptr, windowFlags);
+		previousImGuiWindowHeight = ImGui::GetWindowSize().y;
+		ImGui::PopStyleVar(2);
+
+
+		ImGui::Text("Position");
+		ImGui::DragFloat("X##Pos", &model.myPosition.x, 0.1f);
+		ImGui::DragFloat("Y##Pos", &model.myPosition.y, 0.1f);
+		ImGui::DragFloat("Z##Pos", &model.myPosition.z, 0.1f);
+
+		ImGui::Text("Rotation");
+		ImGui::DragFloat("X##Rot", &model.myRotationAngles.x, 0.1f);
+		ImGui::DragFloat("Y##Rot", &model.myRotationAngles.y, 0.1f);
+		ImGui::DragFloat("Z##Rot", &model.myRotationAngles.z, 0.1f);
+
+		if (ImGui::Button("Delete model"))
 		{
-
-
-			ImGui::SetNextWindowPos(ImVec2((myWidth - myWidthOffset), myHeightOffset + (modelIndex * previousImGuiWindowHeight)));
-			ImGui::SetNextWindowSize(ImVec2(0, 0));
-			ImGui::SetNextWindowViewport(viewport->ID);
-
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-
-
-
-			ImGui::Begin(model.GetName().c_str(), nullptr, windowFlags);
-			previousImGuiWindowHeight = ImGui::GetWindowSize().y;
-			ImGui::PopStyleVar(2);
-
-
-			ImGui::Text("Position");
-			ImGui::DragFloat("X##Pos", &model.myPosition.x, 0.1f);
-			ImGui::DragFloat("Y##Pos", &model.myPosition.y, 0.1f);
-			ImGui::DragFloat("Z##Pos", &model.myPosition.z, 0.1f);
-
-			ImGui::Text("Rotation");
-			ImGui::DragFloat("X##Rot", &model.myRotationAngles.x, 0.1f);
-			ImGui::DragFloat("Y##Rot", &model.myRotationAngles.y, 0.1f);
-			ImGui::DragFloat("Z##Rot", &model.myRotationAngles.z, 0.1f);
-
-			if (ImGui::Button("Delete model"))
-			{
-				myModels.erase(myModels.begin() + modelIndex);
-				modelIndex--;
-				ImGui::End();
-				continue;
-			}
-
+			myModels.erase(myModels.begin() + modelIndex);
+			modelIndex--;
 			ImGui::End();
+			continue;
 		}
+
+		ImGui::End();
+
 		model.Render(myDeviceContext.Get());
 		++modelIndex;
 	}
+	RenderGrid();
+
+
+
 	ImGui::StyleColorsLight();
 
 	const float fpsYOffset = 20;
 	mySpriteBatch->Begin();
 	std::wstring fpsCounter = L"FPS: ";
 	fpsCounter += std::to_wstring(aFPS);
-	mySpriteFont->DrawString(mySpriteBatch.get(), fpsCounter.c_str(), XMFLOAT2(0, myHeight- fpsYOffset), Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
+	mySpriteFont->DrawString(mySpriteBatch.get(), fpsCounter.c_str(), XMFLOAT2(0, myHeight - fpsYOffset), Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
 	mySpriteBatch->End();
-	
-	ImGui::SetNextWindowPos(ImVec2(0,0));
-	ImGui::SetNextWindowSize(ImVec2(0,0));
+
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(0, 0));
 	ImGui::SetNextWindowViewport(viewport->ID);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
@@ -302,8 +311,8 @@ bool Graphics::InitDirectX(HWND hwnd)
 
 bool Graphics::InitScene()
 {
-	
-	LoadGrid();
+
+	//LoadGrid();
 
 
 	myCamera.SetPosition(0.0f, 10.0f, -10.0f);
@@ -323,7 +332,7 @@ void Graphics::LoadGrid()
 	std::string gridFilePath = "../Assets/Meshes/Primitives/Grid.fbx";
 	std::wstring gridTexturePath = L"../Assets/Textures/Grid.png";
 	Model grid(false);
-	grid.SetRotation(XMFLOAT3((double)90 * M_PI / 180,0,0));
+	grid.SetRotation(XMFLOAT3((double)90 * M_PI / 180, 0, 0));
 	grid.Init(myDevice, myDeviceContext, gridFilePath, gridTexturePath, myCamera);
 	myModels.push_back(grid);
 }
@@ -389,6 +398,119 @@ void Graphics::ShowTextureWindow(ImGuiWindowFlags& someFlags)
 		}
 	}
 
+}
+
+bool Graphics::InitGrid()
+{
+	const float numGridCellsX = 200;
+	const float numGridCellsY = 200;
+	const float gridSize = 10.f; // Adjust the size of each grid cell as needed
+	const float gridWidth = gridSize * numGridCellsX; // Total width of the grid
+	const float gridHeight = gridSize * numGridCellsY; // Total height of the grid
+
+	// Set up the grid vertices
+	std::vector<Vertex> gridVertices;
+
+	// Horizontal grid lines
+	for (int y = 0; y <= numGridCellsY; ++y)
+	{
+		float zPos = y * gridSize - gridHeight * 0.5f;
+
+		// Left endpoint
+		gridVertices.push_back(Vertex(-gridWidth * 0.5f, 0.0f, zPos, 0.0f, zPos / gridHeight));
+
+		// Right endpoint
+		gridVertices.push_back(Vertex(gridWidth * 0.5f, 0.0f, zPos, 1.0f, zPos / gridHeight));
+	}
+
+	// Vertical grid lines
+	for (int x = 0; x <= numGridCellsX; ++x)
+	{
+		float xPos = x * gridSize - gridWidth * 0.5f;
+
+		// Top endpoint
+		gridVertices.push_back(Vertex(xPos, 0.0f, -gridHeight * 0.5f, xPos / gridWidth, 0.0f));
+
+		// Bottom endpoint
+		gridVertices.push_back(Vertex(xPos, 0.0f, gridHeight * 0.5f, xPos / gridWidth, 1.0f));
+	}
+
+	// Create and initialize the vertex buffer
+	HRESULT hr = myGridVertexBuffer.Init(myDevice.Get(), &gridVertices[0], static_cast<UINT>(gridVertices.size()));
+
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "Failed initializing grid vertex buffer.");
+		return false;
+
+	}
+
+	// Set up the grid indices
+	std::vector<DWORD> gridIndices;
+
+	// Generate indices for the grid lines
+	for (UINT i = 0; i < gridVertices.size(); i += 2)
+	{
+		gridIndices.push_back(i);
+		gridIndices.push_back(i + 1);
+	}
+
+	// Create and initialize the index buffer
+	hr = myGridIndexBuffer.Init(myDevice.Get(), &gridIndices[0], static_cast<UINT>(gridIndices.size()));
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "Failed initializing grid indices buffer.");
+		return false;
+	}
+
+	hr = myGridConstantBuffer.Init(myDevice.Get(), myDeviceContext.Get());
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "Failed initializing grid constant buffer.");
+		return false;
+	}
+
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{"POSITION",0, DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0}
+	};
+
+	UINT numElements = ARRAYSIZE(layout);
+
+	if (!myLineVertexShader.Init(myDevice, L"../x64/Output/LineVertexShader.cso", layout, numElements))
+	{
+		return false;
+	}
+
+	if (!myLinePixelShader.Init(myDevice, L"../x64/Output/LinePixelShader.cso"))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void Graphics::RenderGrid()
+{
+	UINT stride = myGridVertexBuffer.GetStride();
+	UINT offset = 0;
+
+
+	myGridConstantBuffer.myData.worldMatrix = myCamera.GetViewMatrix() * myCamera.GetProjectionMatrix();
+	myGridConstantBuffer.myData.worldMatrix = XMMatrixTranspose(myGridConstantBuffer.myData.worldMatrix);
+
+	myDeviceContext->UpdateSubresource(myGridConstantBuffer.Get(), 0, nullptr, &myGridConstantBuffer.myData, 0, 0);
+	myGridConstantBuffer.ApplyChanges();
+	myDeviceContext->VSSetConstantBuffers(1, 1, myGridConstantBuffer.GetAddressOf());
+
+	myDeviceContext->IASetInputLayout(myLineVertexShader.GetInputLayout());
+	myDeviceContext->VSSetShader(myLineVertexShader.GetShader(), NULL, 0);
+	myDeviceContext->PSSetShader(myLinePixelShader.GetShader(), NULL, 0);
+
+	myDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+	myDeviceContext->IASetVertexBuffers(0, 1, myGridVertexBuffer.GetAddressOf(), &stride, &offset);
+	myDeviceContext->IASetIndexBuffer(myGridIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	myDeviceContext->DrawIndexed(myGridIndexBuffer.GetBufferSize(), 0, 0);
 }
 
 

@@ -1,8 +1,9 @@
-﻿  Graphics.cpp
-D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(71,77): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(71,44): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(81,54): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(260,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(261,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(326,56): warning C4305: 'argument': truncation from 'double' to 'float'
-  Engine++.vcxproj -> D:\C++\DirectXEngine\x64\Output\Engine++.exe
+﻿  compilation object save succeeded; see E:\GIT\DirectXEngine\x64\Output\LinePixelShader.cso
+  Graphics.cpp
+E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(76,76): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(76,43): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(86,53): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(269,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
+E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(270,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
+E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(335,58): warning C4305: 'argument': truncation from 'double' to 'float'
+  Engine++.vcxproj -> E:\GIT\DirectXEngine\x64\Output\Engine++.exe

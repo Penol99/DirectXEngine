@@ -30,7 +30,7 @@ public:
 	}
 	const UINT GetStride() const
 	{
-		return *mStride;
+		return mStride;
 	}
 	const UINT *GetStridePtr() const
 	{

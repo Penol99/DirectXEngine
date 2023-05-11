@@ -78,3 +78,5 @@
 .vs/Engine++/v17/ipch/AutoPCH/c8cc6022cebb5360/ENGINE.ipch
 .vs/Engine++/v17/ipch/AutoPCH/e49c8553a35d6e2c/IMGUI.ipch
 *.vsidx
+.vs/Engine++/v17/ipch/AutoPCH/35e4e1f007795f66/MESH.ipch
+.vs/Engine++/v17/ipch/AutoPCH/f41d018b1cebfae/MODEL.ipch
