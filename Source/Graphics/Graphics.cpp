@@ -328,7 +328,7 @@ void Graphics::LoadGrid()
 	myModels.push_back(grid);
 }
 
-
+// Imgui window for selecting FBX files.
 void Graphics::ShowFBXWindow(ImGuiWindowFlags& someFlags)
 {
 	ImGui::Begin("SELECT AN FBX", nullptr, someFlags);
@@ -340,15 +340,12 @@ void Graphics::ShowFBXWindow(ImGuiWindowFlags& someFlags)
 	{
 		const std::filesystem::path& filePath = entry.path();
 
-		// Check if the current entry is a directory
 		if (std::filesystem::is_directory(filePath))
 		{
-			// Display a label or text for the new subdirectory
 			std::string directoryName = filePath.filename().string();
 			ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 50, 205, 255));
 			ImGui::Text(" ");
 			ImGui::Text(directoryName.c_str());
-			//ImGui::Text();
 			ImGui::PopStyleColor();
 
 		}
