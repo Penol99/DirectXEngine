@@ -265,18 +265,18 @@ static void ImGui_ImplWin32_UpdateMouseData()
         // (Optional) Set OS mouse position from Dear ImGui if requested (rarely used, only when ImGuiConfigFlags_NavEnableSetMousePos is enabled by user)
         if (io.WantSetMousePos)
         {
-            POINT pos = { (int)io.MousePos.x, (int)io.MousePos.y };
-            if (::ClientToScreen(bd->hWnd, &pos))
-                ::SetCursorPos(pos.x, pos.y);
+            POINT myPos = { (int)io.MousePos.x, (int)io.MousePos.y };
+            if (::ClientToScreen(bd->hWnd, &myPos))
+                ::SetCursorPos(myPos.x, myPos.y);
         }
 
         // (Optional) Fallback to provide mouse position when focused (WM_MOUSEMOVE already provides this when hovered or captured)
         // This also fills a short gap when clicking non-client area: WM_NCMOUSELEAVE -> modal OS move -> gap -> WM_NCMOUSEMOVE
         if (!io.WantSetMousePos && bd->MouseTrackedArea == 0)
         {
-            POINT pos;
-            if (::GetCursorPos(&pos) && ::ScreenToClient(bd->hWnd, &pos))
-                io.AddMousePosEvent((float)pos.x, (float)pos.y);
+            POINT myPos;
+            if (::GetCursorPos(&myPos) && ::ScreenToClient(bd->hWnd, &myPos))
+                io.AddMousePosEvent((float)myPos.x, (float)myPos.y);
         }
     }
 }

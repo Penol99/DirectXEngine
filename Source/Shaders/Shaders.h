@@ -17,9 +17,9 @@ public:
 	ID3D10Blob* GetBuffer();
 	ID3D11InputLayout* GetInputLayout();
 private:
-	ComPtr<ID3D11VertexShader> mShader;
-	ComPtr<ID3D10Blob> mShaderBuffer;
-	ComPtr<ID3D11InputLayout> mInputLayout;
+	ComPtr<ID3D11VertexShader> myShader;
+	ComPtr<ID3D10Blob> myShaderBuffer;
+	ComPtr<ID3D11InputLayout> myInputLayout;
 
 };
 class PixelShader
@@ -29,6 +29,6 @@ public:
 	ID3D11PixelShader* GetShader();
 	ID3D10Blob* GetBuffer();
 private:
-	ComPtr<ID3D11PixelShader> mShader;
-	ComPtr<ID3D10Blob> mShaderBuffer;
+	ComPtr<ID3D11PixelShader> myShader;
+	ComPtr<ID3D10Blob> myShaderBuffer;
 };

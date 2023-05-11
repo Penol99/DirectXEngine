@@ -13,28 +13,23 @@ public:
 	Mesh();
 	Mesh(const Mesh& other)
 	{
-		// Copy other members
-		// ...
-		mVertexBuffer = other.mVertexBuffer;
-		mIndexBuffer = other.mIndexBuffer;
-		mVertexShader = other.mVertexShader;
-		mPixelShader = other.mPixelShader;
-		mTexture = other.mTexture;
-
-		// Copy mStride
-//		mStride = std::make_unique<UINT>(*other.mStride);
+		myVertexBuffer = other.myVertexBuffer;
+		myIndexBuffer = other.myIndexBuffer;
+		myVertexShader = other.myVertexShader;
+		myPixelShader = other.myPixelShader;
+		myTexture = other.myTexture;
 	}
 	void Render(ID3D11DeviceContext* aDeviceContext);
 
 private:
 	bool Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, std::vector<DWORD>& indices, UINT numVertices, UINT numIndices, std::wstring& aTexturePath);
 
-	VertexBuffer<Vertex> mVertexBuffer; 
-	IndexBuffer mIndexBuffer;
+	VertexBuffer<Vertex> myVertexBuffer; 
+	IndexBuffer myIndexBuffer;
 
-	VertexShader mVertexShader;
-	PixelShader mPixelShader;
-	ComPtr<ID3D11ShaderResourceView> mTexture;
-	std::shared_ptr<UINT> mStride;
+	VertexShader myVertexShader;
+	PixelShader myPixelShader;
+	ComPtr<ID3D11ShaderResourceView> myTexture;
+	std::shared_ptr<UINT> myStride;
 };
 

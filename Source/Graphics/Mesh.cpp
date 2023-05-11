@@ -6,28 +6,28 @@
 
 Mesh::Mesh()
 {
-	mVertexBuffer;
-	mIndexBuffer;
+	myVertexBuffer;
+	myIndexBuffer;
 }
 
 void Mesh::Render(ID3D11DeviceContext* aDeviceContext)
 {
 
 	UINT offset = 0;
-	aDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
-	aDeviceContext->VSSetShader(mVertexShader.GetShader(), NULL, 0);
-	aDeviceContext->PSSetShader(mPixelShader.GetShader(), NULL, 0);
+	aDeviceContext->IASetInputLayout(myVertexShader.GetInputLayout());
+	aDeviceContext->VSSetShader(myVertexShader.GetShader(), NULL, 0);
+	aDeviceContext->PSSetShader(myPixelShader.GetShader(), NULL, 0);
 
 
-	aDeviceContext->PSSetShaderResources(0, 1, mTexture.GetAddressOf());
-	aDeviceContext->IASetVertexBuffers(0, 1, mVertexBuffer.GetAddressOf(), mVertexBuffer.GetStridePtr(), &offset);
-	aDeviceContext->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	aDeviceContext->DrawIndexed(mIndexBuffer.GetBufferSize(), 0, 0);
+	aDeviceContext->PSSetShaderResources(0, 1, myTexture.GetAddressOf());
+	aDeviceContext->IASetVertexBuffers(0, 1, myVertexBuffer.GetAddressOf(), myVertexBuffer.GetStridePtr(), &offset);
+	aDeviceContext->IASetIndexBuffer(myIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	aDeviceContext->DrawIndexed(myIndexBuffer.GetBufferSize(), 0, 0);
 }
 
 bool Mesh::Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, std::vector<DWORD>& indices,UINT numVertices, UINT numIndices, std::wstring& aTexturePath)
 {
-	HRESULT hr = mVertexBuffer.Init(aDevice.Get(), &vertices[0], numVertices);
+	HRESULT hr = myVertexBuffer.Init(aDevice.Get(), &vertices[0], numVertices);
 	if (FAILED(hr))
 	{
 		ErrorLog::Log(hr, "Failed to create vertex buffer.");
@@ -35,14 +35,14 @@ bool Mesh::Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, st
 
 	}
 
-	hr = mIndexBuffer.Init(aDevice.Get(), &indices[0], numIndices);
+	hr = myIndexBuffer.Init(aDevice.Get(), &indices[0], numIndices);
 	if (FAILED(hr))
 	{
 		ErrorLog::Log(hr, "Failed to create index buffer.");
 		return false;
 
 	}
-	hr = DirectX::CreateWICTextureFromFile(aDevice.Get(), aTexturePath.c_str(), nullptr, mTexture.GetAddressOf());
+	hr = DirectX::CreateWICTextureFromFile(aDevice.Get(), aTexturePath.c_str(), nullptr, myTexture.GetAddressOf());
 	if (FAILED(hr))
 	{
 		ErrorLog::Log(hr, "failed creating texture from file.");
@@ -58,12 +58,12 @@ bool Mesh::Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, st
 
 	UINT numElements = ARRAYSIZE(layout);
 
-	if (!mVertexShader.Init(aDevice, L"../x64/Output/vertexshader.cso", layout, numElements))
+	if (!myVertexShader.Init(aDevice, L"../x64/Output/vertexshader.cso", layout, numElements))
 	{
 		return false;
 	}
 
-	if (!mPixelShader.Init(aDevice, L"../x64/Output/pixelshader.cso"))
+	if (!myPixelShader.Init(aDevice, L"../x64/Output/pixelshader.cso"))
 	{
 		return false;
 	}

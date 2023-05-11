@@ -1,15 +1,15 @@
 #include "Engine.h"
 #include <iostream>
 #include "Timer.h"
-Engine* Engine::mInstance = nullptr;
+Engine* Engine::myInstance = nullptr;
 
 bool Engine::Init(HINSTANCE hInstance, std::string aWindowTitle, std::string aWindowClass, int aWidth, int aHeight)
 {
-	if (!this->mRenderWindow.Init(this, hInstance, aWindowTitle, aWindowClass, aWidth, aHeight))
+	if (!this->myRenderWindow.Init(this, hInstance, aWindowTitle, aWindowClass, aWidth, aHeight))
 	{
 		return false;
 	}
-	if (!mGfx.Init(mRenderWindow.GetHWND(), aWidth, aHeight))
+	if (!myGfx.Init(myRenderWindow.GetHWND(), aWidth, aHeight))
 	{
 		return false;
 	}
@@ -19,44 +19,44 @@ bool Engine::Init(HINSTANCE hInstance, std::string aWindowTitle, std::string aWi
 
 bool Engine::ProcessMessages()
 {
-	return this->mRenderWindow.ProcessMessages();
+	return this->myRenderWindow.ProcessMessages();
 }
 
 void Engine::Update(const float &aDeltaTime)
 {
-	mInput.Update();
-	if (mInput.IsMouseButtonDown(VK_RBUTTON))
+	myInput.Update();
+	if (myInput.IsMouseButtonDown(VK_RBUTTON))
 	{
 		const float camRotSpeed = 2.f * aDeltaTime;
-		mGfx.mCamera.AdjustRotation((float)mInput.GetMouseDelta().y * camRotSpeed, (float)mInput.GetMouseDelta().x * camRotSpeed, 0.f);
-		float camSpeed = mGfx.mCameraSpeed*aDeltaTime;
-		if (mInput.IsKeyDown(VK_SHIFT))
+		myGfx.myCamera.AdjustRotation((float)myInput.GetMouseDelta().y * camRotSpeed, (float)myInput.GetMouseDelta().x * camRotSpeed, 0.f);
+		float camSpeed = myGfx.myCameraSpeed*aDeltaTime;
+		if (myInput.IsKeyDown(VK_SHIFT))
 		{
 		    camSpeed *= 2;
 		}
-		if (mInput.IsKeyDown(VK_KEY_W))
+		if (myInput.IsKeyDown(VK_KEY_W))
 		{
-			mGfx.mCamera.AdjustPosition(mGfx.mCamera.GetForwardVector() * camSpeed);
+			myGfx.myCamera.AdjustPosition(myGfx.myCamera.GetForwardVector() * camSpeed);
 		}
-		if (mInput.IsKeyDown(VK_KEY_S))
+		if (myInput.IsKeyDown(VK_KEY_S))
 		{
-			mGfx.mCamera.AdjustPosition(mGfx.mCamera.GetBackVector() * camSpeed);
+			myGfx.myCamera.AdjustPosition(myGfx.myCamera.GetBackVector() * camSpeed);
 		}
-		if (mInput.IsKeyDown(VK_KEY_D))
+		if (myInput.IsKeyDown(VK_KEY_D))
 		{
-			mGfx.mCamera.AdjustPosition(mGfx.mCamera.GetRightVector() * camSpeed);
+			myGfx.myCamera.AdjustPosition(myGfx.myCamera.GetRightVector() * camSpeed);
 		}
-		if (mInput.IsKeyDown(VK_KEY_A))
+		if (myInput.IsKeyDown(VK_KEY_A))
 		{
-			mGfx.mCamera.AdjustPosition(mGfx.mCamera.GetLeftVector() * camSpeed);
+			myGfx.myCamera.AdjustPosition(myGfx.myCamera.GetLeftVector() * camSpeed);
 		}
-		if (mInput.IsKeyDown(VK_SPACE))
+		if (myInput.IsKeyDown(VK_SPACE))
 		{
-			mGfx.mCamera.AdjustPosition(0, camSpeed , 0.f);
+			myGfx.myCamera.AdjustPosition(0, camSpeed , 0.f);
 		}
-		if (mInput.IsKeyDown(VK_CONTROL))
+		if (myInput.IsKeyDown(VK_CONTROL))
 		{
-			mGfx.mCamera.AdjustPosition(0, -camSpeed, 0.f);
+			myGfx.myCamera.AdjustPosition(0, -camSpeed, 0.f);
 		}
 	}
 }
@@ -65,6 +65,6 @@ void Engine::Render(const int &aFPS, const float& aDeltaTime)
 {
 
 
-	mGfx.Render(aFPS,aDeltaTime);
+	myGfx.Render(aFPS,aDeltaTime);
 
 }

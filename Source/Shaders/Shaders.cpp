@@ -1,33 +1,33 @@
 #include "Shaders.h"
 
 VertexShader::VertexShader()
-	:mShader(nullptr),
-	mShaderBuffer(nullptr)
+	:myShader(nullptr),
+	myShaderBuffer(nullptr)
 {
 }
 
 bool VertexShader::Init(ComPtr<ID3D11Device>& aDevice, std::wstring aShaderPath, D3D11_INPUT_ELEMENT_DESC* aLayoutDesc, UINT aNumElements)
 {
-	HRESULT hr = D3DReadFileToBlob(aShaderPath.c_str(), mShaderBuffer.GetAddressOf());
+	HRESULT hr = D3DReadFileToBlob(aShaderPath.c_str(), myShaderBuffer.GetAddressOf());
 	if (FAILED(hr))
 	{
-		std::wstring errorMsg = L"fucked up loading shader: ";
+		std::wstring errorMsg = L"failed loading shader: ";
 		errorMsg += aShaderPath;
 		ErrorLog::Log(hr, errorMsg);
 		return false;
 
 	}
-	hr = aDevice->CreateInputLayout(aLayoutDesc, aNumElements, GetBuffer()->GetBufferPointer(), GetBuffer()->GetBufferSize(), mInputLayout.GetAddressOf());
+	hr = aDevice->CreateInputLayout(aLayoutDesc, aNumElements, GetBuffer()->GetBufferPointer(), GetBuffer()->GetBufferSize(), myInputLayout.GetAddressOf());
 	if (FAILED(hr))
 	{
-		ErrorLog::Log(hr, "fucked up creating input layout, rip.");
+		ErrorLog::Log(hr, "failed creating input layout, rip.");
 		return false;
 	}
 
-	hr = aDevice->CreateVertexShader(mShaderBuffer.Get()->GetBufferPointer(), mShaderBuffer.Get()->GetBufferSize(),NULL,mShader.GetAddressOf());
+	hr = aDevice->CreateVertexShader(myShaderBuffer.Get()->GetBufferPointer(), myShaderBuffer.Get()->GetBufferSize(),NULL,myShader.GetAddressOf());
 	if (FAILED(hr))
 	{
-		std::wstring errorMsg = L"fucked up creating vertex shader: ";
+		std::wstring errorMsg = L"failed creating vertex shader: ";
 		errorMsg += aShaderPath;
 		ErrorLog::Log(hr, errorMsg);
 		return false;
@@ -37,36 +37,36 @@ bool VertexShader::Init(ComPtr<ID3D11Device>& aDevice, std::wstring aShaderPath,
 
 ID3D11VertexShader* VertexShader::GetShader()
 {
-	return mShader.Get();
+	return myShader.Get();
 }
 
 ID3D10Blob* VertexShader::GetBuffer()
 {
-	return mShaderBuffer.Get();
+	return myShaderBuffer.Get();
 }
 
 ID3D11InputLayout* VertexShader::GetInputLayout()
 {
-	return mInputLayout.Get();
+	return myInputLayout.Get();
 }
 
 
 bool PixelShader::Init(ComPtr<ID3D11Device>& aDevice, std::wstring aShaderPath)
 {
-	HRESULT hr = D3DReadFileToBlob(aShaderPath.c_str(), mShaderBuffer.GetAddressOf());
+	HRESULT hr = D3DReadFileToBlob(aShaderPath.c_str(), myShaderBuffer.GetAddressOf());
 	if (FAILED(hr))
 	{
-		std::wstring errorMsg = L"fucked up loading shader: ";
+		std::wstring errorMsg = L"failed loading shader: ";
 		errorMsg += aShaderPath;
 		ErrorLog::Log(hr, errorMsg);
 		return false;
 
 	}
 
-	hr = aDevice->CreatePixelShader(mShaderBuffer.Get()->GetBufferPointer(), mShaderBuffer.Get()->GetBufferSize(), NULL, mShader.GetAddressOf());
+	hr = aDevice->CreatePixelShader(myShaderBuffer.Get()->GetBufferPointer(), myShaderBuffer.Get()->GetBufferSize(), NULL, myShader.GetAddressOf());
 	if (FAILED(hr))
 	{
-		std::wstring errorMsg = L"fucked up creating pixel shader: ";
+		std::wstring errorMsg = L"failed creating pixel shader: ";
 		errorMsg += aShaderPath;
 		ErrorLog::Log(hr, errorMsg);
 		return false;
@@ -76,10 +76,10 @@ bool PixelShader::Init(ComPtr<ID3D11Device>& aDevice, std::wstring aShaderPath)
 
 ID3D11PixelShader* PixelShader::GetShader()
 {
-	return mShader.Get();
+	return myShader.Get();
 }
 
 ID3D10Blob* PixelShader::GetBuffer()
 {
-	return mShaderBuffer.Get();
+	return myShaderBuffer.Get();
 }

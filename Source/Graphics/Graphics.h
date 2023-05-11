@@ -24,50 +24,43 @@ class Graphics
 public:
 	bool Init(HWND hwnd, int aWidth, int aHeight);
 	void Render(const int& aFPS, const float& aDeltaTime);
-	Camera mCamera;
+	Camera myCamera;
 private:
 	bool InitDirectX(HWND hwnd);
-	bool InitShaders();
 	bool InitScene();
 	void LoadFBX(std::string& filePath, std::wstring& aTexturePath);
-	void ShowFBXWindow();
-	void ShowTextureWindow();
+	void LoadGrid();
+	void ShowFBXWindow(ImGuiWindowFlags& someFlags);
+	void ShowTextureWindow(ImGuiWindowFlags& someFlags);
 
-	ComPtr<ID3D11Device> mDevice;
-	ComPtr<ID3D11DeviceContext> mDeviceContext;
-	ComPtr<IDXGISwapChain> mSwapChain;
-	ComPtr<ID3D11RenderTargetView> mRenderTargetView;
+	ComPtr<ID3D11Device> myDevice;
+	ComPtr<ID3D11DeviceContext> myDeviceContext;
+	ComPtr<IDXGISwapChain> mySwapChain;
+	ComPtr<ID3D11RenderTargetView> myRenderTargetView;
 
 
-	VertexShader mVertexShader; 
-	PixelShader mPixelShader;
+	ConstantBuffer<CB_VS_VertexShader> myCBVSVertexShader;
+	ConstantBuffer<CB_PS_PixelShader> myCBPSPixelShader;
 
-	ConstantBuffer<CB_VS_VertexShader> mCBVSVertexShader;
-	ConstantBuffer<CB_PS_PixelShader> mCBPSPixelShader;
-	VertexBuffer<Vertex> mVertexBuffer;
-	IndexBuffer mIndexBuffer;
+	ComPtr<ID3D11DepthStencilView> myDepthStencilView;
+	ComPtr<ID3D11Texture2D> myDepthStencilBuffer;
+	ComPtr<ID3D11DepthStencilState> myDepthStencilState;
 
-	ComPtr<ID3D11DepthStencilView> mDepthStencilView;
-	ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
-	ComPtr<ID3D11DepthStencilState> mDepthStencilState;
+	ComPtr<ID3D11RasterizerState> myRasterizerState;
+	ComPtr<ID3D11BlendState> myBlendState;
 
-	ComPtr<ID3D11RasterizerState> mRasterizerState;
-	ComPtr<ID3D11BlendState> mBlendState;
+	std::unique_ptr<DirectX::SpriteBatch> mySpriteBatch;
+	std::unique_ptr<DirectX::SpriteFont> mySpriteFont;
 
-	std::unique_ptr<DirectX::SpriteBatch> mSpriteBatch;
-	std::unique_ptr<DirectX::SpriteFont> mSpriteFont;
-
-	ComPtr<ID3D11SamplerState> mSamplerState;
-	ComPtr<ID3D11ShaderResourceView> mTexture;
-	//Model myPlayer;
-	//Model myScooter;
+	ComPtr<ID3D11SamplerState> mySamplerState;
+	ComPtr<ID3D11ShaderResourceView> myTexture;
 
 	std::vector<Model> myModels;
 
-	int mWidth;
-	int mHeight;
+	int myWidth;
+	int myHeight;
 
-	float mCameraSpeed = 10.0f;
+	float myCameraSpeed = 10.0f;
 
 	friend class Engine;
 };

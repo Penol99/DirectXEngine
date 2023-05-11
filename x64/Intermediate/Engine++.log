@@ -1,2 +1,8 @@
-﻿  Model.cpp
-  Engine++.vcxproj -> E:\GIT\DirectXEngine\x64\Output\Engine++.exe
+﻿  Graphics.cpp
+D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(71,77): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(71,44): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(81,54): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(260,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
+D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(261,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
+D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(326,56): warning C4305: 'argument': truncation from 'double' to 'float'
+  Engine++.vcxproj -> D:\C++\DirectXEngine\x64\Output\Engine++.exe

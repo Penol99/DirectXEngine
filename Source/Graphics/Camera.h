@@ -33,12 +33,12 @@ public:
 	const XMVECTOR& GetBackVector();
 private:
 	void UpdateViewMatrix();
-	XMVECTOR mPositionVector;
-	XMVECTOR mRotationVector;
-	XMFLOAT3 mPosition;
-	XMFLOAT3 mRotation;
-	XMMATRIX mViewMatrix;
-	XMMATRIX mProjectionMatrix;
+	XMVECTOR myPositionVector;
+	XMVECTOR myRotationVector;
+	XMFLOAT3 myPosition;
+	XMFLOAT3 myRotation;
+	XMMATRIX myViewMatrix;
+	XMMATRIX myProjectionMatrix;
 
 	const XMVECTOR DEFAULT_FORWARD_VECTOR = XMVectorSet(0.f, 0.f, 1.f, 0.f);
 	const XMVECTOR DEFAULT_UP_VECTOR = XMVectorSet(0.f, 1.f, 0.f, 0.f);

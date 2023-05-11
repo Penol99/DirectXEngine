@@ -1,11 +1,11 @@
 #include "AdapterReader.h"
 
-std::vector<AdapterData> AdapterReader::mAdapters;
+std::vector<AdapterData> AdapterReader::myAdapters;
 std::vector<AdapterData> AdapterReader::GetAdapters()
 {
-    if (mAdapters.size() > 0) // already initialized
+    if (myAdapters.size() > 0) // already initialized
     {
-        return mAdapters;
+        return myAdapters;
     }
 
     Microsoft::WRL::ComPtr<IDXGIFactory> pFactory;
@@ -14,7 +14,7 @@ std::vector<AdapterData> AdapterReader::GetAdapters()
     HRESULT hr = CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(pFactory.GetAddressOf()));
     if (FAILED(hr))
     {
-        ErrorLog::Log(hr, "fucked up creating DXGIFactory for enumerating adapters");
+        ErrorLog::Log(hr, "failed creating DXGIFactory for enumerating adapters");
         exit(-1);
     }
 
@@ -22,10 +22,10 @@ std::vector<AdapterData> AdapterReader::GetAdapters()
     UINT index = 0;
     while (SUCCEEDED(pFactory->EnumAdapters(index, &pAdapter)))
     {
-        mAdapters.push_back(AdapterData(pAdapter));
+        myAdapters.push_back(AdapterData(pAdapter));
         index += 1;
     }
-    return mAdapters;
+    return myAdapters;
 
     return std::vector<AdapterData>();
 }
@@ -36,6 +36,6 @@ AdapterData::AdapterData(IDXGIAdapter* pAdapter)
     HRESULT hr = mAdapter->GetDesc(&this->mDescription);
     if (FAILED(hr))
     {
-        ErrorLog::Log(hr, "fucked up getting the description for IDXGIAdapter");
+        ErrorLog::Log(hr, "failed getting the description for IDXGIAdapter");
     }
 }

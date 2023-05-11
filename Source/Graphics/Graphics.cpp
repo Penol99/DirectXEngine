@@ -1,8 +1,10 @@
+#define _USE_MATH_DEFINES
 #include "Graphics.h"
+#include <filesystem>
+#include <cmath>
 //#include <fbxsdk.h>
 //#include <fbxsdk/core/math/fbxmath.h>
 //#include <fbxsdk/core/math/fbxquaternion.h>
-
 
 #define VSYNC_ENABLED true
 
@@ -15,13 +17,9 @@ std::wstring gTextureFilePath;
 
 bool Graphics::Init(HWND hwnd, int aWidth, int aHeight)
 {
-	mWidth = aWidth;
-	mHeight = aHeight;
+	myWidth = aWidth;
+	myHeight = aHeight;
 	if (!InitDirectX(hwnd))
-	{
-		return false;
-	}
-	if (!InitShaders())
 	{
 		return false;
 	}
@@ -34,7 +32,7 @@ bool Graphics::Init(HWND hwnd, int aWidth, int aHeight)
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	ImGui_ImplWin32_Init(hwnd);
-	ImGui_ImplDX11_Init(mDevice.Get(), mDeviceContext.Get());
+	ImGui_ImplDX11_Init(myDevice.Get(), myDeviceContext.Get());
 	ImGui::StyleColorsDark();
 
 	return true;
@@ -45,68 +43,96 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking;
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+	windowFlags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
+	windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
 	float backgroundColor[] = { 0.0f, 0.0f, 0.0f,1.0f };
-	mDeviceContext->ClearRenderTargetView(mRenderTargetView.Get(), backgroundColor);
-	mDeviceContext->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	myDeviceContext->ClearRenderTargetView(myRenderTargetView.Get(), backgroundColor);
+	myDeviceContext->ClearDepthStencilView(myDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	//mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
-	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	mDeviceContext->RSSetState(mRasterizerState.Get());
-	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0);
-	mDeviceContext->PSSetSamplers(0, 1, mSamplerState.GetAddressOf());
-
-
-	//myPlayer.Render(mDeviceContext.Get());
-	//myScooter.Render(mDeviceContext.Get());
-
-	//for (auto& m : myModels)
-	//{
-	//	m.Render(mDeviceContext.Get());
-	//}
+	myDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	myDeviceContext->RSSetState(myRasterizerState.Get());
+	myDeviceContext->OMSetDepthStencilState(myDepthStencilState.Get(), 0);
+	myDeviceContext->PSSetSamplers(0, 1, mySamplerState.GetAddressOf());
 	
+	int modelIndex = 0;
+	int previousImGuiWindowHeight = 0;
+	const int myWidthOffset = 240;
+	const int myHeightOffset = 0;
 	for (auto& model : myModels)
 	{
-		// Create a unique window for each model
-		ImGui::Begin(model.GetName().c_str());
+		if (model.ShouldDrawImgui())
+		{
 
-		// Display position and rotation fields using ImGui input functions
-		ImGui::Text("Position");
-		ImGui::DragFloat("X##Pos", &model.mPosition.x, 0.1f);
-		ImGui::DragFloat("Y##Pos", &model.mPosition.y, 0.1f);
-		ImGui::DragFloat("Z##Pos", &model.mPosition.z, 0.1f);
 
-		ImGui::Text("Rotation");
-		ImGui::DragFloat("X##Rot", &model.mRotationAngles.x, 0.1f);
-		ImGui::DragFloat("Y##Rot", &model.mRotationAngles.y, 0.1f);
-		ImGui::DragFloat("Z##Rot", &model.mRotationAngles.z, 0.1f);
+			ImGui::SetNextWindowPos(ImVec2((myWidth - myWidthOffset), myHeightOffset + (modelIndex * previousImGuiWindowHeight)));
+			ImGui::SetNextWindowSize(ImVec2(0, 0));
+			ImGui::SetNextWindowViewport(viewport->ID);
 
-		ImGui::End();
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 
-		// Render the model using the updated position and rotation
-		model.Render(mDeviceContext.Get());
+
+
+			ImGui::Begin(model.GetName().c_str(), nullptr, windowFlags);
+			previousImGuiWindowHeight = ImGui::GetWindowSize().y;
+			ImGui::PopStyleVar(2);
+
+
+			ImGui::Text("Position");
+			ImGui::DragFloat("X##Pos", &model.myPosition.x, 0.1f);
+			ImGui::DragFloat("Y##Pos", &model.myPosition.y, 0.1f);
+			ImGui::DragFloat("Z##Pos", &model.myPosition.z, 0.1f);
+
+			ImGui::Text("Rotation");
+			ImGui::DragFloat("X##Rot", &model.myRotationAngles.x, 0.1f);
+			ImGui::DragFloat("Y##Rot", &model.myRotationAngles.y, 0.1f);
+			ImGui::DragFloat("Z##Rot", &model.myRotationAngles.z, 0.1f);
+
+			if (ImGui::Button("Delete model"))
+			{
+				myModels.erase(myModels.begin() + modelIndex);
+				modelIndex--;
+				ImGui::End();
+				continue;
+			}
+
+			ImGui::End();
+		}
+		model.Render(myDeviceContext.Get());
+		++modelIndex;
 	}
+	ImGui::StyleColorsLight();
 
-	mSpriteBatch->Begin();
+	const float fpsYOffset = 20;
+	mySpriteBatch->Begin();
 	std::wstring fpsCounter = L"FPS: ";
 	fpsCounter += std::to_wstring(aFPS);
-	mSpriteFont->DrawString(mSpriteBatch.get(), fpsCounter.c_str(), XMFLOAT2(0, 0), Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
-	mSpriteBatch->End();
+	mySpriteFont->DrawString(mySpriteBatch.get(), fpsCounter.c_str(), XMFLOAT2(0, myHeight- fpsYOffset), Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
+	mySpriteBatch->End();
 	
-	
-	ImGui::Begin("FBX", &gShowFBXWindow, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::SetNextWindowPos(ImVec2(0,0));
+	ImGui::SetNextWindowSize(ImVec2(0,0));
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+
+	ImGui::PopStyleVar(2);
 
 	if (gShowFBXWindow)
 	{
-		ShowFBXWindow();
+		ShowFBXWindow(windowFlags);
 	}
 	else if (gShowTextureWindow)
 	{
-		ShowTextureWindow();
+		ShowTextureWindow(windowFlags);
 	}
-	else
-	{
-	}
+
 	ImGui::End();
 
 	// Rendering
@@ -117,7 +143,7 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 
 
 
-	mSwapChain->Present(VSYNC_ENABLED, NULL);
+	mySwapChain->Present(VSYNC_ENABLED, NULL);
 }
 
 bool Graphics::InitDirectX(HWND hwnd)
@@ -133,8 +159,8 @@ bool Graphics::InitDirectX(HWND hwnd)
 	DXGI_SWAP_CHAIN_DESC scd;
 	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
 
-	scd.BufferDesc.Width = mWidth;
-	scd.BufferDesc.Height = mHeight;
+	scd.BufferDesc.Width = myWidth;
+	scd.BufferDesc.Height = myHeight;
 	scd.BufferDesc.RefreshRate.Numerator = 144; // TODO: Fix so that it gets the refresh rate from the monitor instead.
 	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
@@ -159,35 +185,35 @@ bool Graphics::InitDirectX(HWND hwnd)
 		0, //# OF FEATURE LEVELS IN ARRAY
 		D3D11_SDK_VERSION,
 		&scd, // SWAPCHAIN DESCRIPTION
-		mSwapChain.GetAddressOf(),
-		mDevice.GetAddressOf(),
+		mySwapChain.GetAddressOf(),
+		myDevice.GetAddressOf(),
 		NULL, // SUPPORTED FEATURE LEVEL
-		mDeviceContext.GetAddressOf());
+		myDeviceContext.GetAddressOf());
 
 	if (FAILED(hr))
 	{
-		ErrorLog::Log(hr, "fucked up creating device and swapchain, damn.");
+		ErrorLog::Log(hr, "failed creating device and swapchain, damn.");
 		return false;
 	}
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
-	hr = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
+	hr = mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
 
 	if (FAILED(hr))
 	{
 		ErrorLog::Log(hr, "GetBuffer failed stupid.");
 		return false;
 	}
-	hr = mDevice->CreateRenderTargetView(backBuffer.Get(), NULL, mRenderTargetView.GetAddressOf());
+	hr = myDevice->CreateRenderTargetView(backBuffer.Get(), NULL, myRenderTargetView.GetAddressOf());
 	if (FAILED(hr))
 	{
-		ErrorLog::Log(hr, "fucked up creating render target view.");
+		ErrorLog::Log(hr, "failed creating render target view.");
 		return false;
 	}
 
 	D3D11_TEXTURE2D_DESC depthTextureDesc;
-	depthTextureDesc.Width = mWidth;
-	depthTextureDesc.Height = mHeight;
+	depthTextureDesc.Width = myWidth;
+	depthTextureDesc.Height = myHeight;
 	depthTextureDesc.MipLevels = 1;
 	depthTextureDesc.ArraySize = 1;
 	depthTextureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -198,19 +224,19 @@ bool Graphics::InitDirectX(HWND hwnd)
 	depthTextureDesc.CPUAccessFlags = 0;
 	depthTextureDesc.MiscFlags = 0;
 
-	hr = mDevice->CreateTexture2D(&depthTextureDesc, NULL, mDepthStencilBuffer.GetAddressOf());
+	hr = myDevice->CreateTexture2D(&depthTextureDesc, NULL, myDepthStencilBuffer.GetAddressOf());
 	if (FAILED(hr))
 	{
-		ErrorLog::Log(hr, "fucked up creating depth stencil buffer.");
+		ErrorLog::Log(hr, "failed creating depth stencil buffer.");
 		return false;
 	}
-	hr = mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), NULL, mDepthStencilView.GetAddressOf());
+	hr = myDevice->CreateDepthStencilView(myDepthStencilBuffer.Get(), NULL, myDepthStencilView.GetAddressOf());
 	if (FAILED(hr))
 	{
-		ErrorLog::Log(hr, "fucked up creating depth stencil view.");
+		ErrorLog::Log(hr, "failed creating depth stencil view.");
 		return false;
 	}
-	mDeviceContext->OMSetRenderTargets(1, mRenderTargetView.GetAddressOf(), mDepthStencilView.Get());
+	myDeviceContext->OMSetRenderTargets(1, myRenderTargetView.GetAddressOf(), myDepthStencilView.Get());
 
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 	ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
@@ -218,10 +244,10 @@ bool Graphics::InitDirectX(HWND hwnd)
 	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
 
-	hr = mDevice->CreateDepthStencilState(&depthStencilDesc, mDepthStencilState.GetAddressOf());
+	hr = myDevice->CreateDepthStencilState(&depthStencilDesc, myDepthStencilState.GetAddressOf());
 	if (FAILED(hr))
 	{
-		ErrorLog::Log(hr, "fucked up creating depth state.");
+		ErrorLog::Log(hr, "failed creating depth state.");
 		return false;
 	}
 
@@ -231,11 +257,11 @@ bool Graphics::InitDirectX(HWND hwnd)
 
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
-	viewport.Width = mWidth;
-	viewport.Height = mHeight;
+	viewport.Width = myWidth;
+	viewport.Height = myHeight;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	mDeviceContext->RSSetViewports(1, &viewport);
+	myDeviceContext->RSSetViewports(1, &viewport);
 
 	//Rasterizer state 
 	D3D11_RASTERIZER_DESC rasterizerDesc;
@@ -243,16 +269,16 @@ bool Graphics::InitDirectX(HWND hwnd)
 	rasterizerDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
 	rasterizerDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_BACK;
 
-	hr = mDevice->CreateRasterizerState(&rasterizerDesc, mRasterizerState.GetAddressOf());
+	hr = myDevice->CreateRasterizerState(&rasterizerDesc, myRasterizerState.GetAddressOf());
 	if (FAILED(hr))
 	{
-		ErrorLog::Log(hr, "dick and balls failed to create rasterizer state.");
+		ErrorLog::Log(hr, "failed to create rasterizer state.");
 		return false;
 	}
 
 	// TODO: Create a font manager;
-	mSpriteBatch = std::make_unique<SpriteBatch>(mDeviceContext.Get());
-	mSpriteFont = std::make_unique<SpriteFont>(mDevice.Get(), L"../Assets/Fonts/Arial_DX.spriteFont");
+	mySpriteBatch = std::make_unique<SpriteBatch>(myDeviceContext.Get());
+	mySpriteFont = std::make_unique<SpriteFont>(myDevice.Get(), L"../Assets/Fonts/Arial_DX.spriteFont");
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
@@ -264,115 +290,108 @@ bool Graphics::InitDirectX(HWND hwnd)
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	hr = mDevice->CreateSamplerState(&samplerDesc, mSamplerState.GetAddressOf());
+	hr = myDevice->CreateSamplerState(&samplerDesc, mySamplerState.GetAddressOf());
 	if (FAILED(hr))
 	{
-		ErrorLog::Log(hr, "fucked up creating sampler state.");
+		ErrorLog::Log(hr, "failed creating sampler state.");
 		return false;
 	}
 
 	return true;
 }
 
-bool Graphics::InitShaders()
-{
-
-	return true;
-}
-
 bool Graphics::InitScene()
 {
+	
+	LoadGrid();
 
-	mCamera.SetPosition(0.0f, 0.0f, -2.0f);
-	mCamera.SetProjectionValues(90.f, static_cast<float>(mWidth) / static_cast<float>(mHeight), 0.1f, 1000.f);
+
+	myCamera.SetPosition(0.0f, 10.0f, -10.0f);
+	myCamera.SetProjectionValues(70.f, static_cast<float>(myWidth) / static_cast<float>(myHeight), 0.1f, 1000.f);
 	return true;
 }
 
 void Graphics::LoadFBX(std::string& filePath, std::wstring& aTexturePath)
 {
-	Model model;
-	model.Init(mDevice, mDeviceContext, filePath, aTexturePath, mCamera);
+	Model model(true);
+	model.Init(myDevice, myDeviceContext, filePath, aTexturePath, myCamera);
 	myModels.push_back(model);
 }
 
-
-void Graphics::ShowFBXWindow()
+void Graphics::LoadGrid()
 {
-	std::string fbxDirectoryPath = "../Assets/Meshes/";
-
-	// Iterate over the files in the directory
-	WIN32_FIND_DATA ffd;
-	HANDLE hFind = INVALID_HANDLE_VALUE;
-	std::string fbxFilePattern = fbxDirectoryPath + "/*.fbx";
-	hFind = FindFirstFile(StringConverter::StringToWide(fbxFilePattern).c_str(), &ffd);
-
-	if (hFind != INVALID_HANDLE_VALUE)
-	{
-		do
-		{
-			// Display each FBX file as a selectable item
-			if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			{
-				int bufferSize = WideCharToMultiByte(CP_UTF8, 0, ffd.cFileName, -1, nullptr, 0, nullptr, nullptr);
-				std::string fileName(bufferSize, 0);
-				WideCharToMultiByte(CP_UTF8, 0, ffd.cFileName, -1, &fileName[0], bufferSize, nullptr, nullptr);
-				if (ImGui::Selectable(fileName.c_str()))
-				{
-					//gFBXFilePath = fbxDirectoryPath + "/" + fileName;
-
-					gFBXFilePath = fbxDirectoryPath + "/" + fileName;
-					gShowFBXWindow = false;
-					gShowTextureWindow = true;
-				}
-			}
-		} while (FindNextFile(hFind, &ffd) != 0);
-		FindClose(hFind);
-	}
+	std::string gridFilePath = "../Assets/Meshes/Primitives/Grid.fbx";
+	std::wstring gridTexturePath = L"../Assets/Textures/Grid.png";
+	Model grid(false);
+	grid.SetRotation(XMFLOAT3((double)90 * M_PI / 180,0,0));
+	grid.Init(myDevice, myDeviceContext, gridFilePath, gridTexturePath, myCamera);
+	myModels.push_back(grid);
 }
 
-// ImGui window for selecting texture file
-void Graphics::ShowTextureWindow()
+
+void Graphics::ShowFBXWindow(ImGuiWindowFlags& someFlags)
 {
-	ImGui::Begin("Texture Selection", &gShowTextureWindow, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Begin("SELECT AN FBX", nullptr, someFlags);
 
-	std::wstring textureDirectoryPath = L"../Assets/Textures";
+	std::string fbxDirectoryPath = "../Assets/Meshes/";
 
-	// Specify the file extensions you want to include
-	std::vector<std::wstring> supportedExtensions = { L".png", L".dds", L".jpg" };
-
-	// Iterate over the files in the directory
-	WIN32_FIND_DATAW ffd;
-	HANDLE hFind = INVALID_HANDLE_VALUE;
-
-	for (const auto& extension : supportedExtensions)
+	std::string previousLabel;
+	for (const auto& entry : std::filesystem::recursive_directory_iterator(fbxDirectoryPath))
 	{
-		std::wstring textureFilePattern = textureDirectoryPath + L"/*" + extension;
-		hFind = FindFirstFileW(textureFilePattern.c_str(), &ffd);
-		if (hFind != INVALID_HANDLE_VALUE)
-		{
-			do
-			{
-				// Display each texture file as a selectable item
-				if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-				{
-					int bufferSize = WideCharToMultiByte(CP_UTF8, 0, ffd.cFileName, -1, nullptr, 0, nullptr, nullptr);
-					std::string fileName(bufferSize, 0);
-					WideCharToMultiByte(CP_UTF8, 0, ffd.cFileName, -1, &fileName[0], bufferSize, nullptr, nullptr);
-					if (ImGui::Selectable(fileName.c_str()))
-					{
-						gTextureFilePath = textureDirectoryPath + L"/" + ffd.cFileName;
-						gShowTextureWindow = false;
-						LoadFBX(gFBXFilePath, gTextureFilePath);
-						gShowFBXWindow = true;
-					}
-				}
-			} while (FindNextFileW(hFind, &ffd) != 0);
+		const std::filesystem::path& filePath = entry.path();
 
-			FindClose(hFind);
+		// Check if the current entry is a directory
+		if (std::filesystem::is_directory(filePath))
+		{
+			// Display a label or text for the new subdirectory
+			std::string directoryName = filePath.filename().string();
+			ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 50, 205, 255));
+			ImGui::Text(" ");
+			ImGui::Text(directoryName.c_str());
+			//ImGui::Text();
+			ImGui::PopStyleColor();
+
+		}
+		else if (std::filesystem::is_regular_file(filePath) && filePath.extension() == ".fbx")
+		{
+			std::string fileName = filePath.filename().string();
+			if (ImGui::Selectable(fileName.c_str()))
+			{
+				gFBXFilePath = filePath.string();
+				gShowFBXWindow = false;
+				gShowTextureWindow = true;
+			}
 		}
 	}
 
-	ImGui::End();
+}
+
+// ImGui window for selecting texture file
+void Graphics::ShowTextureWindow(ImGuiWindowFlags& someFlags)
+{
+	ImGui::Begin("SELECT A TEXTURE", nullptr, someFlags);
+
+	std::string textureDirectoryPath = "../Assets/Textures";
+
+	std::vector<std::string> supportedExtensions = { ".png", ".dds", ".jpg" };
+
+	for (const auto& entry : std::filesystem::directory_iterator(textureDirectoryPath))
+	{
+		const std::filesystem::path& filePath = entry.path();
+
+		if (std::filesystem::is_regular_file(filePath) && std::find(supportedExtensions.begin(), supportedExtensions.end(), filePath.extension()) != supportedExtensions.end())
+		{
+			std::string fileName = filePath.filename().string();
+			if (ImGui::Selectable(fileName.c_str()))
+			{
+				gTextureFilePath = filePath.wstring();
+				gShowTextureWindow = false;
+				LoadFBX(gFBXFilePath, gTextureFilePath);
+				gShowFBXWindow = true;
+			}
+		}
+	}
+
 }
 
 

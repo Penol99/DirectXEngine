@@ -1,6 +1,4 @@
 #pragma once
-#ifndef IndexBuffer_h__
-#define IndexBuffer_h__
 #include <d3d11.h>
 #include <wrl/client.h>
 using namespace Microsoft::WRL;
@@ -9,32 +7,32 @@ class IndexBuffer
 {
 private:
 	IndexBuffer(const IndexBuffer& rhs);
-	ComPtr<ID3D11Buffer> mBuffer;
-	UINT mBufferSize = 0;
+	ComPtr<ID3D11Buffer> myBuffer;
+	UINT myBufferSize = 0;
 public:
 	IndexBuffer() {}
 
 	ID3D11Buffer* Get()const
 	{
-		return mBuffer.Get();
+		return myBuffer.Get();
 	}
 	ID3D11Buffer* const* GetAddressOf()const
 	{
-		return mBuffer.GetAddressOf();
+		return myBuffer.GetAddressOf();
 	}
 
 	UINT GetBufferSize()const
 	{
-		return mBufferSize;
+		return myBufferSize;
 	}
 
 	HRESULT Init(ID3D11Device* aDevice, DWORD* someData, UINT numIndicies)
 	{
-		if (mBuffer.Get() != nullptr)
+		if (myBuffer.Get() != nullptr)
 		{
-			mBuffer.Reset();
+			myBuffer.Reset();
 		}
-		mBufferSize = numIndicies;
+		myBufferSize = numIndicies;
 
 		D3D11_BUFFER_DESC indexBufferDesc;
 		ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
@@ -50,9 +48,8 @@ public:
 
 		indexBufferData.pSysMem = someData;
 
-		return aDevice->CreateBuffer(&indexBufferDesc, &indexBufferData, mBuffer.GetAddressOf());
+		return aDevice->CreateBuffer(&indexBufferDesc, &indexBufferData, myBuffer.GetAddressOf());
 
 	}
 
 };
-#endif // IndexBuffer_h__

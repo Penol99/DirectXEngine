@@ -1,25 +1,27 @@
 #include "Model.h"
 
-Model::Model()
+Model::Model(bool myShouldDrawImgui)
+	:myShouldDrawImgui(myShouldDrawImgui)
 {
-	mPosition.x = 0;
-	mPosition.y = 0;
-	mPosition.z = 0;
+	myPosition.x = 0;
+	myPosition.y = 0;
+	myPosition.z = 0;
 }
 
 Model::Model(const Model& other)
 {
-	mPosition = other.mPosition;
-	mRotationAngles = other.mRotationAngles;
-	mMeshes = other.mMeshes;
-	mTexturePath = other.mTexturePath;
+	myPosition = other.myPosition;
+	myRotationAngles = other.myRotationAngles;
+	myMeshes = other.myMeshes;
+	myTexturePath = other.myTexturePath;
 	myCamera = other.myCamera;
-	mCBVSVertexShader = other.mCBVSVertexShader;
-	mCBPSPixelShader = other.mCBPSPixelShader;
+	myCBVSVertexShader = other.myCBVSVertexShader;
+	myCBPSPixelShader = other.myCBPSPixelShader;
 	myName = other.myName;
-	for (const auto& mesh : other.mMeshes)
+	myShouldDrawImgui = other.myShouldDrawImgui;
+	for (const auto& mesh : other.myMeshes)
 	{
-		mMeshes.push_back(Mesh(mesh));
+		myMeshes.push_back(Mesh(mesh));
 	}
 }
 
@@ -36,7 +38,7 @@ bool Model::Init(ComPtr<ID3D11Device>& aDevice, ComPtr<ID3D11DeviceContext>& aDe
 		myName = filePath;
 	}
 	myCamera = &aCamera;
-	mTexturePath = aTexturePath;
+	myTexturePath = aTexturePath;
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
 
@@ -50,16 +52,16 @@ bool Model::Init(ComPtr<ID3D11Device>& aDevice, ComPtr<ID3D11DeviceContext>& aDe
 	ProcessNode(scene->mRootNode, scene, aDevice);
 
 	
-	HRESULT hr = mCBVSVertexShader.Init(aDevice.Get(), aDeviceContext.Get());
+	HRESULT hr = myCBVSVertexShader.Init(aDevice.Get(), aDeviceContext.Get());
 	if (FAILED(hr))
 	{
-		ErrorLog::Log(hr, "fucked up creating constant buffer.");
+		ErrorLog::Log(hr, "failed creating constant buffer.");
 		return false;
 	}
-	hr = mCBPSPixelShader.Init(aDevice.Get(), aDeviceContext.Get());
+	hr = myCBPSPixelShader.Init(aDevice.Get(), aDeviceContext.Get());
 	if (FAILED(hr))
 	{
-		ErrorLog::Log(hr, "fucked up creating constant buffer.");
+		ErrorLog::Log(hr, "failed creating constant buffer.");
 		return false;
 	}
 
@@ -75,22 +77,22 @@ void Model::Render(ID3D11DeviceContext* aDeviceContext)
 	XMMATRIX translationOffset = XMMatrixTranslation(worldTranslationOffset[0], worldTranslationOffset[1], worldTranslationOffset[2]);
 	XMMATRIX world = scale * translationOffset;
 
-	mCBVSVertexShader.mData.gModelPosition = mPosition;
-	mCBVSVertexShader.mData.gModelRotation = mRotationAngles;
-	mCBVSVertexShader.mData.worldMatrix = world * myCamera->GetViewMatrix() * myCamera->GetProjectionMatrix();
-	mCBVSVertexShader.mData.worldMatrix = XMMatrixTranspose(mCBVSVertexShader.mData.worldMatrix);
+	myCBVSVertexShader.myData.gModelPosition = myPosition;
+	myCBVSVertexShader.myData.modelRotation = myRotationAngles;
+	myCBVSVertexShader.myData.worldMatrix = world * myCamera->GetViewMatrix() * myCamera->GetProjectionMatrix();
+	myCBVSVertexShader.myData.worldMatrix = XMMatrixTranspose(myCBVSVertexShader.myData.worldMatrix);
 
 
-	aDeviceContext->UpdateSubresource(mCBVSVertexShader.Get(), 0, nullptr, &mCBVSVertexShader.mData, 0, 0);
-	mCBVSVertexShader.ApplyChanges();
-	aDeviceContext->VSSetConstantBuffers(0, 1, mCBVSVertexShader.GetAddressOf());
+	aDeviceContext->UpdateSubresource(myCBVSVertexShader.Get(), 0, nullptr, &myCBVSVertexShader.myData, 0, 0);
+	myCBVSVertexShader.ApplyChanges();
+	aDeviceContext->VSSetConstantBuffers(0, 1, myCBVSVertexShader.GetAddressOf());
 	
-	mCBPSPixelShader.mData.alpha = 1.0f;
-	mCBPSPixelShader.ApplyChanges();
-	aDeviceContext->PSSetConstantBuffers(0, 1, mCBPSPixelShader.GetAddressOf());
+	myCBPSPixelShader.myData.alpha = 1.0f;
+	myCBPSPixelShader.ApplyChanges();
+	aDeviceContext->PSSetConstantBuffers(0, 1, myCBPSPixelShader.GetAddressOf());
 
 	// Render each mesh
-	for (Mesh& mesh : mMeshes)
+	for (Mesh& mesh : myMeshes)
 	{
 		mesh.Render(aDeviceContext);
 	}
@@ -98,34 +100,34 @@ void Model::Render(ID3D11DeviceContext* aDeviceContext)
 
 void Model::TranslatePosition(DirectX::XMFLOAT3 aPos)
 {
-	mPosition.x += aPos.x;
-	mPosition.y += aPos.y;
-	mPosition.z += aPos.z;
+	myPosition.x += aPos.x;
+	myPosition.y += aPos.y;
+	myPosition.z += aPos.z;
 }
 void Model::SetPosition(DirectX::XMFLOAT3 aPos)
 {
-	mPosition = aPos;
+	myPosition = aPos;
 }
 void Model::TranslateRotation(DirectX::XMFLOAT3 aRot)
 {
-	mRotationAngles.x += aRot.x;
-	mRotationAngles.y += aRot.y;
-	mRotationAngles.z += aRot.z;
+	myRotationAngles.x += aRot.x;
+	myRotationAngles.y += aRot.y;
+	myRotationAngles.z += aRot.z;
 }
 
 void Model::SetRotation(DirectX::XMFLOAT3 aRot)
 {
-	mRotationAngles = aRot;
+	myRotationAngles = aRot;
 }
 
 XMFLOAT3 Model::GetPosition()
 {
-	return mPosition;
+	return myPosition;
 }
 
 XMFLOAT3 Model::GetRotation()
 {
-	return mRotationAngles;
+	return myRotationAngles;
 }
 
 void Model::SetName(std::string aName)
@@ -136,6 +138,11 @@ void Model::SetName(std::string aName)
 std::string Model::GetName()
 {
 	return myName;
+}
+
+bool Model::ShouldDrawImgui()
+{
+	return myShouldDrawImgui;
 }
 
 void Model::ProcessNode(const aiNode* node, const aiScene* scene, ComPtr<ID3D11Device>& aDevice)
@@ -172,12 +179,12 @@ void Model::ProcessNode(const aiNode* node, const aiScene* scene, ComPtr<ID3D11D
 		UINT numVertices = static_cast<UINT>(vertices.size());
 		UINT numIndices = static_cast<UINT>(indices.size());
 		Mesh newMesh;
-		if (!newMesh.Init(aDevice, vertices, indices, numVertices, numIndices, mTexturePath))
+		if (!newMesh.Init(aDevice, vertices, indices, numVertices, numIndices, myTexturePath))
 		{
 			ErrorLog::Log("Failed to initialize new mesh when processing node");
 			return;
 		}
-		mMeshes.push_back(newMesh);
+		myMeshes.push_back(newMesh);
 
 	}
 

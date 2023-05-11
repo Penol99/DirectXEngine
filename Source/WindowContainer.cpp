@@ -13,7 +13,7 @@ WindowContainer::WindowContainer()
 
 		if (RegisterRawInputDevices(&rid, 1,sizeof(rid)) == FALSE)
 		{
-			ErrorLog::Log(GetLastError(), "fucked up registering raw input devices lol.");
+			ErrorLog::Log(GetLastError(), "failed registering raw input devices lol.");
 			exit(-1);
 		}
 		rawInputInit = true;
@@ -26,5 +26,5 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	{
 		return true;
 	}
-	return mInput.UpdateEvents(hwnd, uMsg, wParam, lParam);
+	return myInput.UpdateEvents(hwnd, uMsg, wParam, lParam);
 }

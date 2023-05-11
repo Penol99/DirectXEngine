@@ -12,17 +12,17 @@ public:
 
 	static inline Engine* GetInstance()
 	{
-		if (mInstance == nullptr)
+		if (myInstance == nullptr)
 		{
-			mInstance = new Engine();
+			myInstance = new Engine();
 		}
-		return mInstance;
+		return myInstance;
 	}
 	static inline void DestroyInstance()
 	{
-		delete mInstance;
+		delete myInstance;
 	}
 private:
-	static Engine* mInstance;
+	static Engine* myInstance;
 	Engine() = default;
 };

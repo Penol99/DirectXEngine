@@ -8,9 +8,9 @@ public:
 	WindowContainer();
 	LRESULT WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 protected:
-	RenderWindow mRenderWindow;
-	Graphics mGfx;
-	InputHandler mInput;
+	RenderWindow myRenderWindow;
+	Graphics myGfx;
+	InputHandler myInput;
 private:
 
 };

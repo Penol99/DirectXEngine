@@ -17,7 +17,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,_In_opt_ HINSTANCE hPrevInstance,
 	HRESULT hr = CoInitialize(NULL);
 	if (FAILED(hr))
 	{
-		ErrorLog::Log(hr, "fucked up calling CoInitialize");
+		ErrorLog::Log(hr, "failed calling CoInitialize");
 		return -1;
 	}
 
