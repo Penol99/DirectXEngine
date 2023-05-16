@@ -81,6 +81,9 @@
     <ClCompile Include="..\Source\Graphics\Model.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\Graphics\TerrainGenerator.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\StringConverter.h">
@@ -161,6 +164,9 @@
     <ClInclude Include="..\Source\Graphics\Mesh.h">
       <Filter>Source\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\Graphics\TerrainGenerator.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Source\Shaders\StandardVertexShader.hlsl">
@@ -176,6 +182,12 @@
       <Filter>Source\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\Source\Shaders\FunkyPixelShader.hlsl">
+      <Filter>Source\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\TerrainPixelShader.hlsl">
+      <Filter>Source\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\TerrainVertexShader.hlsl">
       <Filter>Source\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

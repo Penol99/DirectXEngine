@@ -1,10 +1,8 @@
 #define _USE_MATH_DEFINES
 #include "Graphics.h"
 #include <filesystem>
-#include <cmath>
-//#include <fbxsdk.h>
-//#include <fbxsdk/core/math/fbxmath.h>
-//#include <fbxsdk/core/math/fbxquaternion.h>
+
+
 
 #define VSYNC_ENABLED false
 
@@ -32,6 +30,8 @@ bool Graphics::Init(HWND hwnd, int aWidth, int aHeight,Timer& aTimer)
 	{
 		return false;
 	}
+
+
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -130,8 +130,8 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 		model.Render(myDeviceContext.Get(),*myTimer);
 		++modelIndex;
 	}
+	myTerrainGenerator.Render(myDeviceContext.Get());
 	RenderGrid();
-
 
 
 	ImGui::StyleColorsLight();
@@ -352,7 +352,15 @@ bool Graphics::InitScene()
 	LoadFBX(funkyScooter, scooterFBX, scooterTexture, standardVertexShader, funkyPixelShader);
 	LoadFBX(normalDude, dudeFBX, dudeTexture, standardVertexShader, standardPixelShader);
 
-	
+	int width = 100;
+	int height = 100;
+	float scale = 0.1f;
+	int octaves = 5;
+	float persistence = 0.5f;
+	float lacunarity = 2.0f;
+	int seed = 12345;
+
+	myTerrainGenerator.Init(myDevice,myDeviceContext,myCamera, width, height, scale, octaves, persistence, lacunarity, seed);
 
 	myCamera.SetPosition(0.0f, 10.0f, -10.0f);
 	myCamera.SetProjectionValues(70.f, static_cast<float>(myWidth) / static_cast<float>(myHeight), 0.1f, 1000.f);

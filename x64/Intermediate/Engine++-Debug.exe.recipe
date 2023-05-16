@@ -2,24 +2,30 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\C++\DirectXEngine\Bin\Engine++-Debug.exe</FullPath>
+      <FullPath>E:\GIT\DirectXEngine\Bin\Engine++-Debug.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
-      <FullPath>D:\C++\DirectXEngine\Bin\FunkyPixelShader.cso</FullPath>
+      <FullPath>E:\GIT\DirectXEngine\Bin\FunkyPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\C++\DirectXEngine\Bin\LinePixelShader.cso</FullPath>
+      <FullPath>E:\GIT\DirectXEngine\Bin\LinePixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\C++\DirectXEngine\Bin\LineVertexShader.cso</FullPath>
+      <FullPath>E:\GIT\DirectXEngine\Bin\LineVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\C++\DirectXEngine\Bin\StandardPixelShader.cso</FullPath>
+      <FullPath>E:\GIT\DirectXEngine\Bin\StandardPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\C++\DirectXEngine\Bin\StandardVertexShader.cso</FullPath>
+      <FullPath>E:\GIT\DirectXEngine\Bin\StandardVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>E:\GIT\DirectXEngine\Bin\TerrainPixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>E:\GIT\DirectXEngine\Bin\TerrainVertexShader.cso</FullPath>
     </ContentFile>
   </ContentFiles>
   <SatelliteDlls />

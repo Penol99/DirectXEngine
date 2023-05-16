@@ -45,13 +45,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);${SolutionDir}Include;</IncludePath>
-    <OutDir>$(SolutionDir)Bin</OutDir>
+    <OutDir>$(SolutionDir)Bin\</OutDir>
     <IntDir>$(SolutionDir)$(Platform)\Intermediate\</IntDir>
     <TargetName>$(ProjectName)-Debug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);${SolutionDir}Include;</IncludePath>
-    <OutDir>$(SolutionDir)Bin</OutDir>
+    <OutDir>$(SolutionDir)Bin\</OutDir>
     <IntDir>$(SolutionDir)$(Platform)\Intermediate\</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -104,6 +104,7 @@
     <ClCompile Include="..\Source\Graphics\Graphics.cpp" />
     <ClCompile Include="..\Source\Graphics\Mesh.cpp" />
     <ClCompile Include="..\Source\Graphics\Model.cpp" />
+    <ClCompile Include="..\Source\Graphics\TerrainGenerator.cpp" />
     <ClCompile Include="..\Source\ImGui\imgui.cpp" />
     <ClCompile Include="..\Source\ImGui\imgui_demo.cpp" />
     <ClCompile Include="..\Source\ImGui\imgui_draw.cpp" />
@@ -130,6 +131,7 @@
     <ClInclude Include="..\Source\Graphics\IndexBuffer.h" />
     <ClInclude Include="..\Source\Graphics\Mesh.h" />
     <ClInclude Include="..\Source\Graphics\Model.h" />
+    <ClInclude Include="..\Source\Graphics\TerrainGenerator.h" />
     <ClInclude Include="..\Source\Graphics\Vertex.h" />
     <ClInclude Include="..\Source\Graphics\VertexBuffer.h" />
     <ClInclude Include="..\Source\ImGui\imconfig.h" />
@@ -177,6 +179,18 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\TerrainPixelShader.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\TerrainVertexShader.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

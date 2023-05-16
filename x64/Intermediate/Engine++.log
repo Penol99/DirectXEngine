@@ -1,44 +1,6 @@
-﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(503,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
-  compilation object save succeeded; see D:\C++\DirectXEngine\Bin\FunkyPixelShader.cso
-  compilation object save succeeded; see D:\C++\DirectXEngine\Bin\LinePixelShader.cso
-  compilation object save succeeded; see D:\C++\DirectXEngine\Bin\LineVertexShader.cso
-  compilation object save succeeded; see D:\C++\DirectXEngine\Bin\StandardPixelShader.cso
-  compilation object save succeeded; see D:\C++\DirectXEngine\Bin\StandardVertexShader.cso
-  Engine.cpp
-  ErrorLog.cpp
-  AdapterReader.cpp
-  Camera.cpp
-D:\C++\DirectXEngine\Source\Graphics\Camera.cpp(124,36): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-D:\C++\DirectXEngine\Source\Graphics\Camera.cpp(124,30): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
-D:\C++\DirectXEngine\Source\Graphics\Camera.cpp(125,21): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\C++\DirectXEngine\Source\Graphics\Camera.cpp(129,19): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-  Graphics.cpp
-D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(94,53): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(119,78): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(289,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-D:\C++\DirectXEngine\Source\Graphics\Graphics.cpp(290,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-  Mesh.cpp
-  Model.cpp
-D:\C++\DirectXEngine\Source\Graphics\Model.cpp(96,55): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-  imgui.cpp
-  imgui_demo.cpp
-  imgui_draw.cpp
-  imgui_impl_dx11.cpp
-  imgui_impl_win32.cpp
-  imgui_tables.cpp
-  imgui_widgets.cpp
-  InputHandler.cpp
-  main.cpp
-  RenderWindow.cpp
-  Shaders.cpp
-  StringConverter.cpp
-  Timer.cpp
-D:\C++\DirectXEngine\Source\Timer.cpp(27,11): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-  Compiling...
-  WindowContainer.cpp
-  Generating code
-  7 of 3039 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
-    2 functions were new in current compilation
-    25 functions had inline decision re-evaluated but remain unchanged
-  Finished generating code
-  Engine++.vcxproj -> D:\C++\DirectXEngine\Bin\Engine++.exe
+﻿  TerrainGenerator.cpp
+E:\GIT\DirectXEngine\Source\Graphics\TerrainGenerator.cpp(63,75): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+E:\GIT\DirectXEngine\Source\Graphics\TerrainGenerator.cpp(63,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+E:\GIT\DirectXEngine\Source\Graphics\TerrainGenerator.cpp(70,85): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
+E:\GIT\DirectXEngine\Source\Graphics\TerrainGenerator.cpp(99,74): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
+  Engine++.vcxproj -> E:\GIT\DirectXEngine\Bin\Engine++-Debug.exe
