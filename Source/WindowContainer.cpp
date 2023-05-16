@@ -11,8 +11,10 @@ WindowContainer::WindowContainer()
 		rid.dwFlags = 0;
 		rid.hwndTarget = NULL;
 
+		// Useless at the moment as raw input devices isnt being used.
 		if (RegisterRawInputDevices(&rid, 1,sizeof(rid)) == FALSE)
 		{
+
 			ErrorLog::Log(GetLastError(), "failed registering raw input devices lol.");
 			exit(-1);
 		}

@@ -3,7 +3,7 @@
 class Engine : WindowContainer
 {
 public:
-	bool Init(HINSTANCE hInstance, std::string aWindowTitle, std::string aWindowClass, int aWidth, int aHeight);
+	bool Init(HINSTANCE hInstance, std::string aWindowTitle, std::string aWindowClass, int aWidth, int aHeight, Timer& aTimer);
 	bool ProcessMessages();
 
 	void Update(const float& aDeltaTime);

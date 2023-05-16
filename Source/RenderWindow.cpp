@@ -3,10 +3,10 @@
 
 RenderWindow::~RenderWindow()
 {
-	if (this->mHandle != NULL)
+	if (this->myHandle != NULL)
 	{
-		UnregisterClass(this->mWindowClassWide.c_str(), this->hInstance);
-		DestroyWindow(this->mHandle);
+		UnregisterClass(this->myWindowClassWide.c_str(), this->hInstance);
+		DestroyWindow(this->myHandle);
 
 	}
 }
@@ -14,12 +14,12 @@ RenderWindow::~RenderWindow()
 bool RenderWindow::Init(WindowContainer* pWindowContainer, HINSTANCE hInstance, std::string aWindowTitle, std::string aWindowClass, int aWidth, int aHeight)
 {
 	this->hInstance = hInstance;
-	this->mWidth = aWidth;
-	this->mHeight = aHeight;
-	this->mWindowTitle = aWindowTitle;
-	this->mWindowTitleWide = StringConverter::StringToWide(this->mWindowTitle);
-	this->mWindowClass = aWindowClass;
-	this->mWindowClassWide = StringConverter::StringToWide(this->mWindowClass);
+	this->myWidth = aWidth;
+	this->myHeight = aHeight;
+	this->myWindowTitle = aWindowTitle;
+	this->myWindowTitleWide = StringConverter::StringToWide(this->myWindowTitle);
+	this->myWindowClass = aWindowClass;
+	this->myWindowClassWide = StringConverter::StringToWide(this->myWindowClass);
 
 	this->RegisterWindowClass();
 
@@ -33,11 +33,11 @@ bool RenderWindow::Init(WindowContainer* pWindowContainer, HINSTANCE hInstance, 
 	AdjustWindowRect(&windowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
 
 
-	this->mHandle = CreateWindowEx
+	this->myHandle = CreateWindowEx
 	(
 		0,
-		mWindowClassWide.c_str(),
-		mWindowTitleWide.c_str(),
+		myWindowClassWide.c_str(),
+		myWindowTitleWide.c_str(),
 		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
 		windowRect.left, // Window X 
 		windowRect.top, // Window Y 
@@ -49,14 +49,14 @@ bool RenderWindow::Init(WindowContainer* pWindowContainer, HINSTANCE hInstance, 
 		pWindowContainer
 	);
 
-	if (this->mHandle == NULL)
+	if (this->myHandle == NULL)
 	{
-		ErrorLog::Log(GetLastError(), "Failed to Create window with CreateWindowEX: " + this->mWindowTitle);
+		ErrorLog::Log(GetLastError(), "Failed to Create window with CreateWindowEX: " + this->myWindowTitle);
 		return false;
 	}
-	ShowWindow(this->mHandle, SW_SHOW);
-	SetForegroundWindow(this->mHandle);
-	SetFocus(this->mHandle);
+	ShowWindow(this->myHandle, SW_SHOW);
+	SetForegroundWindow(this->myHandle);
+	SetFocus(this->myHandle);
 	return true;
 }
 
@@ -65,7 +65,7 @@ bool RenderWindow::ProcessMessages()
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
 
-	while (PeekMessage(&msg, this->mHandle, 0, 0, PM_REMOVE))
+	while (PeekMessage(&msg, this->myHandle, 0, 0, PM_REMOVE))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -73,10 +73,10 @@ bool RenderWindow::ProcessMessages()
 
 	if (msg.message == WM_NULL)
 	{
-		if (!IsWindow(this->mHandle))
+		if (!IsWindow(this->myHandle))
 		{
-			this->mHandle = NULL;
-			UnregisterClass(this->mWindowClassWide.c_str(), this->hInstance);
+			this->myHandle = NULL;
+			UnregisterClass(this->myWindowClassWide.c_str(), this->hInstance);
 			return false;
 		}
 	}
@@ -85,7 +85,7 @@ bool RenderWindow::ProcessMessages()
 
 HWND RenderWindow::GetHWND() const
 {
-	return mHandle;
+	return myHandle;
 }
 
 LRESULT CALLBACK HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -140,7 +140,7 @@ void RenderWindow::RegisterWindowClass()
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = NULL;
 	wc.lpszMenuName = NULL;
-	wc.lpszClassName = this->mWindowClassWide.c_str();
+	wc.lpszClassName = this->myWindowClassWide.c_str();
 	wc.cbSize = sizeof(WNDCLASSEX);
 	RegisterClassEx(&wc);
 }

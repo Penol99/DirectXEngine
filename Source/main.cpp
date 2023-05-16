@@ -22,7 +22,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,_In_opt_ HINSTANCE hPrevInstance,
 	}
 
 	Engine& engine = *Engine::GetInstance();
-	if(engine.Init(hInstance, "Engine++", "Window", 1200, 1000))
+	if(engine.Init(hInstance, "Engine++", "Window", 1200, 1000,Time))
 	{
 		Run();
 	}

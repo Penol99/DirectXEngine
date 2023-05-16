@@ -22,14 +22,14 @@ class Graphics
 {
 
 public:
-	bool Init(HWND hwnd, int aWidth, int aHeight);
+	bool Init(HWND hwnd, int aWidth, int aHeight, Timer& aTimer);
 	void Render(const int& aFPS, const float& aDeltaTime);
 	Camera myCamera;
 private:
 	bool InitDirectX(HWND hwnd);
 	bool InitScene();
-	void LoadFBX(std::string& filePath, std::wstring& aTexturePath);
-	void LoadGrid();
+	Model& LoadFBX(std::string& filePath, std::wstring& aTexturePath, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath);
+	void LoadFBX(Model& aModel, std::string& filePath, std::wstring& aTexturePath, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath);
 	void ShowFBXWindow(ImGuiWindowFlags& someFlags);
 	void ShowTextureWindow(ImGuiWindowFlags& someFlags);
 	bool InitGrid();
@@ -65,7 +65,7 @@ private:
 	VertexShader myLineVertexShader;
 	PixelShader myLinePixelShader;
 
-
+	Timer* myTimer;
 	int myWidth;
 	int myHeight;
 

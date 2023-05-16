@@ -25,7 +25,7 @@ void Mesh::Render(ID3D11DeviceContext* aDeviceContext)
 	aDeviceContext->DrawIndexed(myIndexBuffer.GetBufferSize(), 0, 0);
 }
 
-bool Mesh::Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, std::vector<DWORD>& indices,UINT numVertices, UINT numIndices, std::wstring& aTexturePath)
+bool Mesh::Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, std::vector<DWORD>& indices,UINT numVertices, UINT numIndices, std::wstring& aTexturePath, std::wstring& aVertexShaderPath,std::wstring& aPixelShaderPath)
 {
 	HRESULT hr = myVertexBuffer.Init(aDevice.Get(), &vertices[0], numVertices);
 	if (FAILED(hr))
@@ -58,12 +58,12 @@ bool Mesh::Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, st
 
 	UINT numElements = ARRAYSIZE(layout);
 
-	if (!myVertexShader.Init(aDevice, L"../x64/Output/vertexshader.cso", layout, numElements))
+	if (!myVertexShader.Init(aDevice, aVertexShaderPath, layout, numElements))
 	{
 		return false;
 	}
 
-	if (!myPixelShader.Init(aDevice, L"../x64/Output/pixelshader.cso"))
+	if (!myPixelShader.Init(aDevice, aPixelShaderPath))
 	{
 		return false;
 	}

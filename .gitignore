@@ -80,3 +80,8 @@
 *.vsidx
 .vs/Engine++/v17/ipch/AutoPCH/35e4e1f007795f66/MESH.ipch
 .vs/Engine++/v17/ipch/AutoPCH/f41d018b1cebfae/MODEL.ipch
+.vs/Engine++/v17/ipch/AutoPCH/8fbda0c9ab2ca148/IMGUI.ipch
+.vs/Engine++/v17/ipch/AutoPCH/92da8bd4cd207c11/TIMER.ipch
+.vs/Engine++/v17/ipch/AutoPCH/bb5d6722ceed703b/STRINGCONVERTER.ipch
+.vs/Engine++/v17/ipch/AutoPCH/d6a9a1165f7ca962/RENDERWINDOW.ipch
+.vs/Engine++/v17/ipch/AutoPCH/ed1958d00dcb013f/MAIN.ipch

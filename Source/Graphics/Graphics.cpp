@@ -15,8 +15,9 @@ bool gShowTextureWindow = false;
 std::string gFBXFilePath;
 std::wstring gTextureFilePath;
 
-bool Graphics::Init(HWND hwnd, int aWidth, int aHeight)
+bool Graphics::Init(HWND hwnd, int aWidth, int aHeight,Timer& aTimer)
 {
+	myTimer = &aTimer;
 	myWidth = aWidth;
 	myHeight = aHeight;
 	if (!InitDirectX(hwnd))
@@ -65,49 +66,68 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 	myDeviceContext->OMSetDepthStencilState(myDepthStencilState.Get(), 0);
 	myDeviceContext->PSSetSamplers(0, 1, mySamplerState.GetAddressOf());
 
+	const float itemWidth = 65;
 	int modelIndex = 0;
 	int previousImGuiWindowHeight = 0;
 	const int myWidthOffset = 240;
 	const int myHeightOffset = 0;
+	ImGui::Begin("Controls:");
+	ImGui::SetWindowSize(ImVec2(0, 0));
+	ImGui::Text("WASD - Camera Move");
+	ImGui::Text("RCLICK - Camera Rotation");
+	ImGui::Text("SPACE - Move up");
+	ImGui::Text("LCTRL - Move Down");
+	ImGui::Text("LSHIFT - Speed up");
+	ImGui::SetWindowPos(ImVec2((myWidth / 2) -ImGui::GetWindowSize().x/2, 0));
+	ImGui::End();
 	for (auto& model : myModels)
 	{
 
-
-		ImGui::SetNextWindowPos(ImVec2((myWidth - myWidthOffset), myHeightOffset + (modelIndex * previousImGuiWindowHeight)));
+		ImGui::GetWindowSize();
 		ImGui::SetNextWindowSize(ImVec2(0, 0));
 		ImGui::SetNextWindowViewport(viewport->ID);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 
-
-
 		ImGui::Begin(model.GetName().c_str(), nullptr, windowFlags);
 		previousImGuiWindowHeight = ImGui::GetWindowSize().y;
 		ImGui::PopStyleVar(2);
-
-
+		ImGui::PushItemWidth(itemWidth);
 		ImGui::Text("Position");
 		ImGui::DragFloat("X##Pos", &model.myPosition.x, 0.1f);
+		ImGui::SameLine();
 		ImGui::DragFloat("Y##Pos", &model.myPosition.y, 0.1f);
+		ImGui::SameLine();
 		ImGui::DragFloat("Z##Pos", &model.myPosition.z, 0.1f);
 
 		ImGui::Text("Rotation");
+
 		ImGui::DragFloat("X##Rot", &model.myRotationAngles.x, 0.1f);
+		ImGui::SameLine();
 		ImGui::DragFloat("Y##Rot", &model.myRotationAngles.y, 0.1f);
+		ImGui::SameLine();
 		ImGui::DragFloat("Z##Rot", &model.myRotationAngles.z, 0.1f);
 
+		ImGui::Text("Scale");
+		ImGui::DragFloat("X##Scale", &model.myScale.x, 0.1f);
+		ImGui::SameLine();
+		ImGui::DragFloat("Y##Scale", &model.myScale.y, 0.1f);
+		ImGui::SameLine();
+		ImGui::DragFloat("Z##Scale", &model.myScale.z, 0.1f);
+		ImGui::PopItemWidth();
+		ImGui::SetWindowPos(ImVec2(myWidth - ImGui::GetWindowSize().x, (modelIndex * previousImGuiWindowHeight)));
 		if (ImGui::Button("Delete model"))
 		{
 			myModels.erase(myModels.begin() + modelIndex);
 			modelIndex--;
 			ImGui::End();
-			continue;
+			break;
 		}
 
 		ImGui::End();
 
-		model.Render(myDeviceContext.Get());
+		model.Render(myDeviceContext.Get(),*myTimer);
 		++modelIndex;
 	}
 	RenderGrid();
@@ -311,30 +331,53 @@ bool Graphics::InitDirectX(HWND hwnd)
 
 bool Graphics::InitScene()
 {
+	std::wstring standardVertexShader = L"../x64/Output/StandardVertexShader.cso";
+	std::wstring standardPixelShader = L"../x64/Output/StandardPixelShader.cso";
+	std::wstring funkyPixelShader = L"../x64/Output/FunkyPixelShader.cso";
 
-	//LoadGrid();
+	std::string scooterFBX = "../Assets/Meshes/Other/Scooter.fbx";
+	std::wstring scooterTexture = L"../Assets/Textures/Scooter.png";
 
+	std::string dudeFBX = "../Assets/Meshes/Other/Man.fbx";
+	std::wstring dudeTexture = L"../Assets/Textures/Man.jpg";
+	
+	Model funkyScooter;
+	funkyScooter.SetPosition(XMFLOAT3(50, 0, 20));
+	funkyScooter.SetScale(XMFLOAT3(0.1f, 0.1f, 0.1f));
+	funkyScooter.SetIsFunky(true);
+	Model normalDude;
+	normalDude.SetPosition(XMFLOAT3(-50, 0, 20));
+	normalDude.SetScale(XMFLOAT3(0.1f, 0.1f, 0.1f));
+
+	LoadFBX(funkyScooter, scooterFBX, scooterTexture, standardVertexShader, funkyPixelShader);
+	LoadFBX(normalDude, dudeFBX, dudeTexture, standardVertexShader, standardPixelShader);
+
+	
 
 	myCamera.SetPosition(0.0f, 10.0f, -10.0f);
 	myCamera.SetProjectionValues(70.f, static_cast<float>(myWidth) / static_cast<float>(myHeight), 0.1f, 1000.f);
 	return true;
 }
 
-void Graphics::LoadFBX(std::string& filePath, std::wstring& aTexturePath)
+Model& Graphics::LoadFBX(std::string& filePath, std::wstring& aTexturePath, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath)
 {
-	Model model(true);
-	model.Init(myDevice, myDeviceContext, filePath, aTexturePath, myCamera);
+	Model model;
+	if (!model.Init(myDevice, myDeviceContext, filePath, aTexturePath, myCamera, aVertexShaderPath, aPixelShaderPath)) 
+	{
+		ErrorLog::Log("Failed initializing model");
+	}
 	myModels.push_back(model);
+	return model;
 }
 
-void Graphics::LoadGrid()
+void Graphics::LoadFBX(Model& aModel, std::string& filePath, std::wstring& aTexturePath, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath)
 {
-	std::string gridFilePath = "../Assets/Meshes/Primitives/Grid.fbx";
-	std::wstring gridTexturePath = L"../Assets/Textures/Grid.png";
-	Model grid(false);
-	grid.SetRotation(XMFLOAT3((double)90 * M_PI / 180, 0, 0));
-	grid.Init(myDevice, myDeviceContext, gridFilePath, gridTexturePath, myCamera);
-	myModels.push_back(grid);
+	aModel;
+	if (!aModel.Init(myDevice, myDeviceContext, filePath, aTexturePath, myCamera, aVertexShaderPath, aPixelShaderPath))
+	{
+		ErrorLog::Log("Failed initializing model");
+	}
+	myModels.push_back(aModel);
 }
 
 // Imgui window for selecting FBX files.
@@ -392,7 +435,9 @@ void Graphics::ShowTextureWindow(ImGuiWindowFlags& someFlags)
 			{
 				gTextureFilePath = filePath.wstring();
 				gShowTextureWindow = false;
-				LoadFBX(gFBXFilePath, gTextureFilePath);
+				std::wstring standardVertexShader = L"../x64/Output/StandardVertexShader.cso";
+				std::wstring standardPixelShader = L"../x64/Output/StandardPixelShader.cso";
+				LoadFBX(gFBXFilePath, gTextureFilePath, standardVertexShader, standardPixelShader);
 				gShowFBXWindow = true;
 			}
 		}
@@ -404,7 +449,7 @@ bool Graphics::InitGrid()
 {
 	const float numGridCellsX = 200;
 	const float numGridCellsY = 200;
-	const float gridSize = 10.f; // Adjust the size of each grid cell as needed
+	const float gridSize = 10.f; 
 	const float gridWidth = gridSize * numGridCellsX; // Total width of the grid
 	const float gridHeight = gridSize * numGridCellsY; // Total height of the grid
 
@@ -416,10 +461,8 @@ bool Graphics::InitGrid()
 	{
 		float zPos = y * gridSize - gridHeight * 0.5f;
 
-		// Left endpoint
 		gridVertices.push_back(Vertex(-gridWidth * 0.5f, 0.0f, zPos, 0.0f, zPos / gridHeight));
 
-		// Right endpoint
 		gridVertices.push_back(Vertex(gridWidth * 0.5f, 0.0f, zPos, 1.0f, zPos / gridHeight));
 	}
 
@@ -428,14 +471,11 @@ bool Graphics::InitGrid()
 	{
 		float xPos = x * gridSize - gridWidth * 0.5f;
 
-		// Top endpoint
 		gridVertices.push_back(Vertex(xPos, 0.0f, -gridHeight * 0.5f, xPos / gridWidth, 0.0f));
 
-		// Bottom endpoint
 		gridVertices.push_back(Vertex(xPos, 0.0f, gridHeight * 0.5f, xPos / gridWidth, 1.0f));
 	}
 
-	// Create and initialize the vertex buffer
 	HRESULT hr = myGridVertexBuffer.Init(myDevice.Get(), &gridVertices[0], static_cast<UINT>(gridVertices.size()));
 
 	if (FAILED(hr))
@@ -445,17 +485,14 @@ bool Graphics::InitGrid()
 
 	}
 
-	// Set up the grid indices
 	std::vector<DWORD> gridIndices;
 
-	// Generate indices for the grid lines
 	for (UINT i = 0; i < gridVertices.size(); i += 2)
 	{
 		gridIndices.push_back(i);
 		gridIndices.push_back(i + 1);
 	}
 
-	// Create and initialize the index buffer
 	hr = myGridIndexBuffer.Init(myDevice.Get(), &gridIndices[0], static_cast<UINT>(gridIndices.size()));
 	if (FAILED(hr))
 	{

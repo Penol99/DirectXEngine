@@ -163,16 +163,19 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\Source\Shaders\vertexshader.hlsl">
+    <FxCompile Include="..\Source\Shaders\StandardVertexShader.hlsl">
       <Filter>Source\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="..\Source\Shaders\pixelshader.hlsl">
+    <FxCompile Include="..\Source\Shaders\StandardPixelShader.hlsl">
       <Filter>Source\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\Source\Shaders\LinePixelShader.hlsl">
       <Filter>Source\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\Source\Shaders\LineVertexShader.hlsl">
+      <Filter>Source\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\FunkyPixelShader.hlsl">
       <Filter>Source\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
