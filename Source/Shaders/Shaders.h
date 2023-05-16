@@ -5,8 +5,8 @@
 #include "d3dcommon.h"
 #include <wrl/client.h>
 
-#pragma comment (lib, "d3d11.lib")
-#pragma comment (lib, "d3dCompiler.lib")
+//#pragma comment (lib, "d3d11.lib")
+//#pragma comment (lib, "d3dCompiler.lib")
 using namespace Microsoft::WRL;
 class VertexShader
 {

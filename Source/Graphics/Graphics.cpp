@@ -73,8 +73,8 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 	const int myHeightOffset = 0;
 	ImGui::Begin("Controls:");
 	ImGui::SetWindowSize(ImVec2(0, 0));
+	ImGui::Text("HOLD DOWN RIGHT CLICK TO MOVE AND ROTATE CAMERA");
 	ImGui::Text("WASD - Camera Move");
-	ImGui::Text("RCLICK - Camera Rotation");
 	ImGui::Text("SPACE - Move up");
 	ImGui::Text("LCTRL - Move Down");
 	ImGui::Text("LSHIFT - Speed up");
@@ -206,7 +206,7 @@ bool Graphics::InitDirectX(HWND hwnd)
 	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; // Allows toggling between windowed and fullscreen.
 
 	HRESULT hr;
-	hr = D3D11CreateDeviceAndSwapChain(adapters[0].mAdapter, // GPU, IDXGI Adapter
+	hr = D3D11CreateDeviceAndSwapChain(adapters[0].myAdapter, // GPU, IDXGI Adapter
 		D3D_DRIVER_TYPE_UNKNOWN,
 		NULL, // SOFWARE DRIVER TYPE
 		NULL, // FLAGS FOR RUNTIME LAYERS
@@ -307,7 +307,7 @@ bool Graphics::InitDirectX(HWND hwnd)
 
 	// TODO: Create a font manager;
 	mySpriteBatch = std::make_unique<SpriteBatch>(myDeviceContext.Get());
-	mySpriteFont = std::make_unique<SpriteFont>(myDevice.Get(), L"../Assets/Fonts/Arial_DX.spriteFont");
+	mySpriteFont = std::make_unique<SpriteFont>(myDevice.Get(), L"../bin/Assets/Fonts/Arial_DX.spriteFont");
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
@@ -331,15 +331,15 @@ bool Graphics::InitDirectX(HWND hwnd)
 
 bool Graphics::InitScene()
 {
-	std::wstring standardVertexShader = L"../x64/Output/StandardVertexShader.cso";
-	std::wstring standardPixelShader = L"../x64/Output/StandardPixelShader.cso";
-	std::wstring funkyPixelShader = L"../x64/Output/FunkyPixelShader.cso";
+	std::wstring standardVertexShader = L"../bin/StandardVertexShader.cso";
+	std::wstring standardPixelShader = L"../bin/StandardPixelShader.cso";
+	std::wstring funkyPixelShader = L"../bin/FunkyPixelShader.cso";
 
-	std::string scooterFBX = "../Assets/Meshes/Other/Scooter.fbx";
-	std::wstring scooterTexture = L"../Assets/Textures/Scooter.png";
+	std::string scooterFBX = "../bin/Assets/Meshes/Other/Scooter.fbx";
+	std::wstring scooterTexture = L"../bin/Assets/Textures/Scooter.png";
 
-	std::string dudeFBX = "../Assets/Meshes/Other/Man.fbx";
-	std::wstring dudeTexture = L"../Assets/Textures/Man.jpg";
+	std::string dudeFBX = "../bin/Assets/Meshes/Other/Man.fbx";
+	std::wstring dudeTexture = L"../bin/Assets/Textures/Man.jpg";
 	
 	Model funkyScooter;
 	funkyScooter.SetPosition(XMFLOAT3(50, 0, 20));
@@ -385,7 +385,7 @@ void Graphics::ShowFBXWindow(ImGuiWindowFlags& someFlags)
 {
 	ImGui::Begin("SELECT AN FBX", nullptr, someFlags);
 
-	std::string fbxDirectoryPath = "../Assets/Meshes/";
+	std::string fbxDirectoryPath = "../bin/Assets/Meshes/";
 
 	std::string previousLabel;
 	for (const auto& entry : std::filesystem::recursive_directory_iterator(fbxDirectoryPath))
@@ -420,7 +420,7 @@ void Graphics::ShowTextureWindow(ImGuiWindowFlags& someFlags)
 {
 	ImGui::Begin("SELECT A TEXTURE", nullptr, someFlags);
 
-	std::string textureDirectoryPath = "../Assets/Textures";
+	std::string textureDirectoryPath = "../bin/Assets/Textures";
 
 	std::vector<std::string> supportedExtensions = { ".png", ".dds", ".jpg" };
 
@@ -435,8 +435,8 @@ void Graphics::ShowTextureWindow(ImGuiWindowFlags& someFlags)
 			{
 				gTextureFilePath = filePath.wstring();
 				gShowTextureWindow = false;
-				std::wstring standardVertexShader = L"../x64/Output/StandardVertexShader.cso";
-				std::wstring standardPixelShader = L"../x64/Output/StandardPixelShader.cso";
+				std::wstring standardVertexShader = L"../bin/StandardVertexShader.cso";
+				std::wstring standardPixelShader = L"../bin/StandardPixelShader.cso";
 				LoadFBX(gFBXFilePath, gTextureFilePath, standardVertexShader, standardPixelShader);
 				gShowFBXWindow = true;
 			}
@@ -514,12 +514,12 @@ bool Graphics::InitGrid()
 
 	UINT numElements = ARRAYSIZE(layout);
 
-	if (!myLineVertexShader.Init(myDevice, L"../x64/Output/LineVertexShader.cso", layout, numElements))
+	if (!myLineVertexShader.Init(myDevice, L"../bin/LineVertexShader.cso", layout, numElements))
 	{
 		return false;
 	}
 
-	if (!myLinePixelShader.Init(myDevice, L"../x64/Output/LinePixelShader.cso"))
+	if (!myLinePixelShader.Init(myDevice, L"../bin/LinePixelShader.cso"))
 	{
 		return false;
 	}

@@ -31,9 +31,9 @@ std::vector<AdapterData> AdapterReader::GetAdapters()
 }
 
 AdapterData::AdapterData(IDXGIAdapter* pAdapter)
-    :mAdapter(pAdapter)
+    :myAdapter(pAdapter)
 {
-    HRESULT hr = mAdapter->GetDesc(&this->mDescription);
+    HRESULT hr = myAdapter->GetDesc(&this->myDescription);
     if (FAILED(hr))
     {
         ErrorLog::Log(hr, "failed getting the description for IDXGIAdapter");

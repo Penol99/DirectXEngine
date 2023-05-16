@@ -45,12 +45,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);${SolutionDir}Include;</IncludePath>
-    <OutDir>$(SolutionDir)$(Platform)\Output\</OutDir>
+    <OutDir>$(SolutionDir)Bin</OutDir>
     <IntDir>$(SolutionDir)$(Platform)\Intermediate\</IntDir>
+    <TargetName>$(ProjectName)-Debug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);${SolutionDir}Include;</IncludePath>
-    <OutDir>$(SolutionDir)$(Platform)\Output\</OutDir>
+    <OutDir>$(SolutionDir)Bin</OutDir>
     <IntDir>$(SolutionDir)$(Platform)\Intermediate\</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

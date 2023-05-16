@@ -13,8 +13,8 @@ class AdapterData
 {
 public:
 	AdapterData(IDXGIAdapter* pAdapter);
-	IDXGIAdapter* mAdapter = nullptr;
-	DXGI_ADAPTER_DESC mDescription;
+	IDXGIAdapter* myAdapter = nullptr;
+	DXGI_ADAPTER_DESC myDescription;
 };
 class AdapterReader
 {
