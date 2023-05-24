@@ -2,7 +2,6 @@ cbuffer ConstantBuffer : register(b0)
 {
     float3 DirectionalLightDirection;
     float3 CameraPosition;
-    
     float4 DirectionalLightAmbientColor;
     float4 DirectionalLightDiffuseColor;
 }
@@ -43,11 +42,13 @@ float3 RotateVector(float3 v, float3 rotation)
 PixelOutput main(PixelInput input) : SV_TARGET
 {
     PixelOutput output;
-
+    float Shininess = 200.0f;
+    float3 SpecularColor = float3(1.0f, 1.0f, 1.0f); // Bright white specular color
+    
     // Sample textures
     float4 albedo = albedoTexture.Sample(defaultSampler, input.TexCoord);
-    float metalness = 0.8f; //metalnessTexture.Sample(defaultSampler, input.TexCoord).r;
-    float roughness = 0.0f;//roughnessTexture.Sample(defaultSampler, input.TexCoord).r;
+    float metalness = metalnessTexture.Sample(defaultSampler, input.TexCoord).r;
+    float roughness = roughnessTexture.Sample(defaultSampler, input.TexCoord).r;
 
     // Rotate the normal vector based on the player's rotation
     float3 rotatedNormal = RotateVector(input.Normal, input.Rotation);
@@ -59,11 +60,10 @@ PixelOutput main(PixelInput input) : SV_TARGET
     float3 halfwayDirection = normalize(lightDirection + viewDirection);
 
     float3 diffuseColor = albedo.rgb;
-    float3 specularColor = float3(0.04, 0.04, 0.04); // Default specular color
 
-    float3 ambient = normalize(DirectionalLightAmbientColor.rgb);
+    float3 ambient = DirectionalLightAmbientColor.rgb;
     float3 diffuse = saturate(dot(normal, lightDirection)) * DirectionalLightDiffuseColor.rgb;
-    float3 specular = pow(saturate(dot(normal, halfwayDirection)), 2.0) * specularColor * DirectionalLightDiffuseColor.rgb;
+    float3 specular = pow(saturate(dot(normal, halfwayDirection)), Shininess) * SpecularColor * DirectionalLightDiffuseColor.rgb;
 
     float3 finalColor = albedo.rgb * (ambient + diffuse) + specular;
 
