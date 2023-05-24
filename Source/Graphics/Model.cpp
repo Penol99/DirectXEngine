@@ -1,11 +1,11 @@
 #include "Model.h"
 #include "../Timer.h"
+#include "DirectionalLight.h"
 Model::Model()
 {
 	myPosition.x = 0;
 	myPosition.y = 0;
 	myPosition.z = 0;
-	myIsFunky = false;
 }
 
 Model::Model(const Model& other)
@@ -19,7 +19,6 @@ Model::Model(const Model& other)
 	myCBPSPixelShader = other.myCBPSPixelShader;
 	myName = other.myName;
 	myScale = other.myScale;
-	myIsFunky = other.myIsFunky;
 	for (const auto& mesh : other.myMeshes)
 	{
 		myMeshes.push_back(Mesh(mesh));
@@ -51,7 +50,7 @@ bool Model::Init(ComPtr<ID3D11Device>& aDevice, ComPtr<ID3D11DeviceContext>& aDe
 	}
 
 	ProcessNode(scene->mRootNode, scene, aDevice, aVertexShaderPath, aPixelShaderPath);
-
+	
 	
 	HRESULT hr = myCBVSVertexShader.Init(aDevice.Get(), aDeviceContext.Get());
 	if (FAILED(hr))
@@ -76,27 +75,24 @@ void Model::Render(ID3D11DeviceContext* aDeviceContext, Timer& aTimer)
 	XMMATRIX translationOffset = XMMatrixTranslation(worldTranslationOffset[0], worldTranslationOffset[1], worldTranslationOffset[2]);
 	XMMATRIX world = scale * translationOffset;
 
+
 	myCBVSVertexShader.myData.modelPosition = myPosition;
 	myCBVSVertexShader.myData.modelRotation = myRotationAngles;
 	myCBVSVertexShader.myData.worldMatrix = world * myCamera->GetViewMatrix() * myCamera->GetProjectionMatrix();
 	myCBVSVertexShader.myData.worldMatrix = XMMatrixTranspose(myCBVSVertexShader.myData.worldMatrix);
 
 
-	aDeviceContext->UpdateSubresource(myCBVSVertexShader.Get(), 0, nullptr, &myCBVSVertexShader.myData, 0, 0);
 	myCBVSVertexShader.ApplyChanges();
 	aDeviceContext->VSSetConstantBuffers(0, 1, myCBVSVertexShader.GetAddressOf());
 	
-	// Ugly but I'm tired
-	if (!myIsFunky) 
-	{
-		myCBPSPixelShader.myData.alpha = 1;
-	}
-	else 
-	{
-		myCBPSPixelShader.myData.alpha = aTimer.GetTotalTime();
-	}
+	myCBPSPixelShader.myData.cameraPosition = myCamera->GetPositionFloat3();
+	myCBPSPixelShader.myData.direction = DirectionalLight::GetInstance()->myDirection;
+	myCBPSPixelShader.myData.ambientColor = DirectionalLight::GetInstance()->myAmbientColor;
+	myCBPSPixelShader.myData.diffuseColor = DirectionalLight::GetInstance()->myDiffuseColor;
 	myCBPSPixelShader.ApplyChanges();
 	aDeviceContext->PSSetConstantBuffers(0, 1, myCBPSPixelShader.GetAddressOf());
+	
+
 	// Render each mesh
 	for (Mesh& mesh : myMeshes)
 	{
@@ -133,11 +129,6 @@ void Model::SetScale(DirectX::XMFLOAT3 aScale)
 	myScale = aScale;
 }
 
-void Model::SetIsFunky(bool aValue)
-{
-	myIsFunky = aValue;
-}
-
 XMFLOAT3 Model::GetPosition()
 {
 	return myPosition;
@@ -164,18 +155,18 @@ void Model::ProcessNode(const aiNode* node, const aiScene* scene, ComPtr<ID3D11D
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		const aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		
 
 		std::vector<Vertex> vertices;
 		std::vector<DWORD> indices;
-		
+
 		// Process vertices
 		for (unsigned int j = 0; j < mesh->mNumVertices; j++)
 		{
 			const aiVector3D& vertex = mesh->mVertices[j];
 			const aiVector3D& uv = mesh->mTextureCoords[0][j];
+			const aiVector3D& normal = mesh->mNormals[j];
 
-			Vertex v(vertex.x, vertex.y, vertex.z, (float)uv.x, (float)uv.y);
+			Vertex v(vertex.x, vertex.y, vertex.z, normal.x, normal.y, normal.z, uv.x, uv.y);
 			vertices.push_back(v);
 		}
 
@@ -189,22 +180,22 @@ void Model::ProcessNode(const aiNode* node, const aiScene* scene, ComPtr<ID3D11D
 				indices.push_back(face.mIndices[k]);
 			}
 		}
+
 		UINT numVertices = static_cast<UINT>(vertices.size());
 		UINT numIndices = static_cast<UINT>(indices.size());
 		Mesh newMesh;
-		if (!newMesh.Init(aDevice, vertices, indices, numVertices, numIndices, myTexturePath,aVertexShaderPath, aPixelShaderPath))
+		if (!newMesh.Init(aDevice, vertices, indices, numVertices, numIndices, myTexturePath, aVertexShaderPath, aPixelShaderPath))
 		{
 			ErrorLog::Log("Failed to initialize new mesh when processing node");
 			return;
 		}
 		myMeshes.push_back(newMesh);
-
 	}
 
 	// Process child nodes recursively
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		ProcessNode(node->mChildren[i], scene, aDevice,aVertexShaderPath, aPixelShaderPath);
+		ProcessNode(node->mChildren[i], scene, aDevice, aVertexShaderPath, aPixelShaderPath);
 	}
 }
 

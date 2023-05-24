@@ -9,6 +9,7 @@ cbuffer cBuffer : register(b0)
 struct VS_INPUT
 {
     float3 inPos : POSITION;
+    float3 inNormal : NORMAL0;
     float2 inTexCoord : TEXCOORD0;
 };
 

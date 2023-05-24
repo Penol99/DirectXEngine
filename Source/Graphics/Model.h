@@ -2,15 +2,13 @@
 #pragma once
 #include <iostream>
 #include <vector>
-//#include "../../Include/assimp/Importer.hpp"
-//#include "../../Include/assimp/scene.h"
-//#include "../../Include/assimp/postprocess.h"
 #include <../assimp/Importer.hpp>
 #include <../assimp/scene.h>
 #include <../assimp/postprocess.h>
 #include "Mesh.h"
 #include "ConstantBuffer.h"
 #include "Camera.h"
+#include <mutex>
 class Timer;
 class Model
 {
@@ -29,7 +27,6 @@ public:
     void SetPosition(DirectX::XMFLOAT3 aPos);
     void SetRotation(DirectX::XMFLOAT3 aRot);
     void SetScale(DirectX::XMFLOAT3 aScale);
-    void SetIsFunky(bool aValue);
     XMFLOAT3 GetPosition();
     XMFLOAT3 GetRotation();
     void SetName(std::string aName);
@@ -37,10 +34,10 @@ public:
 private:
     std::vector<Mesh> myMeshes;
     std::wstring myTexturePath;
-    ConstantBuffer<CB_VS_VertexShader> myCBVSVertexShader;
-    ConstantBuffer<CB_PS_PixelShader> myCBPSPixelShader;
+    ConstantBuffer<CB_VS_StandardShader> myCBVSVertexShader;
+    ConstantBuffer<CB_PS_PBRShader> myCBPSPixelShader;
     Camera* myCamera = nullptr;
     void ProcessNode(const aiNode* node, const aiScene* scene, ComPtr<ID3D11Device>& aDevice, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath);
     std::string myName;
-    bool myIsFunky;
+
 };

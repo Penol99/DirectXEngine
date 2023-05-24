@@ -1,7 +1,7 @@
-
 #include "Engine.h"
 #include <Windows.h>
 #include "Timer.h"
+#include "Graphics/DirectionalLight.h"
 
 Timer Time;
 void Run(void);
@@ -40,5 +40,7 @@ void Run()
 
 		engine.Render(Time.GetFPS(), Time.GetDeltaTime());
 	}
+
+	DirectionalLight::DestroyInstance();
 }
 

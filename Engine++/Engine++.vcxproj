@@ -101,6 +101,7 @@
     <ClCompile Include="..\Source\ErrorLog.cpp" />
     <ClCompile Include="..\Source\Graphics\AdapterReader.cpp" />
     <ClCompile Include="..\Source\Graphics\Camera.cpp" />
+    <ClCompile Include="..\Source\Graphics\DirectionalLight.cpp" />
     <ClCompile Include="..\Source\Graphics\Graphics.cpp" />
     <ClCompile Include="..\Source\Graphics\Mesh.cpp" />
     <ClCompile Include="..\Source\Graphics\Model.cpp" />
@@ -127,6 +128,7 @@
     <ClInclude Include="..\Source\Graphics\Camera.h" />
     <ClInclude Include="..\Source\Graphics\ConstantBuffer.h" />
     <ClInclude Include="..\Source\Graphics\ConstantBufferTypes.h" />
+    <ClInclude Include="..\Source\Graphics\DirectionalLight.h" />
     <ClInclude Include="..\Source\Graphics\Graphics.h" />
     <ClInclude Include="..\Source\Graphics\IndexBuffer.h" />
     <ClInclude Include="..\Source\Graphics\Mesh.h" />
@@ -143,6 +145,7 @@
     <ClInclude Include="..\Source\ImGui\imstb_textedit.h" />
     <ClInclude Include="..\Source\ImGui\imstb_truetype.h" />
     <ClInclude Include="..\Source\Input\InputHandler.h" />
+    <ClInclude Include="..\Source\PerlinNoise.hpp" />
     <ClInclude Include="..\Source\RenderWindow.h" />
     <ClInclude Include="..\Source\Shaders\Shaders.h" />
     <ClInclude Include="..\Source\StringConverter.h" />
@@ -167,6 +170,18 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\PBRPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\PBRVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="..\Source\Shaders\StandardPixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

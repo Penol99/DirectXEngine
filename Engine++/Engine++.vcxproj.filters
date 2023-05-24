@@ -84,6 +84,9 @@
     <ClCompile Include="..\Source\Graphics\TerrainGenerator.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\Graphics\DirectionalLight.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\StringConverter.h">
@@ -167,6 +170,12 @@
     <ClInclude Include="..\Source\Graphics\TerrainGenerator.h">
       <Filter>Source\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\PerlinNoise.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\DirectionalLight.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Source\Shaders\StandardVertexShader.hlsl">
@@ -188,6 +197,12 @@
       <Filter>Source\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\Source\Shaders\TerrainVertexShader.hlsl">
+      <Filter>Source\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\PBRVertexShader.hlsl">
+      <Filter>Source\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\PBRPixelShader.hlsl">
       <Filter>Source\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

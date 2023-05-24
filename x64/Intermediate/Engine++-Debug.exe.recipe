@@ -16,6 +16,12 @@
       <FullPath>E:\GIT\DirectXEngine\Bin\LineVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
+      <FullPath>E:\GIT\DirectXEngine\Bin\PBRPixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>E:\GIT\DirectXEngine\Bin\PBRVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>E:\GIT\DirectXEngine\Bin\StandardPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>

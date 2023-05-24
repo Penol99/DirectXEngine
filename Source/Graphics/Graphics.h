@@ -12,7 +12,7 @@
 #include "../ImGui/imgui.h"
 #include "../ImGui/imgui_impl_win32.h"
 #include "../ImGui/imgui_impl_dx11.h"
-#include "TerrainGenerator.h"
+//#include "TerrainGenerator.h"
 #include "Model.h"
 
 
@@ -24,11 +24,12 @@ class Graphics
 public:
 	bool Init(HWND hwnd, int aWidth, int aHeight, Timer& aTimer);
 	void Render(const int& aFPS, const float& aDeltaTime);
+	void RenderImGui();
 	Camera myCamera;
 private:
 	bool InitDirectX(HWND hwnd);
 	bool InitScene();
-	Model& LoadFBX(std::string& filePath, std::wstring& aTexturePath, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath);
+	Model& LoadFBX(std::string filePath, std::wstring aTexturePath, std::wstring aVertexShaderPath, std::wstring aPixelShaderPath);
 	void LoadFBX(Model& aModel, std::string& filePath, std::wstring& aTexturePath, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath);
 	void ShowFBXWindow(ImGuiWindowFlags& someFlags);
 	void ShowTextureWindow(ImGuiWindowFlags& someFlags);
@@ -40,8 +41,7 @@ private:
 	ComPtr<ID3D11RenderTargetView> myRenderTargetView;
 
 
-	ConstantBuffer<CB_VS_VertexShader> myCBVSVertexShader;
-	ConstantBuffer<CB_PS_PixelShader> myCBPSPixelShader;
+	ConstantBuffer<CB_VS_StandardShader> myCBVSVertexShader;
 
 	ComPtr<ID3D11DepthStencilView> myDepthStencilView;
 	ComPtr<ID3D11Texture2D> myDepthStencilBuffer;
@@ -60,12 +60,12 @@ private:
 
 	VertexBuffer<Vertex> myGridVertexBuffer;
 	IndexBuffer myGridIndexBuffer;
-	ConstantBuffer<CB_VS_VertexShader> myGridConstantBuffer;
+	ConstantBuffer<CB_VS_StandardShader> myGridConstantBuffer;
 
 	VertexShader myLineVertexShader;
 	PixelShader myLinePixelShader;
-
-	TerrainGenerator myTerrainGenerator;
+	ConstantBuffer<CB_PS_PBRShader> myPBRPixelShader;
+	//TerrainGenerator myTerrainGenerator;
 
 	Timer* myTimer;
 	int myWidth;

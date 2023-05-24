@@ -4,6 +4,7 @@
 #include "ConstantBufferTypes.h"
 #include <wrl/client.h>
 #include "../ErrorLog.h"
+#include <iostream>
 using namespace Microsoft::WRL;
 
 template<class T>
@@ -42,11 +43,16 @@ public:
 		constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		constantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		constantBufferDesc.MiscFlags = 0;
-		constantBufferDesc.ByteWidth = static_cast<UINT>(sizeof(CB_VS_VertexShader)) + (16 - (sizeof(CB_VS_VertexShader)));
+
+		constantBufferDesc.ByteWidth = ((sizeof(T) + 15) / 16) * 16;
+		//constantBufferDesc.ByteWidth = static_cast<UINT>(sizeof(T)) + (16 - (sizeof(T)));
 		constantBufferDesc.StructureByteStride = 0;
 
-		return aDevice->CreateBuffer(&constantBufferDesc, 0, myBuffer.GetAddressOf());
 
+		std::cout << "good\n";
+		std::cout << ((sizeof(T) + 15) / 16) * 16 << std::endl;
+		return aDevice->CreateBuffer(&constantBufferDesc, 0, myBuffer.GetAddressOf());
+		
 	}
 
 	bool ApplyChanges() 
@@ -58,7 +64,7 @@ public:
 			ErrorLog::Log(hr, "failed mapping constant buffer");
 			return false;
 		}
-		CopyMemory(mappedResource.pData, &myData, sizeof(CB_VS_VertexShader));
+		CopyMemory(mappedResource.pData, &myData, sizeof(T));
 		myDeviceContext->Unmap(myBuffer.Get(), 0);
 		return true;
 	}

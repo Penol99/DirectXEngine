@@ -1,10 +1,10 @@
 #define _USE_MATH_DEFINES
 #include "Graphics.h"
 #include <filesystem>
+#include "DirectionalLight.h"
 
 
-
-#define VSYNC_ENABLED false
+#define VSYNC_ENABLED true
 
 
 // Global variables
@@ -15,6 +15,7 @@ std::wstring gTextureFilePath;
 
 bool Graphics::Init(HWND hwnd, int aWidth, int aHeight,Timer& aTimer)
 {
+
 	myTimer = &aTimer;
 	myWidth = aWidth;
 	myHeight = aHeight;
@@ -31,8 +32,6 @@ bool Graphics::Init(HWND hwnd, int aWidth, int aHeight,Timer& aTimer)
 		return false;
 	}
 
-
-
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -45,6 +44,54 @@ bool Graphics::Init(HWND hwnd, int aWidth, int aHeight,Timer& aTimer)
 
 void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 {
+	//float backgroundColor[] = { 0.0f, 50.0f, 200.0f,1.0f };
+	float backgroundColor[] = { 0.0f, 0.0f, 0.f , 1.0f };
+	myDeviceContext->ClearRenderTargetView(myRenderTargetView.Get(), backgroundColor);
+	myDeviceContext->ClearDepthStencilView(myDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	RenderGrid();
+
+
+
+	myDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	myDeviceContext->RSSetState(myRasterizerState.Get());
+	myDeviceContext->OMSetDepthStencilState(myDepthStencilState.Get(), 0);
+	myDeviceContext->PSSetSamplers(0, 1, mySamplerState.GetAddressOf());
+
+
+
+	//myPBRPixelShader.myData.direction = XMFLOAT3(0.5f, 0.5f, 0.5f);
+	//myPBRPixelShader.myData.ambientColor = DirectionalLight::GetInstance()->myAmbientColor;
+	//myPBRPixelShader.myData.diffuseColor = DirectionalLight::GetInstance()->myDiffuseColor;
+
+	/*myPBRPixelShader.ApplyChanges();
+	myDeviceContext->PSSetConstantBuffers(2, 1, myPBRPixelShader.GetAddressOf());*/
+
+
+
+
+
+	for (auto& model : myModels)
+	{
+
+		
+		model.Render(myDeviceContext.Get(), *myTimer);
+	}
+
+
+	const float fpsYOffset = 20;
+	mySpriteBatch->Begin();
+	std::wstring fpsCounter = L"FPS: ";
+	fpsCounter += std::to_wstring(aFPS);
+	mySpriteFont->DrawString(mySpriteBatch.get(), fpsCounter.c_str(), XMFLOAT2(0, myHeight - fpsYOffset), Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
+	mySpriteBatch->End();
+
+	
+	RenderImGui();  
+	mySwapChain->Present(VSYNC_ENABLED, NULL);
+}
+
+void Graphics::RenderImGui()
+{
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -53,18 +100,6 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 
 	windowFlags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
 	windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
-	//float backgroundColor[] = { 0.0f, 50.0f, 200.0f,1.0f };
-	float backgroundColor[] = { 0.0f, 0.0f, 0.f , 1.0f };
-	myDeviceContext->ClearRenderTargetView(myRenderTargetView.Get(), backgroundColor);
-	myDeviceContext->ClearDepthStencilView(myDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-
-
-	myDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	myDeviceContext->RSSetState(myRasterizerState.Get());
-	myDeviceContext->OMSetDepthStencilState(myDepthStencilState.Get(), 0);
-	myDeviceContext->PSSetSamplers(0, 1, mySamplerState.GetAddressOf());
 
 	const float itemWidth = 65;
 	int modelIndex = 0;
@@ -78,8 +113,47 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 	ImGui::Text("SPACE - Move up");
 	ImGui::Text("LCTRL - Move Down");
 	ImGui::Text("LSHIFT - Speed up");
-	ImGui::SetWindowPos(ImVec2((myWidth / 2) -ImGui::GetWindowSize().x/2, 0));
+	ImGui::SetWindowPos(ImVec2((myWidth / 2) - ImGui::GetWindowSize().x / 2, 0));
+
 	ImGui::End();
+	ImGui::GetWindowSize();
+	ImGui::SetNextWindowSize(ImVec2(0, 0));
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+	ImGui::Begin("Directional Light", nullptr, windowFlags);
+	previousImGuiWindowHeight = ImGui::GetWindowSize().y;
+	ImGui::PopStyleVar(2);
+	ImGui::PushItemWidth(itemWidth);
+
+	ImGui::Text("Rotation");
+	DirectionalLight* dLight = DirectionalLight::GetInstance();
+	ImGui::DragFloat("X##Rot", &dLight->myDirection.x, 0.1f);
+	ImGui::SameLine();
+	ImGui::DragFloat("Y##Rot", &dLight->myDirection.y, 0.1f);
+	ImGui::SameLine();
+	ImGui::DragFloat("Z##Rot", &dLight->myDirection.z, 0.1f);
+
+	ImGui::Text("Ambient Color");
+	float ambientColor[4] = { dLight->myAmbientColor.x, dLight->myAmbientColor.y , dLight->myAmbientColor.z,dLight->myAmbientColor.w };
+	ImGui::ColorPicker4("Ambient Color", ambientColor);
+	dLight->myAmbientColor.x = ambientColor[0];
+	dLight->myAmbientColor.y = ambientColor[1];
+	dLight->myAmbientColor.z = ambientColor[2];
+	dLight->myAmbientColor.w = ambientColor[3];
+
+
+	ImGui::SetWindowPos(ImVec2(ImGui::GetWindowSize().x / 2, 0));
+
+	ImGui::End();
+
+
+
+
+
+
 	for (auto& model : myModels)
 	{
 
@@ -126,22 +200,14 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 		}
 
 		ImGui::End();
-
-		model.Render(myDeviceContext.Get(),*myTimer);
 		++modelIndex;
 	}
-	myTerrainGenerator.Render(myDeviceContext.Get());
-	RenderGrid();
+
 
 
 	ImGui::StyleColorsLight();
 
-	const float fpsYOffset = 20;
-	mySpriteBatch->Begin();
-	std::wstring fpsCounter = L"FPS: ";
-	fpsCounter += std::to_wstring(aFPS);
-	mySpriteFont->DrawString(mySpriteBatch.get(), fpsCounter.c_str(), XMFLOAT2(0, myHeight - fpsYOffset), Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
-	mySpriteBatch->End();
+
 
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowSize(ImVec2(0, 0));
@@ -164,15 +230,9 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 
 	ImGui::End();
 
-	// Rendering
-	// Added line to end the "Files" window
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-
-
-
-	mySwapChain->Present(VSYNC_ENABLED, NULL);
 }
 
 bool Graphics::InitDirectX(HWND hwnd)
@@ -266,7 +326,7 @@ bool Graphics::InitDirectX(HWND hwnd)
 		return false;
 	}
 	myDeviceContext->OMSetRenderTargets(1, myRenderTargetView.GetAddressOf(), myDepthStencilView.Get());
-
+	myDeviceContext->OMSetDepthStencilState(myDepthStencilState.Get(), 0);
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 	ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
 	depthStencilDesc.DepthEnable = true;
@@ -331,43 +391,26 @@ bool Graphics::InitDirectX(HWND hwnd)
 
 bool Graphics::InitScene()
 {
-	std::wstring standardVertexShader = L"../bin/StandardVertexShader.cso";
-	std::wstring standardPixelShader = L"../bin/StandardPixelShader.cso";
-	std::wstring funkyPixelShader = L"../bin/FunkyPixelShader.cso";
-
-	std::string scooterFBX = "../bin/Assets/Meshes/Other/Scooter.fbx";
-	std::wstring scooterTexture = L"../bin/Assets/Textures/Scooter.png";
-
-	std::string dudeFBX = "../bin/Assets/Meshes/Other/Man.fbx";
-	std::wstring dudeTexture = L"../bin/Assets/Textures/Man.jpg";
-	
-	Model funkyScooter;
-	funkyScooter.SetPosition(XMFLOAT3(50, 0, 20));
-	funkyScooter.SetScale(XMFLOAT3(0.1f, 0.1f, 0.1f));
-	funkyScooter.SetIsFunky(true);
-	Model normalDude;
-	normalDude.SetPosition(XMFLOAT3(-50, 0, 20));
-	normalDude.SetScale(XMFLOAT3(0.1f, 0.1f, 0.1f));
-
-	LoadFBX(funkyScooter, scooterFBX, scooterTexture, standardVertexShader, funkyPixelShader);
-	LoadFBX(normalDude, dudeFBX, dudeTexture, standardVertexShader, standardPixelShader);
-
-	int width = 100;
-	int height = 100;
-	float scale = 0.1f;
-	int octaves = 5;
-	float persistence = 0.5f;
-	float lacunarity = 2.0f;
-	int seed = 12345;
-
-	myTerrainGenerator.Init(myDevice,myDeviceContext,myCamera, width, height, scale, octaves, persistence, lacunarity, seed);
 
 	myCamera.SetPosition(0.0f, 10.0f, -10.0f);
 	myCamera.SetProjectionValues(70.f, static_cast<float>(myWidth) / static_cast<float>(myHeight), 0.1f, 1000.f);
+	LoadFBX("../bin/assets/meshes/other/man.fbx", L"../bin/assets/textures/man.jpg", L"../bin/PBRVertexShader.cso", L"../bin/PBRPixelShader.cso");
+	
+	//HRESULT hr = myPBRPixelShader.Init(myDevice.Get(), myDeviceContext.Get());
+	//if (FAILED(hr))
+	//{
+	//	ErrorLog::Log(hr, "failed creating constant buffer.");
+	//	return false;
+	//}
+
+	//DirectionalLight* dLight = DirectionalLight::GetInstance();
+	//dLight->myDirectionalLightBuffer = myPBRPixelShader.Get();
+
+	
 	return true;
 }
 
-Model& Graphics::LoadFBX(std::string& filePath, std::wstring& aTexturePath, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath)
+Model& Graphics::LoadFBX(std::string filePath, std::wstring aTexturePath, std::wstring aVertexShaderPath, std::wstring aPixelShaderPath)
 {
 	Model model;
 	if (!model.Init(myDevice, myDeviceContext, filePath, aTexturePath, myCamera, aVertexShaderPath, aPixelShaderPath)) 
@@ -443,8 +486,8 @@ void Graphics::ShowTextureWindow(ImGuiWindowFlags& someFlags)
 			{
 				gTextureFilePath = filePath.wstring();
 				gShowTextureWindow = false;
-				std::wstring standardVertexShader = L"../bin/StandardVertexShader.cso";
-				std::wstring standardPixelShader = L"../bin/StandardPixelShader.cso";
+				std::wstring standardVertexShader = L"../bin/PBRVertexShader.cso";
+				std::wstring standardPixelShader = L"../bin/PBRPixelShader.cso";
 				LoadFBX(gFBXFilePath, gTextureFilePath, standardVertexShader, standardPixelShader);
 				gShowFBXWindow = true;
 			}
@@ -469,9 +512,9 @@ bool Graphics::InitGrid()
 	{
 		float zPos = y * gridSize - gridHeight * 0.5f;
 
-		gridVertices.push_back(Vertex(-gridWidth * 0.5f, 0.0f, zPos, 0.0f, zPos / gridHeight));
+		gridVertices.push_back(Vertex(-gridWidth * 0.5f, 0.0f, zPos, 0.0f, zPos / gridHeight,0,0,0));
 
-		gridVertices.push_back(Vertex(gridWidth * 0.5f, 0.0f, zPos, 1.0f, zPos / gridHeight));
+		gridVertices.push_back(Vertex(gridWidth * 0.5f, 0.0f, zPos, 1.0f, zPos / gridHeight, 0, 0, 0));
 	}
 
 	// Vertical grid lines
@@ -479,9 +522,9 @@ bool Graphics::InitGrid()
 	{
 		float xPos = x * gridSize - gridWidth * 0.5f;
 
-		gridVertices.push_back(Vertex(xPos, 0.0f, -gridHeight * 0.5f, xPos / gridWidth, 0.0f));
+		gridVertices.push_back(Vertex(xPos, 0.0f, -gridHeight * 0.5f, xPos / gridWidth, 0.0f, 0, 0, 0));
 
-		gridVertices.push_back(Vertex(xPos, 0.0f, gridHeight * 0.5f, xPos / gridWidth, 1.0f));
+		gridVertices.push_back(Vertex(xPos, 0.0f, gridHeight * 0.5f, xPos / gridWidth, 1.0f, 0, 0, 0));
 	}
 
 	HRESULT hr = myGridVertexBuffer.Init(myDevice.Get(), &gridVertices[0], static_cast<UINT>(gridVertices.size()));

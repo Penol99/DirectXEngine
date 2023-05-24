@@ -64,7 +64,6 @@ void Engine::Update(const float &aDeltaTime)
 void Engine::Render(const int &aFPS, const float& aDeltaTime)
 {
 
-
 	myGfx.Render(aFPS,aDeltaTime);
 
 }
