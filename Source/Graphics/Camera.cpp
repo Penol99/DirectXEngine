@@ -1,5 +1,5 @@
 #include "Camera.h"
-
+#include "../PropertyDefines.h"
 Camera::Camera()
     :myPosition(XMFLOAT3(0.0f,0.0f,0.0f)),
     myPositionVector(XMLoadFloat3(&myPosition)),
@@ -155,6 +155,23 @@ const XMVECTOR& Camera::GetBackVector()
     return vectorBack;
 }
 
+Ray Camera::ScreenPointToRay(float mouseX, float mouseY)
+{
+    float x = (2.0f * mouseX) / ENGINE_WINDOW_W - 1.0f;
+    float y = 1.0f - (2.0f * mouseY) / ENGINE_WINDOW_H;
+
+    DirectX::XMMATRIX invViewProjMatrix = DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixMultiply(myViewMatrix, myProjectionMatrix));
+
+    DirectX::XMVECTOR origin = DirectX::XMVectorSet(x, y, 0.0f, 1.0f);
+    DirectX::XMVECTOR destination = DirectX::XMVectorSet(x, y, 1.0f, 1.0f);
+
+    // Transform to world space
+    origin = DirectX::XMVector3TransformCoord(origin, invViewProjMatrix);
+    destination = DirectX::XMVector3TransformCoord(destination, invViewProjMatrix);
+
+    // Create and return the ray
+    return Ray(origin, DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(destination, origin)));
+}
 void Camera::UpdateViewMatrix()
 {
     XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(myRotation.x, myRotation.y, myRotation.z);

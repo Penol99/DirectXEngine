@@ -38,7 +38,7 @@ bool RenderWindow::Init(WindowContainer* pWindowContainer, HINSTANCE hInstance, 
 		0,
 		myWindowClassWide.c_str(),
 		myWindowTitleWide.c_str(),
-		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU,
+		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_MAXIMIZEBOX | WS_THICKFRAME,
 		windowRect.left, // Window X 
 		windowRect.top, // Window Y 
 		windowRect.right - windowRect.left, // Window Width
@@ -57,6 +57,11 @@ bool RenderWindow::Init(WindowContainer* pWindowContainer, HINSTANCE hInstance, 
 	ShowWindow(this->myHandle, SW_SHOW);
 	SetForegroundWindow(this->myHandle);
 	SetFocus(this->myHandle);
+
+	// Adjust the window position and size to cover the entire screen
+	int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+	int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+	SetWindowPos(myHandle, NULL, 0, 0, screenWidth, screenHeight, SWP_FRAMECHANGED);
 	return true;
 }
 
@@ -106,6 +111,9 @@ LRESULT CALLBACK HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 
 LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	static WINDOWPLACEMENT windowPlacement = { sizeof(WINDOWPLACEMENT) };
+	static bool isFullScreen = false; // new variable to keep track of fullscreen state
+
 	switch (uMsg)
 	{
 	case WM_NCCREATE:
@@ -120,7 +128,32 @@ LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWindow));
 		SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(HandleMsgRedirect));
 		return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
-		//return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	}
+	case WM_SYSCOMMAND:
+	{
+		switch (wParam & 0xfff0)  // Extract the system command code
+		{
+		case SC_MAXIMIZE:  // Window is being maximized
+		{
+			isFullScreen = true;
+			SetWindowLong(hwnd, GWL_STYLE, WS_POPUP);
+			SetWindowPos(hwnd, HWND_TOP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), SWP_FRAMECHANGED);
+			return 0;
+		}
+		case SC_RESTORE:  // Window is being restored
+		{
+			if (isFullScreen)
+			{
+				isFullScreen = false;
+				SetWindowLong(hwnd, GWL_STYLE, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_MAXIMIZEBOX);
+				SetWindowPlacement(hwnd, &windowPlacement);
+				SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+				return 0;
+			}
+			break;
+		}
+		}
+		break;
 	}
 	default:
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);

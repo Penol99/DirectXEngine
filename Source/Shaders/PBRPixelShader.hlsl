@@ -18,8 +18,10 @@ struct PixelInput
 Texture2D albedoTexture : register(t0);
 Texture2D metalnessTexture : register(t1);
 Texture2D roughnessTexture : register(t2);
+TextureCube reflectionMap : register(t3);
 
 SamplerState defaultSampler : register(s0);
+SamplerState reflectionSampler : register(s1);
 
 struct PixelOutput
 {
@@ -42,8 +44,8 @@ float3 RotateVector(float3 v, float3 rotation)
 PixelOutput main(PixelInput input) : SV_TARGET
 {
     PixelOutput output;
-    float Shininess = 200.0f;
-    float3 SpecularColor = float3(1.0f, 1.0f, 1.0f); // Bright white specular color
+    float Shininess = .5f;
+    float3 SpecularColor = float3(0.1f, 0.1f, 0.1f); // Bright white specular color
     
     // Sample textures
     float4 albedo = albedoTexture.Sample(defaultSampler, input.TexCoord);
@@ -70,6 +72,11 @@ PixelOutput main(PixelInput input) : SV_TARGET
     // Apply metalness and roughness
     finalColor = lerp(finalColor, albedo.rgb, metalness);
     finalColor = lerp(finalColor, float3(1.0, 1.0, 1.0), roughness);
+
+    // Calculate reflection
+    float3 reflectionVector = reflect(-viewDirection, normal);
+    float3 reflectedColor = reflectionMap.SampleLevel(reflectionSampler, reflectionVector, 0).rgb;
+    finalColor = lerp(finalColor, reflectedColor, metalness);
 
     output.Color = float4(finalColor, albedo.a);
     return output;

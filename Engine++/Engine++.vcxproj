@@ -98,11 +98,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Engine.cpp" />
+    <ClCompile Include="..\Source\Entity Component System\Components\BoxColliderComponent.cpp" />
+    <ClCompile Include="..\Source\Entity Component System\Components\ColliderComponent.cpp" />
+    <ClCompile Include="..\Source\Entity Component System\Components\Component.cpp" />
+    <ClCompile Include="..\Source\Entity Component System\Components\GizmoComponent.cpp" />
+    <ClCompile Include="..\Source\Entity Component System\Components\MaterialComponent.cpp" />
+    <ClCompile Include="..\Source\Entity Component System\Components\ModelComponent.cpp" />
+    <ClCompile Include="..\Source\Entity Component System\Components\SphereColliderComponent.cpp" />
+    <ClCompile Include="..\Source\Entity Component System\Components\TransformComponent.cpp" />
+    <ClCompile Include="..\Source\Entity Component System\GameObject.cpp" />
     <ClCompile Include="..\Source\ErrorLog.cpp" />
     <ClCompile Include="..\Source\Graphics\AdapterReader.cpp" />
     <ClCompile Include="..\Source\Graphics\Camera.cpp" />
     <ClCompile Include="..\Source\Graphics\DirectionalLight.cpp" />
     <ClCompile Include="..\Source\Graphics\Graphics.cpp" />
+    <ClCompile Include="..\Source\Graphics\Material.cpp" />
     <ClCompile Include="..\Source\Graphics\Mesh.cpp" />
     <ClCompile Include="..\Source\Graphics\Model.cpp" />
     <ClCompile Include="..\Source\Graphics\TerrainGenerator.cpp" />
@@ -115,14 +125,25 @@
     <ClCompile Include="..\Source\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="..\Source\Input\InputHandler.cpp" />
     <ClCompile Include="..\Source\main.cpp" />
+    <ClCompile Include="..\Source\Ray.cpp" />
     <ClCompile Include="..\Source\RenderWindow.cpp" />
     <ClCompile Include="..\Source\Shaders\Shaders.cpp" />
     <ClCompile Include="..\Source\StringConverter.cpp" />
     <ClCompile Include="..\Source\Timer.cpp" />
     <ClCompile Include="..\Source\WindowContainer.cpp" />
+    <ClCompile Include="MaterialManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\Engine.h" />
+    <ClInclude Include="..\Source\Entity Component System\Components\BoxColliderComponent.h" />
+    <ClInclude Include="..\Source\Entity Component System\Components\ColliderComponent.h" />
+    <ClInclude Include="..\Source\Entity Component System\Components\Component.h" />
+    <ClInclude Include="..\Source\Entity Component System\Components\GizmoComponent.h" />
+    <ClInclude Include="..\Source\Entity Component System\Components\MaterialComponent.h" />
+    <ClInclude Include="..\Source\Entity Component System\Components\ModelComponent.h" />
+    <ClInclude Include="..\Source\Entity Component System\Components\SphereColliderComponent.h" />
+    <ClInclude Include="..\Source\Entity Component System\Components\TransformComponent.h" />
+    <ClInclude Include="..\Source\Entity Component System\GameObject.h" />
     <ClInclude Include="..\Source\ErrorLog.h" />
     <ClInclude Include="..\Source\Graphics\AdapterReader.h" />
     <ClInclude Include="..\Source\Graphics\Camera.h" />
@@ -131,6 +152,7 @@
     <ClInclude Include="..\Source\Graphics\DirectionalLight.h" />
     <ClInclude Include="..\Source\Graphics\Graphics.h" />
     <ClInclude Include="..\Source\Graphics\IndexBuffer.h" />
+    <ClInclude Include="..\Source\Graphics\Material.h" />
     <ClInclude Include="..\Source\Graphics\Mesh.h" />
     <ClInclude Include="..\Source\Graphics\Model.h" />
     <ClInclude Include="..\Source\Graphics\TerrainGenerator.h" />
@@ -146,11 +168,14 @@
     <ClInclude Include="..\Source\ImGui\imstb_truetype.h" />
     <ClInclude Include="..\Source\Input\InputHandler.h" />
     <ClInclude Include="..\Source\PerlinNoise.hpp" />
+    <ClInclude Include="..\Source\PropertyDefines.h" />
+    <ClInclude Include="..\Source\Ray.h" />
     <ClInclude Include="..\Source\RenderWindow.h" />
     <ClInclude Include="..\Source\Shaders\Shaders.h" />
     <ClInclude Include="..\Source\StringConverter.h" />
     <ClInclude Include="..\Source\Timer.h" />
     <ClInclude Include="..\Source\WindowContainer.h" />
+    <ClInclude Include="MaterialManager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Source\Shaders\FunkyPixelShader.hlsl">

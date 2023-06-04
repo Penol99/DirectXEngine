@@ -1,5 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
+#include "../Ray.h"
 using namespace DirectX;
 
 class Camera
@@ -31,6 +32,8 @@ public:
 	const XMVECTOR& GetRightVector();
 	const XMVECTOR& GetLeftVector();
 	const XMVECTOR& GetBackVector();
+
+	Ray ScreenPointToRay(float mouseX, float mouseY);
 private:
 	void UpdateViewMatrix();
 	XMVECTOR myPositionVector;

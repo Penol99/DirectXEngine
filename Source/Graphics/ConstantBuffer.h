@@ -48,9 +48,6 @@ public:
 		//constantBufferDesc.ByteWidth = static_cast<UINT>(sizeof(T)) + (16 - (sizeof(T)));
 		constantBufferDesc.StructureByteStride = 0;
 
-
-		std::cout << "good\n";
-		std::cout << ((sizeof(T) + 15) / 16) * 16 << std::endl;
 		return aDevice->CreateBuffer(&constantBufferDesc, 0, myBuffer.GetAddressOf());
 		
 	}

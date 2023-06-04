@@ -2,7 +2,8 @@
 #include "Graphics.h"
 #include <filesystem>
 #include "DirectionalLight.h"
-
+#include "../Entity Component System/Components/MaterialComponent.h"
+#include "../Entity Component System/Components/BoxColliderComponent.h"
 
 #define VSYNC_ENABLED true
 
@@ -52,29 +53,16 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 
 
 
-	myDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	myDeviceContext->RSSetState(myRasterizerState.Get());
 	myDeviceContext->OMSetDepthStencilState(myDepthStencilState.Get(), 0);
 	myDeviceContext->PSSetSamplers(0, 1, mySamplerState.GetAddressOf());
 
 
 
-	//myPBRPixelShader.myData.direction = XMFLOAT3(0.5f, 0.5f, 0.5f);
-	//myPBRPixelShader.myData.ambientColor = DirectionalLight::GetInstance()->myAmbientColor;
-	//myPBRPixelShader.myData.diffuseColor = DirectionalLight::GetInstance()->myDiffuseColor;
-
-	/*myPBRPixelShader.ApplyChanges();
-	myDeviceContext->PSSetConstantBuffers(2, 1, myPBRPixelShader.GetAddressOf());*/
-
-
-
-
-
-	for (auto& model : myModels)
+	for (auto& model : myGameObjects)
 	{
 
-		
-		model.Render(myDeviceContext.Get(), *myTimer);
+		model->Render();
 	}
 
 
@@ -154,9 +142,9 @@ void Graphics::RenderImGui()
 
 
 
-	for (auto& model : myModels)
+	for (auto& gameObject : myGameObjects)
 	{
-
+		TransformComponent* transform = gameObject->GetComponent<TransformComponent>();
 		ImGui::GetWindowSize();
 		ImGui::SetNextWindowSize(ImVec2(0, 0));
 		ImGui::SetNextWindowViewport(viewport->ID);
@@ -164,36 +152,36 @@ void Graphics::RenderImGui()
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 
-		ImGui::Begin(model.GetName().c_str(), nullptr, windowFlags);
+		ImGui::Begin("Model", nullptr, windowFlags);
 		previousImGuiWindowHeight = ImGui::GetWindowSize().y;
 		ImGui::PopStyleVar(2);
 		ImGui::PushItemWidth(itemWidth);
 		ImGui::Text("Position");
-		ImGui::DragFloat("X##Pos", &model.myPosition.x, 0.1f);
+		ImGui::DragFloat("X##Pos", &transform->myPosition.x, 0.1f);
 		ImGui::SameLine();
-		ImGui::DragFloat("Y##Pos", &model.myPosition.y, 0.1f);
+		ImGui::DragFloat("Y##Pos", &transform->myPosition.y, 0.1f);
 		ImGui::SameLine();
-		ImGui::DragFloat("Z##Pos", &model.myPosition.z, 0.1f);
+		ImGui::DragFloat("Z##Pos", &transform->myPosition.z, 0.1f);
 
 		ImGui::Text("Rotation");
 
-		ImGui::DragFloat("X##Rot", &model.myRotationAngles.x, 0.1f);
+		ImGui::DragFloat("X##Rot", &transform->myRotation.x, 0.1f);
 		ImGui::SameLine();
-		ImGui::DragFloat("Y##Rot", &model.myRotationAngles.y, 0.1f);
+		ImGui::DragFloat("Y##Rot", &transform->myRotation.y, 0.1f);
 		ImGui::SameLine();
-		ImGui::DragFloat("Z##Rot", &model.myRotationAngles.z, 0.1f);
+		ImGui::DragFloat("Z##Rot", &transform->myRotation.z, 0.1f);
 
 		ImGui::Text("Scale");
-		ImGui::DragFloat("X##Scale", &model.myScale.x, 0.1f);
+		ImGui::DragFloat("X##Scale", &transform->myScale.x, 0.1f);
 		ImGui::SameLine();
-		ImGui::DragFloat("Y##Scale", &model.myScale.y, 0.1f);
+		ImGui::DragFloat("Y##Scale", &transform->myScale.y, 0.1f);
 		ImGui::SameLine();
-		ImGui::DragFloat("Z##Scale", &model.myScale.z, 0.1f);
+		ImGui::DragFloat("Z##Scale", &transform->myScale.z, 0.1f);
 		ImGui::PopItemWidth();
 		ImGui::SetWindowPos(ImVec2(myWidth - ImGui::GetWindowSize().x, (modelIndex * previousImGuiWindowHeight)));
 		if (ImGui::Button("Delete model"))
 		{
-			myModels.erase(myModels.begin() + modelIndex);
+			myGameObjects.erase(myGameObjects.begin() + modelIndex);
 			modelIndex--;
 			ImGui::End();
 			break;
@@ -394,41 +382,28 @@ bool Graphics::InitScene()
 
 	myCamera.SetPosition(0.0f, 10.0f, -10.0f);
 	myCamera.SetProjectionValues(70.f, static_cast<float>(myWidth) / static_cast<float>(myHeight), 0.1f, 1000.f);
-	LoadFBX("../bin/assets/meshes/other/man.fbx", L"../bin/assets/textures/man.jpg", L"../bin/PBRVertexShader.cso", L"../bin/PBRPixelShader.cso");
-	
-	//HRESULT hr = myPBRPixelShader.Init(myDevice.Get(), myDeviceContext.Get());
-	//if (FAILED(hr))
-	//{
-	//	ErrorLog::Log(hr, "failed creating constant buffer.");
-	//	return false;
-	//}
 
-	//DirectionalLight* dLight = DirectionalLight::GetInstance();
-	//dLight->myDirectionalLightBuffer = myPBRPixelShader.Get();
+	GameObject* man = new GameObject();
+	man->Init(myTimer, &myCamera, myDevice, myDeviceContext);
+
+	MaterialComponent* material = man->AddComponent<MaterialComponent>();
+	material->Init(L"../bin/PBRVertexShader.cso", L"../bin/PBRPixelShader.cso");
+	material->SetTexture(L"../bin/assets/textures/man.jpg");
+	material->SetReflectionTexture(L"../bin/assets/textures/reflection.jpg");
+	
+	ModelComponent* model = man->AddComponent<ModelComponent>();
+	model->Init("../bin/assets/meshes/other/man.fbx");
+	
+	BoxColliderComponent* boxCollider = man->AddComponent<BoxColliderComponent>();
+	boxCollider->SetExtents(XMFLOAT3(4, 40, 4));
+	
 
 	
+
+
+	myGameObjects.push_back(man);
+
 	return true;
-}
-
-Model& Graphics::LoadFBX(std::string filePath, std::wstring aTexturePath, std::wstring aVertexShaderPath, std::wstring aPixelShaderPath)
-{
-	Model model;
-	if (!model.Init(myDevice, myDeviceContext, filePath, aTexturePath, myCamera, aVertexShaderPath, aPixelShaderPath)) 
-	{
-		ErrorLog::Log("Failed initializing model");
-	}
-	myModels.push_back(model);
-	return model;
-}
-
-void Graphics::LoadFBX(Model& aModel, std::string& filePath, std::wstring& aTexturePath, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath)
-{
-	aModel;
-	if (!aModel.Init(myDevice, myDeviceContext, filePath, aTexturePath, myCamera, aVertexShaderPath, aPixelShaderPath))
-	{
-		ErrorLog::Log("Failed initializing model");
-	}
-	myModels.push_back(aModel);
 }
 
 // Imgui window for selecting FBX files.
@@ -488,7 +463,7 @@ void Graphics::ShowTextureWindow(ImGuiWindowFlags& someFlags)
 				gShowTextureWindow = false;
 				std::wstring standardVertexShader = L"../bin/PBRVertexShader.cso";
 				std::wstring standardPixelShader = L"../bin/PBRPixelShader.cso";
-				LoadFBX(gFBXFilePath, gTextureFilePath, standardVertexShader, standardPixelShader);
+				//LoadFBX(gFBXFilePath, gTextureFilePath, standardVertexShader, standardPixelShader);
 				gShowFBXWindow = true;
 			}
 		}
@@ -586,10 +561,11 @@ void Graphics::RenderGrid()
 
 	myGridConstantBuffer.myData.worldMatrix = myCamera.GetViewMatrix() * myCamera.GetProjectionMatrix();
 	myGridConstantBuffer.myData.worldMatrix = XMMatrixTranspose(myGridConstantBuffer.myData.worldMatrix);
-
+	myGridConstantBuffer.myData.modelPosition = XMFLOAT3(0, 0, 0);
+	myGridConstantBuffer.myData.modelRotation = XMFLOAT3(0, 0, 0);
 	myDeviceContext->UpdateSubresource(myGridConstantBuffer.Get(), 0, nullptr, &myGridConstantBuffer.myData, 0, 0);
 	myGridConstantBuffer.ApplyChanges();
-	myDeviceContext->VSSetConstantBuffers(1, 1, myGridConstantBuffer.GetAddressOf());
+	myDeviceContext->VSSetConstantBuffers(0, 1, myGridConstantBuffer.GetAddressOf());
 
 	myDeviceContext->IASetInputLayout(myLineVertexShader.GetInputLayout());
 	myDeviceContext->VSSetShader(myLineVertexShader.GetShader(), NULL, 0);

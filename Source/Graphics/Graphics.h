@@ -12,8 +12,10 @@
 #include "../ImGui/imgui.h"
 #include "../ImGui/imgui_impl_win32.h"
 #include "../ImGui/imgui_impl_dx11.h"
+#include "../Entity Component System/GameObject.h"
 //#include "TerrainGenerator.h"
 #include "Model.h"
+#include "../Timer.h"
 
 
 
@@ -29,8 +31,8 @@ public:
 private:
 	bool InitDirectX(HWND hwnd);
 	bool InitScene();
-	Model& LoadFBX(std::string filePath, std::wstring aTexturePath, std::wstring aVertexShaderPath, std::wstring aPixelShaderPath);
-	void LoadFBX(Model& aModel, std::string& filePath, std::wstring& aTexturePath, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath);
+	//Model& LoadFBX(std::string filePath, std::wstring aTexturePath, std::wstring aVertexShaderPath, std::wstring aPixelShaderPath);
+	//void LoadFBX(Model& aModel, std::string& filePath, std::wstring& aTexturePath, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath);
 	void ShowFBXWindow(ImGuiWindowFlags& someFlags);
 	void ShowTextureWindow(ImGuiWindowFlags& someFlags);
 	bool InitGrid();
@@ -56,7 +58,7 @@ private:
 	ComPtr<ID3D11SamplerState> mySamplerState;
 	ComPtr<ID3D11ShaderResourceView> myTexture;
 
-	std::vector<Model> myModels;
+	std::vector<GameObject*> myGameObjects;
 
 	VertexBuffer<Vertex> myGridVertexBuffer;
 	IndexBuffer myGridIndexBuffer;

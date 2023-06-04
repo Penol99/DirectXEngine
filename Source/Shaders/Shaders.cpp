@@ -8,6 +8,7 @@ VertexShader::VertexShader()
 
 bool VertexShader::Init(ComPtr<ID3D11Device>& aDevice, std::wstring aShaderPath, D3D11_INPUT_ELEMENT_DESC* aLayoutDesc, UINT aNumElements)
 {
+
 	HRESULT hr = D3DReadFileToBlob(aShaderPath.c_str(), myShaderBuffer.GetAddressOf());
 	if (FAILED(hr))
 	{
@@ -17,6 +18,9 @@ bool VertexShader::Init(ComPtr<ID3D11Device>& aDevice, std::wstring aShaderPath,
 		return false;
 
 	}
+
+
+
 	hr = aDevice->CreateInputLayout(aLayoutDesc, aNumElements, GetBuffer()->GetBufferPointer(), GetBuffer()->GetBufferSize(), myInputLayout.GetAddressOf());
 	if (FAILED(hr))
 	{

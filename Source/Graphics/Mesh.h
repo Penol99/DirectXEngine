@@ -7,7 +7,7 @@
 #include <WICTextureLoader.h>
 class Mesh
 {
-	friend class Model;
+	friend class ModelComponent;
 public:
 	
 	Mesh();
@@ -19,10 +19,10 @@ public:
 		myPixelShader = other.myPixelShader;
 		myTexture = other.myTexture;
 	}
-	void Render(ID3D11DeviceContext* aDeviceContext);
 
 private:
-	bool Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, std::vector<DWORD>& indices, UINT numVertices, UINT numIndices, std::wstring& aTexturePath, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath);
+	bool Init(ComPtr<ID3D11Device>& aDevice, std::vector<Vertex>& vertices, std::vector<DWORD>& indices, UINT numVertices, UINT numIndices);
+	void Render(ID3D11DeviceContext* aDeviceContext);
 
 	VertexBuffer<Vertex> myVertexBuffer; 
 	IndexBuffer myIndexBuffer;
@@ -30,6 +30,7 @@ private:
 	VertexShader myVertexShader;
 	PixelShader myPixelShader;
 	ComPtr<ID3D11ShaderResourceView> myTexture;
+	ComPtr<ID3D11ShaderResourceView> myReflectionTexture;
 	std::shared_ptr<UINT> myStride;
 };
 

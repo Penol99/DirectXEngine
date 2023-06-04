@@ -16,6 +16,12 @@
     <Filter Include="Source\ImGui">
       <UniqueIdentifier>{638cb199-fb83-407a-a633-9ed6aa923cf7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\EntityComponentSystem">
+      <UniqueIdentifier>{c2cf756b-80fc-4970-90c7-a9269ede42b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\EntityComponentSystem\Components">
+      <UniqueIdentifier>{2b47b890-2ef5-407d-b6c8-c78061f8d445}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\main.cpp">
@@ -86,6 +92,40 @@
     </ClCompile>
     <ClCompile Include="..\Source\Graphics\DirectionalLight.cpp">
       <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\Material.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialManager.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Entity Component System\GameObject.cpp">
+      <Filter>Source\EntityComponentSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Entity Component System\Components\TransformComponent.cpp">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Entity Component System\Components\Component.cpp">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Entity Component System\Components\MaterialComponent.cpp">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Entity Component System\Components\ModelComponent.cpp">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Entity Component System\Components\BoxColliderComponent.cpp">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Entity Component System\Components\ColliderComponent.cpp">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Entity Component System\Components\GizmoComponent.cpp">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Ray.cpp" />
+    <ClCompile Include="..\Source\Entity Component System\Components\SphereColliderComponent.cpp">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +215,43 @@
     </ClInclude>
     <ClInclude Include="..\Source\Graphics\DirectionalLight.h">
       <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialManager.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\Material.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Entity Component System\GameObject.h">
+      <Filter>Source\EntityComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Entity Component System\Components\TransformComponent.h">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Entity Component System\Components\Component.h">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Entity Component System\Components\MaterialComponent.h">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Entity Component System\Components\ModelComponent.h">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Entity Component System\Components\GizmoComponent.h">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Entity Component System\Components\BoxColliderComponent.h">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Entity Component System\Components\ColliderComponent.h">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Ray.h" />
+    <ClInclude Include="..\Source\PropertyDefines.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Entity Component System\Components\SphereColliderComponent.h">
+      <Filter>Source\EntityComponentSystem\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
