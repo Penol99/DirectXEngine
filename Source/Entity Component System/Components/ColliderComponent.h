@@ -17,6 +17,8 @@ using namespace Microsoft::WRL;
 class ColliderComponent : public Component
 {
 public:
+	virtual void Init() override {};
+	virtual void RenderImGui() override {};
     virtual bool Intersects(const Ray& ray) const = 0; 
 #ifdef DRAW_COLLIDERS
     virtual void Render() = 0;

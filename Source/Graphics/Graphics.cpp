@@ -1,10 +1,7 @@
 #define _USE_MATH_DEFINES
 #include "Graphics.h"
-#include <filesystem>
 #include "DirectionalLight.h"
-#include "../Entity Component System/Components/MaterialComponent.h"
-#include "../Entity Component System/Components/BoxColliderComponent.h"
-
+#include "../Entity Component System/ComponentFactory.h"
 #define VSYNC_ENABLED true
 
 
@@ -88,25 +85,18 @@ void Graphics::RenderImGui()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	// DockSpaceOverViewport creates a dockspace which we can add windows to.
 	ImGuiID dockspace_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
-	// SetNextWindowDockID sets the next window to dock into the specified dockspace.
 	ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(myWidth, myHeight), ImGuiCond_FirstUseEver);
-	// Begin creating the window.
 	ImGui::Begin("Camera Window");
 
-	// Calculate the size of the window
 	ImVec2 windowSize = ImGui::GetWindowSize();
 
-	// Calculate the aspect ratio of the image
 	float aspectRatio = (float)myWidth / (float)myHeight;
 
-	// Calculate the size of the image
 	float imageWidth, imageHeight;
 
-	// Aspect ratio is width / height. If it's less than 1, the height is larger than the width.
 	if (aspectRatio < 1.0f)
 	{
 		imageHeight = windowSize.y; // Take up the full window height
@@ -117,7 +107,6 @@ void Graphics::RenderImGui()
 		imageWidth = windowSize.x; // Take up the full window width
 		imageHeight = imageWidth / aspectRatio; // Adjust height to maintain aspect ratio
 	}
-	// Adjust the position of the image to center it in the window
 	float imageX = (windowSize.x - imageWidth) / 2.0f;
 	float imageY = (windowSize.y - imageHeight) / 2.0f;
 
@@ -127,21 +116,87 @@ void Graphics::RenderImGui()
 
 	ImGui::End();
 
+	ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(200, 400), ImGuiCond_FirstUseEver);
+	ImGui::Begin("File Hierarchy");
+
+	RenderFileHierarchy("../bin/assets/");
+
+	ImGui::End();
+
+	// Render windows for each GameObject
+	for (GameObject* gameObject : myGameObjects)
+	{
+		ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(200, 200), ImGuiCond_FirstUseEver);
+		ImGui::Begin("Transform");
+
+		//gameObject->myTransform->RenderImGui();
+		for (Component* component : gameObject->myComponents)
+		{
+			component->RenderImGui();
+		}
+
+		// Button for adding components
+		if (ImGui::Button("Add Component"))
+		{
+			ImGui::OpenPopup("AddComponentPopup");
+		}
+
+		// Popup for selecting a script to add as a component
+		if (ImGui::BeginPopup("AddComponentPopup"))
+		{
+			// Display a list of available scripts for components
+			const std::filesystem::path componentPath = "../Source/Entity Component System/Components";
+			std::set<std::string> uniqueFilenames;  // Store unique filenames
+
+			for (const auto& entry : std::filesystem::directory_iterator(componentPath))
+			{
+				if (entry.is_regular_file())
+				{
+					std::string filename = entry.path().filename().stem().string();
+
+					// Check if the filename is already added
+					if (uniqueFilenames.find(filename) == uniqueFilenames.end())
+					{
+						uniqueFilenames.insert(filename);
+
+						if (ImGui::Selectable(filename.c_str()))
+						{
+							// Add the selected script as a component to the GameObject
+							// Here, you can use a factory pattern or a map of component types to their factory functions
+							// to create an object of the selected component class and add it to the GameObject.
+
+							// For example, using a factory pattern:
+							Component* newComponent = ComponentFactory::CreateComponent(filename);
+
+							if (newComponent)
+							{
+								// Add the new component to the GameObject
+								gameObject->AddComponent(newComponent);
+							}
+						}
+					}
+				}
+			}
+
+			ImGui::EndPopup();
+		}
+
+		ImGui::End();
+	}
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Graphics::Resize(int aWidth, int aHeight)
 {
-	// Save the new width and height
 	myWidth = aWidth;
 	myHeight = aHeight;
 
-	// Release current render target and depth/stencil view
 	myRenderTargetView.Reset();
 	myDepthStencilView.Reset();
 
-	// Resize the swap chain
 	HRESULT hr = mySwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
 	if (FAILED(hr))
 	{
@@ -149,7 +204,6 @@ void Graphics::Resize(int aWidth, int aHeight)
 		return;
 	}
 
-	// Recreate the render target view
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
 	hr = mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
 	if (FAILED(hr))
@@ -165,7 +219,6 @@ void Graphics::Resize(int aWidth, int aHeight)
 		return;
 	}
 
-	// Recreate the depth/stencil view
 	D3D11_TEXTURE2D_DESC depthTextureDesc;
 	depthTextureDesc.Width = myWidth;
 	depthTextureDesc.Height = myHeight;
@@ -178,7 +231,7 @@ void Graphics::Resize(int aWidth, int aHeight)
 	depthTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	depthTextureDesc.CPUAccessFlags = 0;
 	depthTextureDesc.MiscFlags = 0;
-	
+
 	hr = myDevice->CreateTexture2D(&depthTextureDesc, NULL, myDepthStencilBuffer.GetAddressOf());
 	if (FAILED(hr))
 	{
@@ -193,11 +246,9 @@ void Graphics::Resize(int aWidth, int aHeight)
 		return;
 	}
 
-	// Bind the render target view and depth/stencil view to the pipeline
 	myDeviceContext->OMSetRenderTargets(1, myRenderTargetView.GetAddressOf(), myDepthStencilView.Get());
 	myDeviceContext->OMSetDepthStencilState(myDepthStencilState.Get(), 0);
 
-	// Set the viewport
 	D3D11_VIEWPORT viewport = {};
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
@@ -207,7 +258,6 @@ void Graphics::Resize(int aWidth, int aHeight)
 	viewport.MaxDepth = 1.0f;
 	myDeviceContext->RSSetViewports(1, &viewport);
 
-	// Recreate camera resources
 	myCameraRenderTargetView.Reset();
 	myCameraShaderResourceView.Reset();
 
@@ -253,7 +303,6 @@ void Graphics::Resize(int aWidth, int aHeight)
 		return;
 	}
 
-	// Release the offscreenTexture explicitly since it's no longer needed
 	offscreenTexture.Reset();
 }
 
@@ -370,7 +419,7 @@ bool Graphics::InitDirectX(HWND hwnd)
 		return false;
 	}
 
-	
+
 	D3D11_TEXTURE2D_DESC camTextureDesc = {};
 	D3D11_RENDER_TARGET_VIEW_DESC camRenderTargetViewDesc = {};
 	D3D11_SHADER_RESOURCE_VIEW_DESC camShaderResourceViewDesc = {};
@@ -442,8 +491,8 @@ bool Graphics::InitScene()
 	ModelComponent* model = man->AddComponent<ModelComponent>();
 	model->Init("../bin/assets/meshes/other/man.fbx");
 
-	BoxColliderComponent* boxCollider = man->AddComponent<BoxColliderComponent>();
-	boxCollider->SetExtents(XMFLOAT3(4, 40, 4));
+	//BoxColliderComponent* boxCollider = man->AddComponent<BoxColliderComponent>();
+	//boxCollider->SetExtents(XMFLOAT3(4, 40, 4));
 
 
 
@@ -504,71 +553,6 @@ bool Graphics::CreateSwapChain(HWND hwnd)
 		return false;
 	}
 	return true;
-}
-
-// Imgui window for selecting FBX files.
-void Graphics::ShowFBXWindow(ImGuiWindowFlags& someFlags)
-{
-	ImGui::Begin("SELECT AN FBX", nullptr, someFlags);
-
-	std::string fbxDirectoryPath = "../bin/Assets/Meshes/";
-
-	std::string previousLabel;
-	for (const auto& entry : std::filesystem::recursive_directory_iterator(fbxDirectoryPath))
-	{
-		const std::filesystem::path& filePath = entry.path();
-
-		if (std::filesystem::is_directory(filePath))
-		{
-			std::string directoryName = filePath.filename().string();
-			ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 50, 205, 255));
-			ImGui::Text(" ");
-			ImGui::Text(directoryName.c_str());
-			ImGui::PopStyleColor();
-
-		}
-		else if (std::filesystem::is_regular_file(filePath) && filePath.extension() == ".fbx")
-		{
-			std::string fileName = filePath.filename().string();
-			if (ImGui::Selectable(fileName.c_str()))
-			{
-				gFBXFilePath = filePath.string();
-				gShowFBXWindow = false;
-				gShowTextureWindow = true;
-			}
-		}
-	}
-
-}
-
-// ImGui window for selecting texture file
-void Graphics::ShowTextureWindow(ImGuiWindowFlags& someFlags)
-{
-	ImGui::Begin("SELECT A TEXTURE", nullptr, someFlags);
-
-	std::string textureDirectoryPath = "../bin/Assets/Textures";
-
-	std::vector<std::string> supportedExtensions = { ".png", ".dds", ".jpg" };
-
-	for (const auto& entry : std::filesystem::directory_iterator(textureDirectoryPath))
-	{
-		const std::filesystem::path& filePath = entry.path();
-
-		if (std::filesystem::is_regular_file(filePath) && std::find(supportedExtensions.begin(), supportedExtensions.end(), filePath.extension()) != supportedExtensions.end())
-		{
-			std::string fileName = filePath.filename().string();
-			if (ImGui::Selectable(fileName.c_str()))
-			{
-				gTextureFilePath = filePath.wstring();
-				gShowTextureWindow = false;
-				std::wstring standardVertexShader = L"../bin/PBRVertexShader.cso";
-				std::wstring standardPixelShader = L"../bin/PBRPixelShader.cso";
-				//LoadFBX(gFBXFilePath, gTextureFilePath, standardVertexShader, standardPixelShader);
-				gShowFBXWindow = true;
-			}
-		}
-	}
-
 }
 
 bool Graphics::InitGrid()
@@ -675,6 +659,29 @@ void Graphics::RenderGrid()
 	myDeviceContext->IASetVertexBuffers(0, 1, myGridVertexBuffer.GetAddressOf(), &stride, &offset);
 	myDeviceContext->IASetIndexBuffer(myGridIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	myDeviceContext->DrawIndexed(myGridIndexBuffer.GetBufferSize(), 0, 0);
+}
+
+
+void Graphics::RenderFileHierarchy(const std::filesystem::path& aDirectory)
+{
+	for (const auto& entry : std::filesystem::directory_iterator(aDirectory))
+	{
+		const auto& path = entry.path();
+		const auto& filename = path.filename().string();
+
+		if (std::filesystem::is_directory(path))
+		{
+			if (ImGui::TreeNode(filename.c_str()))
+			{
+				RenderFileHierarchy(path);
+				ImGui::TreePop();
+			}
+		}
+		else
+		{
+			ImGui::Selectable(filename.c_str());
+		}
+	}
 }
 
 

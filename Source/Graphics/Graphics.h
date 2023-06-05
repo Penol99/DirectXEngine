@@ -13,6 +13,8 @@
 #include "../ImGui/imgui_impl_win32.h"
 #include "../ImGui/imgui_impl_dx11.h"
 #include "../Entity Component System/GameObject.h"
+#include <filesystem>
+
 //#include "TerrainGenerator.h"
 #include "Model.h"
 #include "../Timer.h"
@@ -33,12 +35,9 @@ private:
 	bool InitDirectX(HWND hwnd);
 	bool InitScene();
 	bool CreateSwapChain(HWND hwnd);
-	//Model& LoadFBX(std::string filePath, std::wstring aTexturePath, std::wstring aVertexShaderPath, std::wstring aPixelShaderPath);
-	//void LoadFBX(Model& aModel, std::string& filePath, std::wstring& aTexturePath, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath);
-	void ShowFBXWindow(ImGuiWindowFlags& someFlags);
-	void ShowTextureWindow(ImGuiWindowFlags& someFlags);
 	bool InitGrid();
 	void RenderGrid();
+	void RenderFileHierarchy(const std::filesystem::path& aDirectory);
 	ComPtr<ID3D11Device> myDevice;
 	ComPtr<ID3D11DeviceContext> myDeviceContext;
 	ComPtr<IDXGISwapChain> mySwapChain;

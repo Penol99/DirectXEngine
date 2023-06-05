@@ -239,6 +239,9 @@
     <ClInclude Include="..\Source\Ray.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\Entity Component System\ComponentFactory.h">
+      <Filter>Source\EntityComponentSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Source\Shaders\StandardVertexShader.hlsl">

@@ -8,6 +8,10 @@ public:
     {
     }
 
+    SphereColliderComponent()
+        : center(0), radius(10)
+    {
+    }
     bool Intersects(const Ray& ray) const override;
 #ifdef DRAW_COLLIDERS
     void Render() override;

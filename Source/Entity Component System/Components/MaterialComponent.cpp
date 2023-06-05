@@ -72,13 +72,13 @@ void MaterialComponent::Render()
 	myGameObject->myDeviceContext->PSSetShaderResources(3, 1, myReflectionTexture.GetAddressOf());
 
 	static float worldTranslationOffset[3] = { 0,0,0 };
-	DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(myTransform->myScale.x, myTransform->myScale.y, myTransform->myScale.z);
+	DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(myTransform->myLocalScale.x, myTransform->myLocalScale.y, myTransform->myLocalScale.z);
 	DirectX::XMMATRIX translationOffset = DirectX::XMMatrixTranslation(worldTranslationOffset[0], worldTranslationOffset[1], worldTranslationOffset[2]);
 	DirectX::XMMATRIX world = scale * translationOffset;
 
 
-	myCBVSVertexShader.myData.modelPosition = myTransform->myPosition;
-	myCBVSVertexShader.myData.modelRotation = myTransform->myRotation;
+	myCBVSVertexShader.myData.modelPosition = myTransform->myLocalPosition;
+	myCBVSVertexShader.myData.modelRotation = myTransform->myLocalRotation;
 	myCBVSVertexShader.myData.worldMatrix = world * myGameObject->myCamera->GetViewMatrix() * myGameObject->myCamera->GetProjectionMatrix();
 	myCBVSVertexShader.myData.worldMatrix = DirectX::XMMatrixTranspose(myCBVSVertexShader.myData.worldMatrix);
 

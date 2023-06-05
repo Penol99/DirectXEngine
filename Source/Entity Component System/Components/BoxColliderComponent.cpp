@@ -1,9 +1,14 @@
 #include "BoxColliderComponent.h"
 #include "../GameObject.h"
+
+void BoxColliderComponent::Init()
+{
+}
+
 bool BoxColliderComponent::Intersects(const Ray& ray) const
 {
     float outDistance;
-    XMVECTOR center = XMLoadFloat3(&myGameObject->myTransform->myPosition) + myCenter;
+    XMVECTOR center = XMLoadFloat3(&myGameObject->myTransform->myLocalPosition) + myCenter;
     return ray.IntersectsAABB(center, myExtents, outDistance);
 }
 
@@ -19,6 +24,36 @@ DirectX::XMFLOAT3 BoxColliderComponent::GetCenter()
     XMFLOAT3 center;
     XMStoreFloat3(&center, myCenter);
     return center;
+}
+
+void BoxColliderComponent::RenderImGui()
+{
+    // Render base ColliderComponent ImGui properties
+    ColliderComponent::RenderImGui();
+
+    // Render BoxColliderComponent-specific properties
+    ImGui::Separator();
+
+    ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Box Collider");
+
+    ImGui::Indent();
+    XMFLOAT3 center = XMFLOAT3(XMVectorGetX(myCenter), XMVectorGetY(myCenter), XMVectorGetZ(myCenter));
+    XMFLOAT3 extents = XMFLOAT3(XMVectorGetX(myExtents), XMVectorGetY(myExtents), XMVectorGetZ(myExtents));
+    // Center
+    ImGui::Text("Center:");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(100);
+    ImGui::DragFloat3("##Center", reinterpret_cast<float*>(&center), 0.01f);
+    myCenter = XMLoadFloat3(&center);
+
+    // Extents
+    ImGui::Text("Extents:");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(100);
+    ImGui::DragFloat3("##Extents", reinterpret_cast<float*>(&extents), 0.01f);
+    myExtents = XMLoadFloat3(&extents);
+
+    ImGui::Unindent();
 }
 
 
@@ -111,11 +146,11 @@ void BoxColliderComponent::Render()
     myConstantBuffer.myData.worldMatrix = myGameObject->myCamera->GetViewMatrix() * myGameObject->myCamera->GetProjectionMatrix();
     myConstantBuffer.myData.worldMatrix = XMMatrixTranspose(myConstantBuffer.myData.worldMatrix);
     XMFLOAT3 pos = GetCenter();
-    pos.x += myGameObject->myTransform->myPosition.x;
-    pos.y += myGameObject->myTransform->myPosition.y;
-    pos.z += myGameObject->myTransform->myPosition.z;
+    pos.x += myGameObject->myTransform->myLocalPosition.x;
+    pos.y += myGameObject->myTransform->myLocalPosition.y;
+    pos.z += myGameObject->myTransform->myLocalPosition.z;
     myConstantBuffer.myData.modelPosition = pos;
-    myConstantBuffer.myData.modelRotation = myGameObject->myTransform->myRotation;
+    myConstantBuffer.myData.modelRotation = myGameObject->myTransform->myLocalRotation;
     myGameObject->myDeviceContext->UpdateSubresource(myConstantBuffer.Get(), 0, nullptr, &myConstantBuffer.myData, 0, 0);
     myConstantBuffer.ApplyChanges();
     myGameObject->myDeviceContext->VSSetConstantBuffers(1, 1, myConstantBuffer.GetAddressOf());
