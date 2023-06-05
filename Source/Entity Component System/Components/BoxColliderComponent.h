@@ -7,8 +7,8 @@ public:
     BoxColliderComponent()
         : myCenter(), myExtents(), myHasInitialized(false)
     {
-        SetExtents(XMFLOAT3(10, 10, 10));
-        SetCenter(XMFLOAT3(0, 0.5, 0));
+        SetExtents(XMFLOAT3(50, 50, 10));
+        SetCenter(XMFLOAT3(0, 100, 0));
     }
 
     void Init() override;

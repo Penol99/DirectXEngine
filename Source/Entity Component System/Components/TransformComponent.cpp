@@ -2,6 +2,11 @@
 
 void TransformComponent::RenderImGui()
 {
+
+    ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Transform");
+
+    ImGui::Indent();
+
     // Display the local position, rotation, and scale values
     ImGui::Text("Local Position");
     ImGui::DragFloat3("##LocalPosition", &myLocalPosition.x, 0.1f);
@@ -21,15 +26,6 @@ void TransformComponent::RenderImGui()
 
     ImGui::Text("Global Scale");
     ImGui::DragFloat3("##GlobalScale", &myScale.x, 0.1f, -FLT_MAX, FLT_MAX, "%.3f", ImGuiSliderFlags_AlwaysClamp);
+    
 
-    // Display the parent information
-    ImGui::Text("Parent");
-    if (myParent)
-    {
-        ImGui::Text("parent");//myParent->GetName().c_str());
-    }
-    else
-    {
-        ImGui::Text("None");
-    }
 }

@@ -124,17 +124,19 @@ void Graphics::RenderImGui()
 
 	ImGui::End();
 
+	ImGui::Begin("Components");
 	// Render windows for each GameObject
 	for (GameObject* gameObject : myGameObjects)
 	{
 		ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(200, 200), ImGuiCond_FirstUseEver);
-		ImGui::Begin("Transform");
 
 		//gameObject->myTransform->RenderImGui();
 		for (Component* component : gameObject->myComponents)
 		{
 			component->RenderImGui();
+			ImGui::Separator();
+
 		}
 
 		// Button for adding components

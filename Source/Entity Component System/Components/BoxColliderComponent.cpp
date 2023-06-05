@@ -32,25 +32,21 @@ void BoxColliderComponent::RenderImGui()
     ColliderComponent::RenderImGui();
 
     // Render BoxColliderComponent-specific properties
-    ImGui::Separator();
 
     ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Box Collider");
 
     ImGui::Indent();
+
+    // Display the local center and extents values
     XMFLOAT3 center = XMFLOAT3(XMVectorGetX(myCenter), XMVectorGetY(myCenter), XMVectorGetZ(myCenter));
     XMFLOAT3 extents = XMFLOAT3(XMVectorGetX(myExtents), XMVectorGetY(myExtents), XMVectorGetZ(myExtents));
-    // Center
-    ImGui::Text("Center:");
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(100);
-    ImGui::DragFloat3("##Center", reinterpret_cast<float*>(&center), 0.01f);
+
+    ImGui::Text("Local Center");
+    ImGui::DragFloat3("##LocalCenter", &center.x, 0.01f);
     myCenter = XMLoadFloat3(&center);
 
-    // Extents
-    ImGui::Text("Extents:");
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(100);
-    ImGui::DragFloat3("##Extents", reinterpret_cast<float*>(&extents), 0.01f);
+    ImGui::Text("Local Extents");
+    ImGui::DragFloat3("##LocalExtents", &extents.x, 0.01f);
     myExtents = XMLoadFloat3(&extents);
 
     ImGui::Unindent();
