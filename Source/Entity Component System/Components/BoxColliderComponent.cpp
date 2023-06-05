@@ -92,13 +92,13 @@ void BoxColliderComponent::Render()
 
         UINT numElements = ARRAYSIZE(layout);
 
-        if (!myVertexShader.Init(myGameObject->myDevice, L"../bin/LineVertexShader.cso", layout, numElements))
+        if (!myVertexShader.Init(myGameObject->myDevice, L"../bin/shaders/LineVertexShader.cso", layout, numElements))
         {
             ErrorLog::Log("Failed initializing box collider vertex shader");
 
         }
 
-        if (!myPixelShader.Init(myGameObject->myDevice, L"../bin/LinePixelShader.cso"))
+        if (!myPixelShader.Init(myGameObject->myDevice, L"../bin/shaders/LinePixelShader.cso"))
         {
             ErrorLog::Log("Failed initializing box collider pixel shader.");
 

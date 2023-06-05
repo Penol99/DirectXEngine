@@ -11,15 +11,16 @@ RenderWindow::~RenderWindow()
 	}
 }
 
-bool RenderWindow::Init(WindowContainer* pWindowContainer, HINSTANCE hInstance, std::string aWindowTitle, std::string aWindowClass, int aWidth, int aHeight)
+bool RenderWindow::Init(Graphics& aGFXObject, WindowContainer* pWindowContainer, HINSTANCE hInstance, std::string aWindowTitle, std::string aWindowClass, int aWidth, int aHeight)
 {
-	this->hInstance = hInstance;
-	this->myWidth = aWidth;
-	this->myHeight = aHeight;
-	this->myWindowTitle = aWindowTitle;
-	this->myWindowTitleWide = StringConverter::StringToWide(this->myWindowTitle);
-	this->myWindowClass = aWindowClass;
-	this->myWindowClassWide = StringConverter::StringToWide(this->myWindowClass);
+
+	myGfx = &aGFXObject;
+	hInstance = hInstance;
+
+	myWindowTitle = aWindowTitle;
+	myWindowTitleWide = StringConverter::StringToWide(this->myWindowTitle);
+	myWindowClass = aWindowClass;
+	myWindowClassWide = StringConverter::StringToWide(this->myWindowClass);
 
 	this->RegisterWindowClass();
 
@@ -30,7 +31,7 @@ bool RenderWindow::Init(WindowContainer* pWindowContainer, HINSTANCE hInstance, 
 	windowRect.right = windowRect.left + aWidth;
 	windowRect.bottom = windowRect.top + aHeight;
 
-	AdjustWindowRect(&windowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
+	AdjustWindowRect(&windowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_MAXIMIZEBOX, FALSE);
 
 
 	this->myHandle = CreateWindowEx
@@ -38,7 +39,7 @@ bool RenderWindow::Init(WindowContainer* pWindowContainer, HINSTANCE hInstance, 
 		0,
 		myWindowClassWide.c_str(),
 		myWindowTitleWide.c_str(),
-		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_MAXIMIZEBOX | WS_THICKFRAME,
+		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 		windowRect.left, // Window X 
 		windowRect.top, // Window Y 
 		windowRect.right - windowRect.left, // Window Width
@@ -54,13 +55,23 @@ bool RenderWindow::Init(WindowContainer* pWindowContainer, HINSTANCE hInstance, 
 		ErrorLog::Log(GetLastError(), "Failed to Create window with CreateWindowEX: " + this->myWindowTitle);
 		return false;
 	}
+
+
+	UINT dpi = GetDpiForWindow(myHandle);
+	myScaleFactor = (float)dpi / 96.0f;
+
+	myWidth = (int)(aWidth * myScaleFactor);
+	myHeight = (int)(aHeight * myScaleFactor);
+
 	ShowWindow(this->myHandle, SW_SHOW);
 	SetForegroundWindow(this->myHandle);
 	SetFocus(this->myHandle);
 
+	//SetFullscreen(false, myHandle);
+
 	// Adjust the window position and size to cover the entire screen
-	int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-	int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+	int screenWidth = GetSystemMetricsForDpi(SM_CXSCREEN, dpi);
+	int screenHeight = GetSystemMetricsForDpi(SM_CYSCREEN, dpi);
 	SetWindowPos(myHandle, NULL, 0, 0, screenWidth, screenHeight, SWP_FRAMECHANGED);
 	return true;
 }
@@ -88,9 +99,62 @@ bool RenderWindow::ProcessMessages()
 	return true;
 }
 
+void RenderWindow::SetFullscreen(bool aValue, HWND& aHwnd)
+{
+	static WINDOWPLACEMENT windowPlacement = { sizeof(WINDOWPLACEMENT) };
+	static LONG_PTR savedWindowStyle = 0;
+	static bool firstTime = true;
+
+	myIsFullscreen = aValue;
+
+	// Get the monitor info
+	MONITORINFO mi = { sizeof(mi) };
+	if (GetMonitorInfo(MonitorFromWindow(aHwnd, MONITOR_DEFAULTTOPRIMARY), &mi))
+	{
+		if (myIsFullscreen)
+		{
+			if (firstTime)
+			{
+				// Save the current window style and position
+				savedWindowStyle = GetWindowLongPtr(aHwnd, GWL_STYLE);
+				GetWindowPlacement(aHwnd, &windowPlacement);
+				firstTime = false;
+			}
+
+			// Make the window fill the available screen space, preserving the taskbar and title bar
+			ShowWindow(aHwnd, SW_MAXIMIZE);
+		}
+		else
+		{
+			// Restore the previous window style and position
+			SetWindowLongPtr(aHwnd, GWL_STYLE, savedWindowStyle);
+			SetWindowPlacement(aHwnd, &windowPlacement);
+
+			// Make the windowed mode to be of regular size
+			SetWindowPos(aHwnd, NULL, windowPlacement.rcNormalPosition.left, windowPlacement.rcNormalPosition.top,
+				windowPlacement.rcNormalPosition.right - windowPlacement.rcNormalPosition.left,
+				windowPlacement.rcNormalPosition.bottom - windowPlacement.rcNormalPosition.top,
+				SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOOWNERZORDER);
+		}
+	}
+
+	RECT rect;
+	GetClientRect(aHwnd, &rect);
+	int width = rect.right - rect.left;
+	int height = rect.bottom - rect.top;
+	myGfx->Resize(width,height);
+
+	std::cout << "Width: " << width << " Height: " << height << std::endl;
+}
+
 HWND RenderWindow::GetHWND() const
 {
 	return myHandle;
+}
+
+float RenderWindow::GetScaleFactor()
+{
+	return myScaleFactor;
 }
 
 LRESULT CALLBACK HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -98,21 +162,52 @@ LRESULT CALLBACK HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 	switch (uMsg)
 	{
 	case WM_CLOSE:
+	{
 		DestroyWindow(hwnd);
 		return 0;
+	}
+	case WM_SYSCOMMAND:
+	{
+		switch (wParam & 0xfff0)  // Extract the system command code
+		{
+		case SC_MAXIMIZE:  // Window is being maximized
+		{
+			RenderWindow::SetFullscreen(true, hwnd);
+			break;
+		}
+		case SC_RESTORE:  // Window is being restored
+		{
+			if (RenderWindow::GetIsFullscreen())
+			{
+				RenderWindow::SetFullscreen(false, hwnd);
+			}
+			break;
+		}
+		}
+		break;
+	}
+	case WM_SIZE:
+	{
+		if (ImGui::GetCurrentContext() != NULL)
+		{
+			ImGuiIO& io = ImGui::GetIO();
+			io.DisplaySize.x = (float)LOWORD(lParam);
+			io.DisplaySize.y = (float)HIWORD(lParam);
+		}
+		break;
+	}
 	default:
 	{
 		WindowContainer* const pWindow = reinterpret_cast<WindowContainer*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 		return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
-		break;
 	}
 	}
+	// handle default behavior for messages not handled in switch-case
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	static WINDOWPLACEMENT windowPlacement = { sizeof(WINDOWPLACEMENT) };
-	static bool isFullScreen = false; // new variable to keep track of fullscreen state
 
 	switch (uMsg)
 	{
@@ -129,32 +224,7 @@ LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(HandleMsgRedirect));
 		return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
 	}
-	case WM_SYSCOMMAND:
-	{
-		switch (wParam & 0xfff0)  // Extract the system command code
-		{
-		case SC_MAXIMIZE:  // Window is being maximized
-		{
-			isFullScreen = true;
-			SetWindowLong(hwnd, GWL_STYLE, WS_POPUP);
-			SetWindowPos(hwnd, HWND_TOP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), SWP_FRAMECHANGED);
-			return 0;
-		}
-		case SC_RESTORE:  // Window is being restored
-		{
-			if (isFullScreen)
-			{
-				isFullScreen = false;
-				SetWindowLong(hwnd, GWL_STYLE, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_MAXIMIZEBOX);
-				SetWindowPlacement(hwnd, &windowPlacement);
-				SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
-				return 0;
-			}
-			break;
-		}
-		}
-		break;
-	}
+
 	default:
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}

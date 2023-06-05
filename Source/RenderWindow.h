@@ -2,13 +2,16 @@
 #include "ErrorLog.h"
 
 class WindowContainer;
-
+class Graphics;
 class RenderWindow
 {
 public:
-	bool Init(WindowContainer* pWindowContainer, HINSTANCE hInstance, std::string aWindowTitle, std::string aWindowClass, int aWidth, int aHeight);
+	bool Init(Graphics& aGFXObject, WindowContainer* pWindowContainer, HINSTANCE hInstance, std::string aWindowTitle, std::string aWindowClass, int aWidth, int aHeight);
 	bool ProcessMessages();
+	static void SetFullscreen(bool aValue,HWND& aHwnd);
+	static bool GetIsFullscreen() { return myIsFullscreen; }
 	HWND GetHWND() const;
+	float GetScaleFactor();
 	~RenderWindow();
 private:
 	void RegisterWindowClass();
@@ -18,7 +21,10 @@ private:
 	std::wstring myWindowTitleWide = L"";
 	std::string myWindowClass = "";
 	std::wstring myWindowClassWide =  L"";
+	float myScaleFactor = 0;
 	int myWidth = 0;
 	int myHeight = 0;
+	inline static bool myIsFullscreen = false;
+	inline static Graphics* myGfx;
 
 };

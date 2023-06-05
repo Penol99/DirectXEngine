@@ -84,19 +84,10 @@
     <ClCompile Include="..\Source\Graphics\Mesh.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Graphics\Model.cpp">
-      <Filter>Source\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\Graphics\TerrainGenerator.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Graphics\DirectionalLight.cpp">
-      <Filter>Source\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Graphics\Material.cpp">
-      <Filter>Source\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="MaterialManager.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Entity Component System\GameObject.cpp">
@@ -123,9 +114,11 @@
     <ClCompile Include="..\Source\Entity Component System\Components\GizmoComponent.cpp">
       <Filter>Source\EntityComponentSystem\Components</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\Ray.cpp" />
     <ClCompile Include="..\Source\Entity Component System\Components\SphereColliderComponent.cpp">
       <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Ray.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -201,9 +194,6 @@
     <ClInclude Include="..\Source\ImGui\imstb_truetype.h">
       <Filter>Source\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Graphics\Model.h">
-      <Filter>Source\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\Graphics\Mesh.h">
       <Filter>Source\Graphics</Filter>
     </ClInclude>
@@ -214,12 +204,6 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\Graphics\DirectionalLight.h">
-      <Filter>Source\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="MaterialManager.h">
-      <Filter>Source\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\Graphics\Material.h">
       <Filter>Source\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\Entity Component System\GameObject.h">
@@ -246,12 +230,14 @@
     <ClInclude Include="..\Source\Entity Component System\Components\ColliderComponent.h">
       <Filter>Source\EntityComponentSystem\Components</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\Ray.h" />
     <ClInclude Include="..\Source\PropertyDefines.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\Entity Component System\Components\SphereColliderComponent.h">
       <Filter>Source\EntityComponentSystem\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Ray.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

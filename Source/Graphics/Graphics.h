@@ -27,10 +27,12 @@ public:
 	bool Init(HWND hwnd, int aWidth, int aHeight, Timer& aTimer);
 	void Render(const int& aFPS, const float& aDeltaTime);
 	void RenderImGui();
+	void Resize(int aWidth, int aHeight);
 	Camera myCamera;
 private:
 	bool InitDirectX(HWND hwnd);
 	bool InitScene();
+	bool CreateSwapChain(HWND hwnd);
 	//Model& LoadFBX(std::string filePath, std::wstring aTexturePath, std::wstring aVertexShaderPath, std::wstring aPixelShaderPath);
 	//void LoadFBX(Model& aModel, std::string& filePath, std::wstring& aTexturePath, std::wstring& aVertexShaderPath, std::wstring& aPixelShaderPath);
 	void ShowFBXWindow(ImGuiWindowFlags& someFlags);
@@ -67,6 +69,10 @@ private:
 	VertexShader myLineVertexShader;
 	PixelShader myLinePixelShader;
 	ConstantBuffer<CB_PS_PBRShader> myPBRPixelShader;
+
+	ComPtr<ID3D11ShaderResourceView> myCameraShaderResourceView;
+	ComPtr<ID3D11RenderTargetView> myCameraRenderTargetView;
+	ComPtr<ID3D11Texture2D> myCameraTexture;
 	//TerrainGenerator myTerrainGenerator;
 
 	Timer* myTimer;
@@ -74,6 +80,6 @@ private:
 	int myHeight;
 
 	float myCameraSpeed = 10.0f;
-
+	HWND myHandle;
 	friend class Engine;
 };

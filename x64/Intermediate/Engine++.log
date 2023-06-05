@@ -1,7 +1,0 @@
-﻿  Graphics.cpp
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(123,52): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(164,53): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(189,78): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(345,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(346,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-  Engine++.vcxproj -> E:\GIT\DirectXEngine\Bin\Engine++-Debug.exe

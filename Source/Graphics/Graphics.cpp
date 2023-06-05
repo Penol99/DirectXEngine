@@ -14,12 +14,13 @@ bool gShowTextureWindow = false;
 std::string gFBXFilePath;
 std::wstring gTextureFilePath;
 
-bool Graphics::Init(HWND hwnd, int aWidth, int aHeight,Timer& aTimer)
+bool Graphics::Init(HWND hwnd, int aWidth, int aHeight, Timer& aTimer)
 {
 
 	myTimer = &aTimer;
 	myWidth = aWidth;
 	myHeight = aHeight;
+	myHandle = hwnd;
 	if (!InitDirectX(hwnd))
 	{
 		return false;
@@ -36,6 +37,7 @@ bool Graphics::Init(HWND hwnd, int aWidth, int aHeight,Timer& aTimer)
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	ImGui_ImplWin32_Init(hwnd);
 	ImGui_ImplDX11_Init(myDevice.Get(), myDeviceContext.Get());
 	ImGui::StyleColorsDark();
@@ -45,37 +47,39 @@ bool Graphics::Init(HWND hwnd, int aWidth, int aHeight,Timer& aTimer)
 
 void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 {
-	//float backgroundColor[] = { 0.0f, 50.0f, 200.0f,1.0f };
+	ID3D11RenderTargetView* oldRenderTarget;
+	ID3D11DepthStencilView* oldDepthStencilView;
+
+	myDeviceContext->OMGetRenderTargets(1, &oldRenderTarget, &oldDepthStencilView);
+
+	myDeviceContext->OMSetRenderTargets(1, myCameraRenderTargetView.GetAddressOf(), myDepthStencilView.Get());
+
 	float backgroundColor[] = { 0.0f, 0.0f, 0.f , 1.0f };
-	myDeviceContext->ClearRenderTargetView(myRenderTargetView.Get(), backgroundColor);
+	myDeviceContext->ClearRenderTargetView(myCameraRenderTargetView.Get(), backgroundColor);
 	myDeviceContext->ClearDepthStencilView(myDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
 	RenderGrid();
-
-
-
-	myDeviceContext->RSSetState(myRasterizerState.Get());
-	myDeviceContext->OMSetDepthStencilState(myDepthStencilState.Get(), 0);
-	myDeviceContext->PSSetSamplers(0, 1, mySamplerState.GetAddressOf());
-
-
 
 	for (auto& model : myGameObjects)
 	{
-
 		model->Render();
 	}
 
+	myDeviceContext->OMSetRenderTargets(1, &oldRenderTarget, oldDepthStencilView);
 
-	const float fpsYOffset = 20;
-	mySpriteBatch->Begin();
-	std::wstring fpsCounter = L"FPS: ";
-	fpsCounter += std::to_wstring(aFPS);
-	mySpriteFont->DrawString(mySpriteBatch.get(), fpsCounter.c_str(), XMFLOAT2(0, myHeight - fpsYOffset), Colors::White, 0.0f, XMFLOAT2(0, 0), XMFLOAT2(1.0f, 1.0f));
-	mySpriteBatch->End();
+	// Render ImGui here
+	RenderImGui();
 
-	
-	RenderImGui();  
 	mySwapChain->Present(VSYNC_ENABLED, NULL);
+
+	if (oldRenderTarget != nullptr)
+	{
+		oldRenderTarget->Release();
+	}
+	if (oldDepthStencilView != nullptr)
+	{
+		oldDepthStencilView->Release();
+	}
 }
 
 void Graphics::RenderImGui()
@@ -83,198 +87,190 @@ void Graphics::RenderImGui()
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking;
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-	windowFlags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove;
-	windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+	// DockSpaceOverViewport creates a dockspace which we can add windows to.
+	ImGuiID dockspace_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
-	const float itemWidth = 65;
-	int modelIndex = 0;
-	int previousImGuiWindowHeight = 0;
-	const int myWidthOffset = 240;
-	const int myHeightOffset = 0;
-	ImGui::Begin("Controls:");
-	ImGui::SetWindowSize(ImVec2(0, 0));
-	ImGui::Text("HOLD DOWN RIGHT CLICK TO MOVE AND ROTATE CAMERA");
-	ImGui::Text("WASD - Camera Move");
-	ImGui::Text("SPACE - Move up");
-	ImGui::Text("LCTRL - Move Down");
-	ImGui::Text("LSHIFT - Speed up");
-	ImGui::SetWindowPos(ImVec2((myWidth / 2) - ImGui::GetWindowSize().x / 2, 0));
+	// SetNextWindowDockID sets the next window to dock into the specified dockspace.
+	ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(myWidth, myHeight), ImGuiCond_FirstUseEver);
+	// Begin creating the window.
+	ImGui::Begin("Camera Window");
 
-	ImGui::End();
-	ImGui::GetWindowSize();
-	ImGui::SetNextWindowSize(ImVec2(0, 0));
-	ImGui::SetNextWindowViewport(viewport->ID);
+	// Calculate the size of the window
+	ImVec2 windowSize = ImGui::GetWindowSize();
 
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	// Calculate the aspect ratio of the image
+	float aspectRatio = (float)myWidth / (float)myHeight;
 
-	ImGui::Begin("Directional Light", nullptr, windowFlags);
-	previousImGuiWindowHeight = ImGui::GetWindowSize().y;
-	ImGui::PopStyleVar(2);
-	ImGui::PushItemWidth(itemWidth);
+	// Calculate the size of the image
+	float imageWidth, imageHeight;
 
-	ImGui::Text("Rotation");
-	DirectionalLight* dLight = DirectionalLight::GetInstance();
-	ImGui::DragFloat("X##Rot", &dLight->myDirection.x, 0.1f);
-	ImGui::SameLine();
-	ImGui::DragFloat("Y##Rot", &dLight->myDirection.y, 0.1f);
-	ImGui::SameLine();
-	ImGui::DragFloat("Z##Rot", &dLight->myDirection.z, 0.1f);
-
-	ImGui::Text("Ambient Color");
-	float ambientColor[4] = { dLight->myAmbientColor.x, dLight->myAmbientColor.y , dLight->myAmbientColor.z,dLight->myAmbientColor.w };
-	ImGui::ColorPicker4("Ambient Color", ambientColor);
-	dLight->myAmbientColor.x = ambientColor[0];
-	dLight->myAmbientColor.y = ambientColor[1];
-	dLight->myAmbientColor.z = ambientColor[2];
-	dLight->myAmbientColor.w = ambientColor[3];
-
-
-	ImGui::SetWindowPos(ImVec2(ImGui::GetWindowSize().x / 2, 0));
-
-	ImGui::End();
-
-
-
-
-
-
-	for (auto& gameObject : myGameObjects)
+	// Aspect ratio is width / height. If it's less than 1, the height is larger than the width.
+	if (aspectRatio < 1.0f)
 	{
-		TransformComponent* transform = gameObject->GetComponent<TransformComponent>();
-		ImGui::GetWindowSize();
-		ImGui::SetNextWindowSize(ImVec2(0, 0));
-		ImGui::SetNextWindowViewport(viewport->ID);
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-
-		ImGui::Begin("Model", nullptr, windowFlags);
-		previousImGuiWindowHeight = ImGui::GetWindowSize().y;
-		ImGui::PopStyleVar(2);
-		ImGui::PushItemWidth(itemWidth);
-		ImGui::Text("Position");
-		ImGui::DragFloat("X##Pos", &transform->myPosition.x, 0.1f);
-		ImGui::SameLine();
-		ImGui::DragFloat("Y##Pos", &transform->myPosition.y, 0.1f);
-		ImGui::SameLine();
-		ImGui::DragFloat("Z##Pos", &transform->myPosition.z, 0.1f);
-
-		ImGui::Text("Rotation");
-
-		ImGui::DragFloat("X##Rot", &transform->myRotation.x, 0.1f);
-		ImGui::SameLine();
-		ImGui::DragFloat("Y##Rot", &transform->myRotation.y, 0.1f);
-		ImGui::SameLine();
-		ImGui::DragFloat("Z##Rot", &transform->myRotation.z, 0.1f);
-
-		ImGui::Text("Scale");
-		ImGui::DragFloat("X##Scale", &transform->myScale.x, 0.1f);
-		ImGui::SameLine();
-		ImGui::DragFloat("Y##Scale", &transform->myScale.y, 0.1f);
-		ImGui::SameLine();
-		ImGui::DragFloat("Z##Scale", &transform->myScale.z, 0.1f);
-		ImGui::PopItemWidth();
-		ImGui::SetWindowPos(ImVec2(myWidth - ImGui::GetWindowSize().x, (modelIndex * previousImGuiWindowHeight)));
-		if (ImGui::Button("Delete model"))
-		{
-			myGameObjects.erase(myGameObjects.begin() + modelIndex);
-			modelIndex--;
-			ImGui::End();
-			break;
-		}
-
-		ImGui::End();
-		++modelIndex;
+		imageHeight = windowSize.y; // Take up the full window height
+		imageWidth = imageHeight * aspectRatio; // Adjust width to maintain aspect ratio
 	}
-
-
-
-	ImGui::StyleColorsLight();
-
-
-
-	ImGui::SetNextWindowPos(ImVec2(0, 0));
-	ImGui::SetNextWindowSize(ImVec2(0, 0));
-	ImGui::SetNextWindowViewport(viewport->ID);
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-
-
-	ImGui::PopStyleVar(2);
-
-	if (gShowFBXWindow)
+	else
 	{
-		ShowFBXWindow(windowFlags);
+		imageWidth = windowSize.x; // Take up the full window width
+		imageHeight = imageWidth / aspectRatio; // Adjust height to maintain aspect ratio
 	}
-	else if (gShowTextureWindow)
-	{
-		ShowTextureWindow(windowFlags);
-	}
+	// Adjust the position of the image to center it in the window
+	float imageX = (windowSize.x - imageWidth) / 2.0f;
+	float imageY = (windowSize.y - imageHeight) / 2.0f;
+
+	// Display the image
+	ImGui::SetCursorPos(ImVec2(imageX, imageY));
+	ImGui::Image(myCameraShaderResourceView.Get(), ImVec2(imageWidth, imageHeight));
 
 	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
 
+void Graphics::Resize(int aWidth, int aHeight)
+{
+	// Save the new width and height
+	myWidth = aWidth;
+	myHeight = aHeight;
+
+	// Release current render target and depth/stencil view
+	myRenderTargetView.Reset();
+	myDepthStencilView.Reset();
+
+	// Resize the swap chain
+	HRESULT hr = mySwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "Failed to resize the swap chain.");
+		return;
+	}
+
+	// Recreate the render target view
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+	hr = mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "GetBuffer Failed.");
+		return;
+	}
+
+	hr = myDevice->CreateRenderTargetView(backBuffer.Get(), NULL, myRenderTargetView.GetAddressOf());
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "Failed to create render target view.");
+		return;
+	}
+
+	// Recreate the depth/stencil view
+	D3D11_TEXTURE2D_DESC depthTextureDesc;
+	depthTextureDesc.Width = myWidth;
+	depthTextureDesc.Height = myHeight;
+	depthTextureDesc.MipLevels = 1;
+	depthTextureDesc.ArraySize = 1;
+	depthTextureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthTextureDesc.SampleDesc.Count = 1;
+	depthTextureDesc.SampleDesc.Quality = 0;
+	depthTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthTextureDesc.CPUAccessFlags = 0;
+	depthTextureDesc.MiscFlags = 0;
+	
+	hr = myDevice->CreateTexture2D(&depthTextureDesc, NULL, myDepthStencilBuffer.GetAddressOf());
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "Failed to create depth stencil buffer.");
+		return;
+	}
+
+	hr = myDevice->CreateDepthStencilView(myDepthStencilBuffer.Get(), NULL, myDepthStencilView.GetAddressOf());
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "Failed to create depth stencil view.");
+		return;
+	}
+
+	// Bind the render target view and depth/stencil view to the pipeline
+	myDeviceContext->OMSetRenderTargets(1, myRenderTargetView.GetAddressOf(), myDepthStencilView.Get());
+	myDeviceContext->OMSetDepthStencilState(myDepthStencilState.Get(), 0);
+
+	// Set the viewport
+	D3D11_VIEWPORT viewport = {};
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.Width = static_cast<float>(myWidth);
+	viewport.Height = static_cast<float>(myHeight);
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	myDeviceContext->RSSetViewports(1, &viewport);
+
+	// Recreate camera resources
+	myCameraRenderTargetView.Reset();
+	myCameraShaderResourceView.Reset();
+
+	D3D11_TEXTURE2D_DESC camTextureDesc = {};
+	camTextureDesc.Width = myWidth;
+	camTextureDesc.Height = myHeight;
+	camTextureDesc.MipLevels = 1;
+	camTextureDesc.ArraySize = 1;
+	camTextureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	camTextureDesc.SampleDesc.Count = 1;
+	camTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+	camTextureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> offscreenTexture;
+	hr = myDevice->CreateTexture2D(&camTextureDesc, nullptr, offscreenTexture.GetAddressOf());
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "Failed recreating texture2D for camera");
+		return;
+	}
+
+	D3D11_RENDER_TARGET_VIEW_DESC camRenderTargetViewDesc = {};
+	camRenderTargetViewDesc.Format = camTextureDesc.Format;
+	camRenderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+
+	hr = myDevice->CreateRenderTargetView(offscreenTexture.Get(), &camRenderTargetViewDesc, myCameraRenderTargetView.GetAddressOf());
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "Failed recreating render target view for camera");
+		return;
+	}
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC camShaderResourceViewDesc = {};
+	camShaderResourceViewDesc.Format = camTextureDesc.Format;
+	camShaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	camShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	camShaderResourceViewDesc.Texture2D.MipLevels = -1;
+
+	hr = myDevice->CreateShaderResourceView(offscreenTexture.Get(), &camShaderResourceViewDesc, myCameraShaderResourceView.GetAddressOf());
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "Failed recreating shader resource view for camera");
+		return;
+	}
+
+	// Release the offscreenTexture explicitly since it's no longer needed
+	offscreenTexture.Reset();
 }
 
 bool Graphics::InitDirectX(HWND hwnd)
 {
-	std::vector<AdapterData> adapters = AdapterReader::GetAdapters();
+	RECT rect;
+	GetClientRect(myHandle, &rect);
+	myWidth = rect.right - rect.left;
+	myHeight = rect.bottom - rect.top;
 
-	if (adapters.size() < 1)
+	if (!CreateSwapChain(hwnd))
 	{
-		ErrorLog::Log("lmao no IDXGI adapters found.");
-		return false;
-	}
-
-	DXGI_SWAP_CHAIN_DESC scd;
-	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
-
-	scd.BufferDesc.Width = myWidth;
-	scd.BufferDesc.Height = myHeight;
-	scd.BufferDesc.RefreshRate.Numerator = 144; // TODO: Fix so that it gets the refresh rate from the monitor instead.
-	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-
-	scd.SampleDesc.Count = 1; // Multisamples per pixel
-	scd.SampleDesc.Quality = 0;
-
-	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	scd.BufferCount = 1;
-	scd.OutputWindow = hwnd;
-	scd.Windowed = true;
-	scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; // Allows toggling between windowed and fullscreen.
-
-	HRESULT hr;
-	hr = D3D11CreateDeviceAndSwapChain(adapters[0].myAdapter, // GPU, IDXGI Adapter
-		D3D_DRIVER_TYPE_UNKNOWN,
-		NULL, // SOFWARE DRIVER TYPE
-		NULL, // FLAGS FOR RUNTIME LAYERS
-		NULL, // FEATURE LEVELS ARRAY
-		0, //# OF FEATURE LEVELS IN ARRAY
-		D3D11_SDK_VERSION,
-		&scd, // SWAPCHAIN DESCRIPTION
-		mySwapChain.GetAddressOf(),
-		myDevice.GetAddressOf(),
-		NULL, // SUPPORTED FEATURE LEVEL
-		myDeviceContext.GetAddressOf());
-
-	if (FAILED(hr))
-	{
-		ErrorLog::Log(hr, "failed creating device and swapchain, damn.");
 		return false;
 	}
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
-	hr = mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
+	HRESULT hr = mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
 
 	if (FAILED(hr))
 	{
@@ -374,6 +370,58 @@ bool Graphics::InitDirectX(HWND hwnd)
 		return false;
 	}
 
+	
+	D3D11_TEXTURE2D_DESC camTextureDesc = {};
+	D3D11_RENDER_TARGET_VIEW_DESC camRenderTargetViewDesc = {};
+	D3D11_SHADER_RESOURCE_VIEW_DESC camShaderResourceViewDesc = {};
+
+
+	camTextureDesc.Width = myWidth;
+	camTextureDesc.Height = myHeight;
+	camTextureDesc.MipLevels = 1;
+	camTextureDesc.ArraySize = 1;
+	camTextureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	camTextureDesc.SampleDesc.Count = 1;
+	camTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+	camTextureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	camTextureDesc.CPUAccessFlags = 0;
+	camTextureDesc.MiscFlags = 0;
+
+	ID3D11Texture2D* offscreenTexture;
+	myDevice->CreateTexture2D(&camTextureDesc, NULL, &offscreenTexture);
+
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "Failed creating texture2D for camera");
+		return false;
+	}
+	camRenderTargetViewDesc.Format = camTextureDesc.Format;
+	camRenderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	camRenderTargetViewDesc.Texture2D.MipSlice = 0;
+
+	hr = myDevice->CreateRenderTargetView(offscreenTexture, &camRenderTargetViewDesc, &myCameraRenderTargetView);
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "Failed creating render target view for camera");
+		return false;
+	}
+
+	camShaderResourceViewDesc.Format = camTextureDesc.Format;
+	camShaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	camShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	camShaderResourceViewDesc.Texture2D.MipLevels = 1;
+
+	hr = myDevice->CreateShaderResourceView(offscreenTexture, &camShaderResourceViewDesc, &myCameraShaderResourceView);
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "Failed creating shader resource view for camera");
+		return false;
+	}
+	offscreenTexture->Release();
+
+
+
+
 	return true;
 }
 
@@ -387,22 +435,74 @@ bool Graphics::InitScene()
 	man->Init(myTimer, &myCamera, myDevice, myDeviceContext);
 
 	MaterialComponent* material = man->AddComponent<MaterialComponent>();
-	material->Init(L"../bin/PBRVertexShader.cso", L"../bin/PBRPixelShader.cso");
+	material->Init(L"../bin/shaders/PBRVertexShader.cso", L"../bin/shaders/PBRPixelShader.cso");
 	material->SetTexture(L"../bin/assets/textures/man.jpg");
 	material->SetReflectionTexture(L"../bin/assets/textures/reflection.jpg");
-	
+
 	ModelComponent* model = man->AddComponent<ModelComponent>();
 	model->Init("../bin/assets/meshes/other/man.fbx");
-	
+
 	BoxColliderComponent* boxCollider = man->AddComponent<BoxColliderComponent>();
 	boxCollider->SetExtents(XMFLOAT3(4, 40, 4));
-	
 
-	
+
+
 
 
 	myGameObjects.push_back(man);
 
+	return true;
+}
+
+bool Graphics::CreateSwapChain(HWND hwnd)
+{
+
+	std::vector<AdapterData> adapters = AdapterReader::GetAdapters();
+	if (adapters.size() < 1)
+	{
+		ErrorLog::Log("lmao no IDXGI adapters found.");
+		return false;
+	}
+
+	DXGI_SWAP_CHAIN_DESC scd;
+	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
+
+	scd.BufferDesc.Width = myWidth;
+	scd.BufferDesc.Height = myHeight;
+	scd.BufferDesc.RefreshRate.Numerator = 144; // TODO: Fix so that it gets the refresh rate from the monitor instead.
+	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+
+	scd.SampleDesc.Count = 1; // Multisamples per pixel
+	scd.SampleDesc.Quality = 0;
+
+	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	scd.BufferCount = 1;
+	scd.OutputWindow = hwnd;
+	scd.Windowed = true;
+	scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; // Allows toggling between windowed and fullscreen.
+
+	HRESULT hr;
+	hr = D3D11CreateDeviceAndSwapChain(adapters[0].myAdapter, // GPU, IDXGI Adapter
+		D3D_DRIVER_TYPE_UNKNOWN,
+		NULL, // SOFWARE DRIVER TYPE
+		NULL, // FLAGS FOR RUNTIME LAYERS
+		NULL, // FEATURE LEVELS ARRAY
+		0, //# OF FEATURE LEVELS IN ARRAY
+		D3D11_SDK_VERSION,
+		&scd, // SWAPCHAIN DESCRIPTION
+		mySwapChain.GetAddressOf(),
+		myDevice.GetAddressOf(),
+		NULL, // SUPPORTED FEATURE LEVEL
+		myDeviceContext.GetAddressOf());
+
+	if (FAILED(hr))
+	{
+		ErrorLog::Log(hr, "failed creating device and swapchain, damn.");
+		return false;
+	}
 	return true;
 }
 
@@ -475,7 +575,7 @@ bool Graphics::InitGrid()
 {
 	const float numGridCellsX = 200;
 	const float numGridCellsY = 200;
-	const float gridSize = 10.f; 
+	const float gridSize = 10.f;
 	const float gridWidth = gridSize * numGridCellsX; // Total width of the grid
 	const float gridHeight = gridSize * numGridCellsY; // Total height of the grid
 
@@ -487,7 +587,7 @@ bool Graphics::InitGrid()
 	{
 		float zPos = y * gridSize - gridHeight * 0.5f;
 
-		gridVertices.push_back(Vertex(-gridWidth * 0.5f, 0.0f, zPos, 0.0f, zPos / gridHeight,0,0,0));
+		gridVertices.push_back(Vertex(-gridWidth * 0.5f, 0.0f, zPos, 0.0f, zPos / gridHeight, 0, 0, 0));
 
 		gridVertices.push_back(Vertex(gridWidth * 0.5f, 0.0f, zPos, 1.0f, zPos / gridHeight, 0, 0, 0));
 	}
@@ -540,12 +640,12 @@ bool Graphics::InitGrid()
 
 	UINT numElements = ARRAYSIZE(layout);
 
-	if (!myLineVertexShader.Init(myDevice, L"../bin/LineVertexShader.cso", layout, numElements))
+	if (!myLineVertexShader.Init(myDevice, L"../bin/shaders/LineVertexShader.cso", layout, numElements))
 	{
 		return false;
 	}
 
-	if (!myLinePixelShader.Init(myDevice, L"../bin/LinePixelShader.cso"))
+	if (!myLinePixelShader.Init(myDevice, L"../bin/shaders/LinePixelShader.cso"))
 	{
 		return false;
 	}

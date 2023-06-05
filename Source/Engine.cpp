@@ -5,15 +5,17 @@ Engine* Engine::myInstance = nullptr;
 
 bool Engine::Init(HINSTANCE hInstance, std::string aWindowTitle, std::string aWindowClass, int aWidth, int aHeight, Timer& aTimer)
 {
-	if (!this->myRenderWindow.Init(this, hInstance, aWindowTitle, aWindowClass, aWidth, aHeight))
-	{
-		return false;
-	}
-	if (!myGfx.Init(myRenderWindow.GetHWND(), aWidth, aHeight, aTimer))
-	{
-		return false;
-	}
 
+	if (!this->myRenderWindow.Init(myGfx,this, hInstance, aWindowTitle, aWindowClass, aWidth, aHeight))
+	{
+		return false;
+	}
+	if (!myGfx.Init(myRenderWindow.GetHWND(), aWidth* myRenderWindow.GetScaleFactor(), aHeight*myRenderWindow.GetScaleFactor(), aTimer))
+	{
+		return false;
+	}
+	ImGui::GetIO().FontGlobalScale = myRenderWindow.GetScaleFactor();
+	
 	return true;
 }
 
