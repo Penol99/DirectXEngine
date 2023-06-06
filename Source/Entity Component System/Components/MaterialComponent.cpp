@@ -45,29 +45,26 @@ void MaterialComponent::Render()
         myGameObject->myDeviceContext->PSSetShaderResources(3, 1, myReflectionTexture.GetAddressOf());
     }
 
+    DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(myTransform->myScale.x, myTransform->myScale.y, myTransform->myScale.z);
+    DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationRollPitchYaw(myTransform->myRotation.x, myTransform->myRotation.y, myTransform->myRotation.z);
+    DirectX::XMMATRIX translation = DirectX::XMMatrixTranslation(myTransform->myPosition.x, myTransform->myPosition.y, myTransform->myPosition.z);
 
-    // CONSTANT BUFFERS
-	static float worldTranslationOffset[3] = { 0,0,0 };
-	DirectX::XMMATRIX scale = DirectX::XMMatrixScaling(myTransform->myLocalScale.x, myTransform->myLocalScale.y, myTransform->myLocalScale.z);
-	DirectX::XMMATRIX translationOffset = DirectX::XMMatrixTranslation(worldTranslationOffset[0], worldTranslationOffset[1], worldTranslationOffset[2]);
-	DirectX::XMMATRIX world = scale * translationOffset;
+    // Apply scaling, rotation and translation in order
+    DirectX::XMMATRIX world = scale * rotation * translation;
 
+    myCBVSVertexShader.myData.worldMatrix = world * myGameObject->myCamera->GetViewMatrix() * myGameObject->myCamera->GetProjectionMatrix();
+    myCBVSVertexShader.myData.worldMatrix = DirectX::XMMatrixTranspose(myCBVSVertexShader.myData.worldMatrix);
 
-	myCBVSVertexShader.myData.modelPosition = myTransform->myLocalPosition;
-	myCBVSVertexShader.myData.modelRotation = myTransform->myLocalRotation;
-	myCBVSVertexShader.myData.worldMatrix = world * myGameObject->myCamera->GetViewMatrix() * myGameObject->myCamera->GetProjectionMatrix();
-	myCBVSVertexShader.myData.worldMatrix = DirectX::XMMatrixTranspose(myCBVSVertexShader.myData.worldMatrix);
+    myCBVSVertexShader.ApplyChanges();
+    myGameObject->myDeviceContext->VSSetConstantBuffers(0, 1, myCBVSVertexShader.GetAddressOf());
 
+    myCBPSPixelShader.myData.cameraPosition = myGameObject->myCamera->GetPositionFloat3();
+    myCBPSPixelShader.myData.direction = DirectionalLight::GetInstance()->myDirection;
+    myCBPSPixelShader.myData.ambientColor = DirectionalLight::GetInstance()->myAmbientColor;
+    myCBPSPixelShader.myData.diffuseColor = DirectionalLight::GetInstance()->myDiffuseColor;
+    myCBPSPixelShader.ApplyChanges();
+    myGameObject->myDeviceContext->PSSetConstantBuffers(0, 1, myCBPSPixelShader.GetAddressOf());
 
-	myCBVSVertexShader.ApplyChanges();
-	myGameObject->myDeviceContext->VSSetConstantBuffers(0, 1, myCBVSVertexShader.GetAddressOf());
-
-	myCBPSPixelShader.myData.cameraPosition = myGameObject->myCamera->GetPositionFloat3();
-	myCBPSPixelShader.myData.direction = DirectionalLight::GetInstance()->myDirection;
-	myCBPSPixelShader.myData.ambientColor = DirectionalLight::GetInstance()->myAmbientColor;
-	myCBPSPixelShader.myData.diffuseColor = DirectionalLight::GetInstance()->myDiffuseColor;
-	myCBPSPixelShader.ApplyChanges();
-	myGameObject->myDeviceContext->PSSetConstantBuffers(0, 1, myCBPSPixelShader.GetAddressOf());
 
 }
 

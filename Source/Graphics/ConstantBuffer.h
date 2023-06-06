@@ -44,8 +44,7 @@ public:
 		constantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		constantBufferDesc.MiscFlags = 0;
 
-		constantBufferDesc.ByteWidth = ((sizeof(T) + 15) / 16) * 16;
-		//constantBufferDesc.ByteWidth = static_cast<UINT>(sizeof(T)) + (16 - (sizeof(T)));
+		constantBufferDesc.ByteWidth = sizeof(T);
 		constantBufferDesc.StructureByteStride = 0;
 
 		return aDevice->CreateBuffer(&constantBufferDesc, 0, myBuffer.GetAddressOf());

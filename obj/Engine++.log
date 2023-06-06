@@ -1,4 +1,10 @@
-﻿  ImGuiRenderer.cpp
-E:\GIT\DirectXEngine\Source\Graphics\ImGuiRenderer.cpp(118,43): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\ImGuiRenderer.cpp(118,34): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-  Engine++.vcxproj -> E:\GIT\DirectXEngine\Bin\Engine++-Debug.exe
+﻿E:\GIT\DirectXEngine\Source\Shaders\PBRPixelShader.hlsl(29,16-46): warning X3576: semantics in type overridden by variable/function or enclosing type
+  
+  compilation object save succeeded; see E:\GIT\DirectXEngine\Bin\Shaders\PBRPixelShader.cso
+  BoxColliderComponent.cpp
+  Generating code
+  0 of 4666 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Engine++.vcxproj -> E:\GIT\DirectXEngine\Bin\Engine++.exe

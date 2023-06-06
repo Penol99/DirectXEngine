@@ -4,10 +4,6 @@
 struct CB_VS_StandardShader
 {
 	DirectX::XMMATRIX worldMatrix;
-	DirectX::XMFLOAT3 modelRotation;
-	float padding0;
-	DirectX::XMFLOAT3 modelPosition;
-	float padding1;
 };
 
 struct CB_PS_StandardShader

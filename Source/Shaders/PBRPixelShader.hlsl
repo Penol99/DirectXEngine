@@ -9,8 +9,6 @@ cbuffer ConstantBuffer : register(b0)
 struct PixelInput
 {
     float4 Position : SV_POSITION;
-    float3 WorldPos : TEXCOORD2;
-    float3 Rotation : TEXCOORD6;
     float3 Normal : NORMAL0;
     float2 TexCoord : TEXCOORD0;
 };
@@ -28,19 +26,6 @@ struct PixelOutput
     float4 Color : SV_TARGET;
 };
 
-float3 RotateVector(float3 v, float3 rotation)
-{
-    float3 sinRotation = sin(rotation);
-    float3 cosRotation = cos(rotation);
-    
-    float3 rotatedVector;
-    rotatedVector.x = v.x * cosRotation.y * cosRotation.z + v.y * (sinRotation.x * sinRotation.y * cosRotation.z - cosRotation.x * sinRotation.z) + v.z * (cosRotation.x * sinRotation.y * cosRotation.z + sinRotation.x * sinRotation.z);
-    rotatedVector.y = v.x * cosRotation.y * sinRotation.z + v.y * (sinRotation.x * sinRotation.y * sinRotation.z + cosRotation.x * cosRotation.z) + v.z * (cosRotation.x * sinRotation.y * sinRotation.z - sinRotation.x * cosRotation.z);
-    rotatedVector.z = -v.x * sinRotation.y + v.y * sinRotation.x * cosRotation.y + v.z * cosRotation.x * cosRotation.y;
-    
-    return rotatedVector;
-}
-
 PixelOutput main(PixelInput input) : SV_TARGET
 {
     PixelOutput output;
@@ -52,13 +37,10 @@ PixelOutput main(PixelInput input) : SV_TARGET
     float metalness = metalnessTexture.Sample(defaultSampler, input.TexCoord).r;
     float roughness = roughnessTexture.Sample(defaultSampler, input.TexCoord).r;
 
-    // Rotate the normal vector based on the player's rotation
-    float3 rotatedNormal = RotateVector(input.Normal, input.Rotation);
-
     // Calculate lighting
-    float3 normal = normalize(rotatedNormal);
+    float3 normal = normalize(input.Normal);
     float3 lightDirection = normalize(DirectionalLightDirection);
-    float3 viewDirection = normalize(CameraPosition - input.WorldPos);
+    float3 viewDirection = normalize(CameraPosition - input.Position.xyz);
     float3 halfwayDirection = normalize(lightDirection + viewDirection);
 
     float3 diffuseColor = albedo.rgb;

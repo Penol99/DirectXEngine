@@ -529,8 +529,6 @@ void Graphics::RenderGrid()
 
 	myGridConstantBuffer.myData.worldMatrix = myCamera.GetViewMatrix() * myCamera.GetProjectionMatrix();
 	myGridConstantBuffer.myData.worldMatrix = XMMatrixTranspose(myGridConstantBuffer.myData.worldMatrix);
-	myGridConstantBuffer.myData.modelPosition = XMFLOAT3(0, 0, 0);
-	myGridConstantBuffer.myData.modelRotation = XMFLOAT3(0, 0, 0);
 	myDeviceContext->UpdateSubresource(myGridConstantBuffer.Get(), 0, nullptr, &myGridConstantBuffer.myData, 0, 0);
 	myGridConstantBuffer.ApplyChanges();
 	myDeviceContext->VSSetConstantBuffers(0, 1, myGridConstantBuffer.GetAddressOf());
