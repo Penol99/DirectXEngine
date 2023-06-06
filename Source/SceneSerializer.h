@@ -10,7 +10,7 @@ public:
     static void SaveScene(const std::vector<GameObject*>& gameObjects, const std::string& filePath);
     static std::vector<GameObject*> LoadScene(const std::string& filePath, Graphics* aGfx);
 
-private:
     static void SerializeGameObject(const GameObject* gameObject, json& serializedObject);
     static GameObject* DeserializeGameObject(const json& serializedObject, Graphics* aGfx);
+private:
 };

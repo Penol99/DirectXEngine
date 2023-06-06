@@ -5,7 +5,7 @@
 #include "Graphics.h"
 #include "../Entity Component System/ComponentFactory.h"
 #include "../SceneSerializer.h"
-
+#include <fstream>
 void ImGuiRenderer::Init(Graphics* aGfx)
 {
 	myGfx = aGfx;
@@ -13,21 +13,21 @@ void ImGuiRenderer::Init(Graphics* aGfx)
 
 void ImGuiRenderer::Render(int aWidth, int aHeight)
 {
-    myWidth = aWidth;
-    myHeight = aHeight;
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
+	myWidth = aWidth;
+	myHeight = aHeight;
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
 
-    ImGuiID dockspace_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+	ImGuiID dockspace_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 	RenderMainMenu();
-    RenderCameraWindow(dockspace_id);
-    RenderFileHierarchyWindow(dockspace_id);
-    RenderComponentsWindow(dockspace_id);
-    RenderSceneWindow();
+	RenderCameraWindow(dockspace_id);
+	RenderFileHierarchyWindow(dockspace_id);
+	RenderComponentsWindow(dockspace_id);
+	RenderSceneWindow();
 
-    ImGui::Render();
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 void ImGuiRenderer::RenderMainMenu()
@@ -42,7 +42,7 @@ void ImGuiRenderer::RenderMainMenu()
 				std::string saveFilePath = OpenFileSaveDialog();
 				if (!saveFilePath.empty())
 				{
-					SceneSerializer::SaveScene(myGfx->myGameObjects,saveFilePath);
+					SceneSerializer::SaveScene(myGfx->myGameObjects, saveFilePath);
 				}
 			}
 
@@ -51,7 +51,7 @@ void ImGuiRenderer::RenderMainMenu()
 				std::string loadFilePath = OpenFileLoadDialog();
 				if (!loadFilePath.empty())
 				{
-					myGfx->myGameObjects = SceneSerializer::LoadScene(loadFilePath,myGfx);
+					myGfx->myGameObjects = SceneSerializer::LoadScene(loadFilePath, myGfx);
 				}
 			}
 
@@ -83,7 +83,7 @@ std::string ImGuiRenderer::OpenFileSaveDialog()
 		std::filesystem::current_path(oldCurrentPath);
 		return std::string(szFile);
 	}
-	
+
 
 	return "";
 }
@@ -114,46 +114,46 @@ std::string ImGuiRenderer::OpenFileLoadDialog()
 
 void ImGuiRenderer::RenderCameraWindow(ImGuiID dockspace_id)
 {
-    ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(myWidth, myHeight), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Camera Window");
+	ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(myWidth, myHeight), ImGuiCond_FirstUseEver);
+	ImGui::Begin("Camera Window");
 
-    ImVec2 windowSize = ImGui::GetWindowSize();
+	ImVec2 windowSize = ImGui::GetWindowSize();
 
-    float aspectRatio = (float)myWidth / (float)myHeight;
+	float aspectRatio = (float)myWidth / (float)myHeight;
 
-    float imageWidth, imageHeight;
+	float imageWidth, imageHeight;
 
-    if (aspectRatio < 1.0f)
-    {
-        imageHeight = windowSize.y; // Take up the full window height
-        imageWidth = imageHeight * aspectRatio; // Adjust width to maintain aspect ratio
-    }
-    else
-    {
-        imageWidth = windowSize.x; // Take up the full window width
-        imageHeight = imageWidth / aspectRatio; // Adjust height to maintain aspect ratio
-    }
+	if (aspectRatio < 1.0f)
+	{
+		imageHeight = windowSize.y; // Take up the full window height
+		imageWidth = imageHeight * aspectRatio; // Adjust width to maintain aspect ratio
+	}
+	else
+	{
+		imageWidth = windowSize.x; // Take up the full window width
+		imageHeight = imageWidth / aspectRatio; // Adjust height to maintain aspect ratio
+	}
 
-    float imageX = (windowSize.x - imageWidth) / 2.0f;
-    float imageY = (windowSize.y - imageHeight) / 2.0f;
+	float imageX = (windowSize.x - imageWidth) / 2.0f;
+	float imageY = (windowSize.y - imageHeight) / 2.0f;
 
-    // Display the image
-    ImGui::SetCursorPos(ImVec2(imageX, imageY));
-    ImGui::Image(myGfx->myCameraShaderResourceView.Get(), ImVec2(imageWidth, imageHeight));
+	// Display the image
+	ImGui::SetCursorPos(ImVec2(imageX, imageY));
+	ImGui::Image(myGfx->myCameraShaderResourceView.Get(), ImVec2(imageWidth, imageHeight));
 
-    ImGui::End();
+	ImGui::End();
 }
 
 void ImGuiRenderer::RenderFileHierarchyWindow(ImGuiID dockspace_id)
 {
-    ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(200, 400), ImGuiCond_FirstUseEver);
-    ImGui::Begin("File Hierarchy");
+	ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(200, 400), ImGuiCond_FirstUseEver);
+	ImGui::Begin("File Hierarchy");
 
 	RenderFileHierarchy("../Bin/Assets/");
 
-    ImGui::End();
+	ImGui::End();
 }
 
 void ImGuiRenderer::RenderComponentsWindow(ImGuiID dockspace_id)
@@ -175,7 +175,43 @@ void ImGuiRenderer::RenderComponentsWindow(ImGuiID dockspace_id)
 		{
 			ImGui::OpenPopup("AddComponentPopup");
 		}
-
+		ImGui::SameLine();
+		if (ImGui::Button("Save"))
+		{
+			std::string saveFilePath = OpenFileSaveDialog();
+			if (!saveFilePath.empty())
+			{
+				json gameObjectsData;
+				SceneSerializer::SerializeGameObject(myGfx->mySelectedGameObject, gameObjectsData);
+				std::ofstream outputFile(saveFilePath);
+				if (outputFile.is_open())
+				{
+					outputFile << gameObjectsData.dump(4); // Indent JSON data with 4 spaces
+					outputFile.close();
+					std::cout << "Scene saved successfully." << std::endl;
+				}
+				else
+				{
+					std::cerr << "Failed to save scene." << std::endl;
+				}
+			}
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Delete"))
+		{
+			for (int i = 0; i < myGfx->myGameObjects.size(); i++)
+			{
+				if (myGfx->myGameObjects[i] == myGfx->mySelectedGameObject)
+				{
+					myGfx->myGameObjects.erase(myGfx->myGameObjects.begin() + i);
+					delete myGfx->mySelectedGameObject;
+					myGfx->mySelectedGameObject = nullptr;
+					ImGui::End();
+					return;
+				}
+			}
+		}
+		ImGui::NewLine();
 		// Popup for selecting a script to add as a component
 		if (ImGui::BeginPopup("AddComponentPopup"))
 		{
@@ -285,6 +321,32 @@ void ImGuiRenderer::RenderFileHierarchy(const std::filesystem::path& aDirectory)
 			else
 			{
 				ImGui::Selectable(filename.c_str());
+
+				std::string popup_id = "json file context menu##" + filename;
+
+				if (ImGui::IsItemClicked(1) && path.extension() == ".json")  // 1 is right mouse button
+				{
+					ImGui::OpenPopup(popup_id.c_str());
+				}
+
+				if (ImGui::BeginPopup(popup_id.c_str()))
+				{
+					if (ImGui::MenuItem("Add to Scene"))
+					{
+						std::ifstream inputFile(path);
+						if (inputFile.is_open())
+						{
+							json gameObjectData;
+							inputFile >> gameObjectData;
+
+							GameObject* gameObject = SceneSerializer::DeserializeGameObject(gameObjectData, myGfx);
+							myGfx->myGameObjects.push_back(gameObject);
+							gameObject->Init(myGfx->myTimer, &myGfx->myCamera, myGfx->myDevice, myGfx->myDeviceContext);
+							std::cout << "Prefab loaded successfully." << std::endl;
+						}
+					}
+					ImGui::EndPopup();
+				}
 			}
 		}
 	}
