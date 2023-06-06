@@ -1,0 +1,104 @@
+{
+    "gameObjects": [
+        {
+            "children": null,
+            "components": [
+                {
+                    "localPosition": {
+                        "x": -43.79999923706055,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "localRotation": {
+                        "x": 0.0,
+                        "y": -0.5,
+                        "z": 0.0
+                    },
+                    "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "type": "TransformComponent"
+                },
+                {
+                    "modelPath": "E:\\GIT\\DirectXEngine\\Bin\\Assets\\Meshes\\Other\\Man.fbx",
+                    "type": "ModelComponent"
+                },
+                {
+                    "pixelShaderPath": "E:\\GIT\\DirectXEngine\\Bin\\Shaders\\PBRPixelShader.cso",
+                    "reflectionPath": "E:\\GIT\\DirectXEngine\\Bin\\Assets\\Textures\\reflection.jpg",
+                    "texturePath": "E:\\GIT\\DirectXEngine\\Bin\\Assets\\Textures\\Man.jpg",
+                    "type": "MaterialComponent",
+                    "vertexShaderPath": "E:\\GIT\\DirectXEngine\\Bin\\Shaders\\PBRVertexShader.cso"
+                }
+            ],
+            "name": "Game Object"
+        },
+        {
+            "children": null,
+            "components": [
+                {
+                    "localPosition": {
+                        "x": 115.0999984741211,
+                        "y": 0.5,
+                        "z": 35.099998474121094
+                    },
+                    "localRotation": {
+                        "x": 0.0,
+                        "y": -2.200000047683716,
+                        "z": 0.0
+                    },
+                    "localScale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotation": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "type": "TransformComponent"
+                },
+                {
+                    "modelPath": "E:\\GIT\\DirectXEngine\\Bin\\Assets\\Meshes\\Other\\Scooter.fbx",
+                    "type": "ModelComponent"
+                },
+                {
+                    "pixelShaderPath": "E:\\GIT\\DirectXEngine\\Bin\\Shaders\\PBRPixelShader.cso",
+                    "reflectionPath": "E:\\GIT\\DirectXEngine\\Bin\\Assets\\Textures\\reflection.jpg",
+                    "texturePath": "E:\\GIT\\DirectXEngine\\Bin\\Assets\\Textures\\Scooter.png",
+                    "type": "MaterialComponent",
+                    "vertexShaderPath": "E:\\GIT\\DirectXEngine\\Bin\\Shaders\\PBRVertexShader.cso"
+                }
+            ],
+            "name": "Game Object"
+        }
+    ]
+}

@@ -2,6 +2,7 @@
 #include "Graphics.h"
 #include "DirectionalLight.h"
 #include "../Entity Component System/ComponentFactory.h"
+
 #define VSYNC_ENABLED true
 
 
@@ -10,6 +11,18 @@ bool gShowFBXWindow = true;
 bool gShowTextureWindow = false;
 std::string gFBXFilePath;
 std::wstring gTextureFilePath;
+
+Graphics::~Graphics()
+{
+	for (auto g : myGameObjects)
+	{
+		for (auto c : g->myComponents)
+		{
+			delete c;
+		}
+		delete g;
+	}
+}
 
 bool Graphics::Init(HWND hwnd, int aWidth, int aHeight, Timer& aTimer)
 {
@@ -38,7 +51,7 @@ bool Graphics::Init(HWND hwnd, int aWidth, int aHeight, Timer& aTimer)
 	ImGui_ImplWin32_Init(hwnd);
 	ImGui_ImplDX11_Init(myDevice.Get(), myDeviceContext.Get());
 	ImGui::StyleColorsDark();
-
+	myImguiRender.Init(this);
 	return true;
 }
 
@@ -57,16 +70,16 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 
 	RenderGrid();
 
-	for (auto& model : myGameObjects)
+	for (auto& gameObject : myGameObjects)
 	{
-		model->Render();
+		gameObject->Render();
 	}
 
 	myDeviceContext->OMSetRenderTargets(1, &oldRenderTarget, oldDepthStencilView);
 
 	// Render ImGui here
-	RenderImGui();
-
+	//RenderImGui();
+	myImguiRender.Render(myWidth, myHeight);
 	mySwapChain->Present(VSYNC_ENABLED, NULL);
 
 	if (oldRenderTarget != nullptr)
@@ -79,117 +92,6 @@ void Graphics::Render(const int& aFPS, const float& aDeltaTime)
 	}
 }
 
-void Graphics::RenderImGui()
-{
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-	ImGuiID dockspace_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-
-	ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(myWidth, myHeight), ImGuiCond_FirstUseEver);
-	ImGui::Begin("Camera Window");
-
-	ImVec2 windowSize = ImGui::GetWindowSize();
-
-	float aspectRatio = (float)myWidth / (float)myHeight;
-
-	float imageWidth, imageHeight;
-
-	if (aspectRatio < 1.0f)
-	{
-		imageHeight = windowSize.y; // Take up the full window height
-		imageWidth = imageHeight * aspectRatio; // Adjust width to maintain aspect ratio
-	}
-	else
-	{
-		imageWidth = windowSize.x; // Take up the full window width
-		imageHeight = imageWidth / aspectRatio; // Adjust height to maintain aspect ratio
-	}
-	float imageX = (windowSize.x - imageWidth) / 2.0f;
-	float imageY = (windowSize.y - imageHeight) / 2.0f;
-
-	// Display the image
-	ImGui::SetCursorPos(ImVec2(imageX, imageY));
-	ImGui::Image(myCameraShaderResourceView.Get(), ImVec2(imageWidth, imageHeight));
-
-	ImGui::End();
-
-	ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(200, 400), ImGuiCond_FirstUseEver);
-	ImGui::Begin("File Hierarchy");
-
-	RenderFileHierarchy("../bin/assets/");
-
-	ImGui::End();
-
-	ImGui::Begin("Components");
-	// Render windows for each GameObject
-	for (GameObject* gameObject : myGameObjects)
-	{
-		ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(ImVec2(200, 200), ImGuiCond_FirstUseEver);
-
-		//gameObject->myTransform->RenderImGui();
-		for (Component* component : gameObject->myComponents)
-		{
-			component->RenderImGui();
-			ImGui::Separator();
-
-		}
-
-		// Button for adding components
-		if (ImGui::Button("Add Component"))
-		{
-			ImGui::OpenPopup("AddComponentPopup");
-		}
-
-		// Popup for selecting a script to add as a component
-		if (ImGui::BeginPopup("AddComponentPopup"))
-		{
-			// Display a list of available scripts for components
-			const std::filesystem::path componentPath = "../Source/Entity Component System/Components";
-			std::set<std::string> uniqueFilenames;  // Store unique filenames
-
-			for (const auto& entry : std::filesystem::directory_iterator(componentPath))
-			{
-				if (entry.is_regular_file())
-				{
-					std::string filename = entry.path().filename().stem().string();
-
-					// Check if the filename is already added
-					if (uniqueFilenames.find(filename) == uniqueFilenames.end())
-					{
-						uniqueFilenames.insert(filename);
-
-						if (ImGui::Selectable(filename.c_str()))
-						{
-							// Add the selected script as a component to the GameObject
-							// Here, you can use a factory pattern or a map of component types to their factory functions
-							// to create an object of the selected component class and add it to the GameObject.
-
-							// For example, using a factory pattern:
-							Component* newComponent = ComponentFactory::CreateComponent(filename);
-
-							if (newComponent)
-							{
-								// Add the new component to the GameObject
-								gameObject->AddComponent(newComponent);
-							}
-						}
-					}
-				}
-			}
-
-			ImGui::EndPopup();
-		}
-
-		ImGui::End();
-	}
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-}
 
 void Graphics::Resize(int aWidth, int aHeight)
 {
@@ -482,26 +384,6 @@ bool Graphics::InitScene()
 	myCamera.SetPosition(0.0f, 10.0f, -10.0f);
 	myCamera.SetProjectionValues(70.f, static_cast<float>(myWidth) / static_cast<float>(myHeight), 0.1f, 1000.f);
 
-	GameObject* man = new GameObject();
-	man->Init(myTimer, &myCamera, myDevice, myDeviceContext);
-
-	MaterialComponent* material = man->AddComponent<MaterialComponent>();
-	material->Init(L"../bin/shaders/PBRVertexShader.cso", L"../bin/shaders/PBRPixelShader.cso");
-	material->SetTexture(L"../bin/assets/textures/man.jpg");
-	material->SetReflectionTexture(L"../bin/assets/textures/reflection.jpg");
-
-	ModelComponent* model = man->AddComponent<ModelComponent>();
-	model->Init("../bin/assets/meshes/other/man.fbx");
-
-	//BoxColliderComponent* boxCollider = man->AddComponent<BoxColliderComponent>();
-	//boxCollider->SetExtents(XMFLOAT3(4, 40, 4));
-
-
-
-
-
-	myGameObjects.push_back(man);
-
 	return true;
 }
 
@@ -664,26 +546,6 @@ void Graphics::RenderGrid()
 }
 
 
-void Graphics::RenderFileHierarchy(const std::filesystem::path& aDirectory)
-{
-	for (const auto& entry : std::filesystem::directory_iterator(aDirectory))
-	{
-		const auto& path = entry.path();
-		const auto& filename = path.filename().string();
 
-		if (std::filesystem::is_directory(path))
-		{
-			if (ImGui::TreeNode(filename.c_str()))
-			{
-				RenderFileHierarchy(path);
-				ImGui::TreePop();
-			}
-		}
-		else
-		{
-			ImGui::Selectable(filename.c_str());
-		}
-	}
-}
 
 

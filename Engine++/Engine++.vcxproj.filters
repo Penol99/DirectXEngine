@@ -120,6 +120,12 @@
     <ClCompile Include="..\Source\Ray.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\Graphics\ImGuiRenderer.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\SceneSerializer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\StringConverter.h">
@@ -241,6 +247,12 @@
     </ClInclude>
     <ClInclude Include="..\Source\Entity Component System\ComponentFactory.h">
       <Filter>Source\EntityComponentSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\ImGuiRenderer.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\SceneSerializer.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

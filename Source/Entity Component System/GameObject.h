@@ -1,17 +1,17 @@
 #pragma once
 #include "Components/TransformComponent.h"
 #include "Components/ModelComponent.h"
+#include "Components/MaterialComponent.h"
 #include "../Graphics/Camera.h"
 #include "../Timer.h"
 #include <wrl/client.h>
 #include <vector>
-
 using Microsoft::WRL::ComPtr;
 
 class GameObject
 {
 public:
-    GameObject() : myParent(nullptr) {}
+    GameObject() : myParent(nullptr), myName("Game Object") {}
 
     template <typename T>
     T* AddComponent()
@@ -25,6 +25,7 @@ public:
     }
     void AddComponent(Component* aComponent)
     {
+        
         aComponent->myGameObject = this;
         myComponents.push_back(aComponent);
     }
@@ -83,12 +84,14 @@ public:
     Camera* myCamera;
     Timer* myTimer;
     TransformComponent* myTransform;
+    std::string myName;
+    MaterialComponent* myMaterial;
     ComPtr<ID3D11DeviceContext> myDeviceContext;
     ComPtr<ID3D11Device> myDevice;
 
     void Init(Timer* aTimer, Camera* aCamera, ComPtr<ID3D11Device>& aDevice, ComPtr<ID3D11DeviceContext>& aDeviceContext)
     {
-        myTransform = AddComponent<TransformComponent>();
+        
         if (myParent != nullptr)
         {
             myTransform->myParent = myParent->GetComponent<TransformComponent>();
@@ -101,8 +104,18 @@ public:
 
     void Render()
     {
+        //Makes sure that the material is always rendered first, so that shaders are set up correctly
+        if (myMaterial != NULL)
+        {
+            myMaterial->Render();
+        }
         for (auto o : myComponents)
         {
+            if (o == myMaterial)
+            {
+                continue;
+            }
+            o->myGameObject = this;
             o->Render();
         }
 
@@ -112,10 +125,9 @@ public:
         }
     }
 
-private:
     std::vector<Component*> myComponents;
     GameObject* myParent;
     std::vector<GameObject*> myChildren;
+private:
 
-    friend class Graphics;
 };

@@ -122,3 +122,6 @@
 .vs/Engine++/v17/ipch/AutoPCH/42616016e261ad21/IMGUI_IMPL_WIN32.ipch
 .vs/Engine++/v17/ipch/AutoPCH/1a7f063df6cbbfdc/MESH.ipch
 .vs/Engine++/v17/ipch/AutoPCH/8e397ebe79e76c37/COMPONENTFACTORY.ipch
+.vs/Engine++/v17/ipch/AutoPCH/5d857fa6121dc58e/COLLIDERCOMPONENT.ipch
+.vs/Engine++/v17/ipch/AutoPCH/cde31be14a5a5401/IMGUIRENDERER.ipch
+.vs/Engine++/v17/ipch/AutoPCH/d17e3bea5b725de4/SCENESERIALIZER.ipch

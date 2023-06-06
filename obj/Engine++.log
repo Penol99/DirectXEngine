@@ -1,8 +1,4 @@
-﻿  BoxColliderComponent.cpp
-  Graphics.cpp
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(91,43): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(91,34): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(384,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-E:\GIT\DirectXEngine\Source\Graphics\Graphics.cpp(385,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-  Generating Code...
+﻿  ImGuiRenderer.cpp
+E:\GIT\DirectXEngine\Source\Graphics\ImGuiRenderer.cpp(118,46): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+E:\GIT\DirectXEngine\Source\Graphics\ImGuiRenderer.cpp(118,37): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   Engine++.vcxproj -> E:\GIT\DirectXEngine\Bin\Engine++-Debug.exe

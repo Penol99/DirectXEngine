@@ -118,6 +118,7 @@
     <ClCompile Include="..\Source\Graphics\Camera.cpp" />
     <ClCompile Include="..\Source\Graphics\DirectionalLight.cpp" />
     <ClCompile Include="..\Source\Graphics\Graphics.cpp" />
+    <ClCompile Include="..\Source\Graphics\ImGuiRenderer.cpp" />
     <ClCompile Include="..\Source\Graphics\Mesh.cpp" />
     <ClCompile Include="..\Source\Graphics\TerrainGenerator.cpp" />
     <ClCompile Include="..\Source\ImGui\imgui.cpp" />
@@ -131,6 +132,7 @@
     <ClCompile Include="..\Source\main.cpp" />
     <ClCompile Include="..\Source\Ray.cpp" />
     <ClCompile Include="..\Source\RenderWindow.cpp" />
+    <ClCompile Include="..\Source\SceneSerializer.cpp" />
     <ClCompile Include="..\Source\Shaders\Shaders.cpp" />
     <ClCompile Include="..\Source\StringConverter.cpp" />
     <ClCompile Include="..\Source\Timer.cpp" />
@@ -155,6 +157,7 @@
     <ClInclude Include="..\Source\Graphics\ConstantBufferTypes.h" />
     <ClInclude Include="..\Source\Graphics\DirectionalLight.h" />
     <ClInclude Include="..\Source\Graphics\Graphics.h" />
+    <ClInclude Include="..\Source\Graphics\ImGuiRenderer.h" />
     <ClInclude Include="..\Source\Graphics\IndexBuffer.h" />
     <ClInclude Include="..\Source\Graphics\Mesh.h" />
     <ClInclude Include="..\Source\Graphics\TerrainGenerator.h" />
@@ -173,6 +176,7 @@
     <ClInclude Include="..\Source\PropertyDefines.h" />
     <ClInclude Include="..\Source\Ray.h" />
     <ClInclude Include="..\Source\RenderWindow.h" />
+    <ClInclude Include="..\Source\SceneSerializer.h" />
     <ClInclude Include="..\Source\Shaders\Shaders.h" />
     <ClInclude Include="..\Source\StringConverter.h" />
     <ClInclude Include="..\Source\Timer.h" />
@@ -259,6 +263,7 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\Microsoft.XAudio2.Redist.1.2.11\build\native\Microsoft.XAudio2.Redist.targets" Condition="Exists('..\packages\Microsoft.XAudio2.Redist.1.2.11\build\native\Microsoft.XAudio2.Redist.targets')" />
     <Import Project="..\packages\directxtk_desktop_2019.2023.4.28.1\build\native\directxtk_desktop_2019.targets" Condition="Exists('..\packages\directxtk_desktop_2019.2023.4.28.1\build\native\directxtk_desktop_2019.targets')" />
+    <Import Project="..\packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets" Condition="Exists('..\packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -266,5 +271,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.XAudio2.Redist.1.2.11\build\native\Microsoft.XAudio2.Redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.XAudio2.Redist.1.2.11\build\native\Microsoft.XAudio2.Redist.targets'))" />
     <Error Condition="!Exists('..\packages\directxtk_desktop_2019.2023.4.28.1\build\native\directxtk_desktop_2019.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtk_desktop_2019.2023.4.28.1\build\native\directxtk_desktop_2019.targets'))" />
+    <Error Condition="!Exists('..\packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets'))" />
   </Target>
 </Project>

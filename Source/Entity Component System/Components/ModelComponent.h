@@ -8,13 +8,17 @@
 class ModelComponent : public Component
 {
 public:
-    std::vector<std::shared_ptr<Mesh>> meshes;
-    bool Init(const std::string& filePath);
+    //std::vector<std::shared_ptr<Mesh>> meshes;
+    void Init();
+    void LoadModel(std::string aPath);
     void Render();
-    // Initialization method taking in mesh components...
+    void RenderImGui();
+    void Serialize(json& serializedObject) const override;
+    void Deserialize(const json& serializedObject) override;
 
 private:
     void ProcessNode(const aiNode* node, const aiScene* scene);
     std::vector<Mesh> myMeshes;
+    std::string myModelPath;
 
 };

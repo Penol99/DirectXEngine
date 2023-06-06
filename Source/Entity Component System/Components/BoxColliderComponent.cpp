@@ -3,6 +3,7 @@
 
 void BoxColliderComponent::Init()
 {
+    myType = eComponentType::BoxCollider;
 }
 
 bool BoxColliderComponent::Intersects(const Ray& ray) const
@@ -41,11 +42,11 @@ void BoxColliderComponent::RenderImGui()
     XMFLOAT3 center = XMFLOAT3(XMVectorGetX(myCenter), XMVectorGetY(myCenter), XMVectorGetZ(myCenter));
     XMFLOAT3 extents = XMFLOAT3(XMVectorGetX(myExtents), XMVectorGetY(myExtents), XMVectorGetZ(myExtents));
 
-    ImGui::Text("Local Center");
+    ImGui::Text("Center");
     ImGui::DragFloat3("##LocalCenter", &center.x, 0.01f);
     myCenter = XMLoadFloat3(&center);
 
-    ImGui::Text("Local Extents");
+    ImGui::Text("Extents");
     ImGui::DragFloat3("##LocalExtents", &extents.x, 0.01f);
     myExtents = XMLoadFloat3(&extents);
 

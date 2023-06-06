@@ -14,7 +14,7 @@
 #include "../ImGui/imgui_impl_dx11.h"
 #include "../Entity Component System/GameObject.h"
 #include <filesystem>
-
+#include "ImGuiRenderer.h"
 //#include "TerrainGenerator.h"
 #include "Model.h"
 #include "../Timer.h"
@@ -26,9 +26,9 @@ class Graphics
 {
 
 public:
+	~Graphics();
 	bool Init(HWND hwnd, int aWidth, int aHeight, Timer& aTimer);
 	void Render(const int& aFPS, const float& aDeltaTime);
-	void RenderImGui();
 	void Resize(int aWidth, int aHeight);
 	Camera myCamera;
 private:
@@ -37,7 +37,6 @@ private:
 	bool CreateSwapChain(HWND hwnd);
 	bool InitGrid();
 	void RenderGrid();
-	void RenderFileHierarchy(const std::filesystem::path& aDirectory);
 	ComPtr<ID3D11Device> myDevice;
 	ComPtr<ID3D11DeviceContext> myDeviceContext;
 	ComPtr<IDXGISwapChain> mySwapChain;
@@ -72,6 +71,9 @@ private:
 	ComPtr<ID3D11ShaderResourceView> myCameraShaderResourceView;
 	ComPtr<ID3D11RenderTargetView> myCameraRenderTargetView;
 	ComPtr<ID3D11Texture2D> myCameraTexture;
+
+	GameObject* mySelectedGameObject;
+	ImGuiRenderer myImguiRender;
 	//TerrainGenerator myTerrainGenerator;
 
 	Timer* myTimer;
@@ -81,4 +83,7 @@ private:
 	float myCameraSpeed = 10.0f;
 	HWND myHandle;
 	friend class Engine;
+	friend class ImGuiRenderer;
+	friend class SceneSerializer;
+
 };

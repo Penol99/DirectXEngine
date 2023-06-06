@@ -43,4 +43,27 @@ public:
 
         return nullptr;
     }
+
+    static std::string TypeToString(const Component::eComponentType aType)
+    {
+        switch (aType)
+        {
+        case Component::eComponentType::Transform:
+            return "TransformComponent";
+        case Component::eComponentType::Material:
+            return "MaterialComponent";
+        case Component::eComponentType::Model:
+            return "ModelComponent";
+        case Component::eComponentType::Collider:
+            return "ColliderComponent";
+        case Component::eComponentType::BoxCollider:
+            return "BoxColliderComponent";
+        case Component::eComponentType::SphereCollider:
+            return "SphereColliderComponent";
+        case Component::eComponentType::Gizmo:
+            return "GizmoComponent";
+        default:
+            return "";
+        }
+    }
 };
