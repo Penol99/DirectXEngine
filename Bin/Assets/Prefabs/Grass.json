@@ -1,0 +1,35 @@
+{
+    "children": null,
+    "components": [
+        {
+            "position": {
+                "x": 0.0,
+                "y": 1.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 1.559999942779541,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 500.0,
+                "y": 500.0,
+                "z": 5.0
+            },
+            "type": "TransformComponent"
+        },
+        {
+            "modelPath": "D:\\C++\\DirectXEngine\\Bin\\Assets\\Meshes\\Primitives\\Cube.fbx",
+            "type": "ModelComponent"
+        },
+        {
+            "pixelShaderPath": "",
+            "reflectionPath": "",
+            "texturePath": "D:\\C++\\DirectXEngine\\Bin\\Assets\\Textures\\grassy_texture.jpg",
+            "type": "MaterialComponent",
+            "vertexShaderPath": ""
+        }
+    ],
+    "name": "Game Object"
+}

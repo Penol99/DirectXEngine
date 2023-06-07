@@ -78,7 +78,7 @@ void ModelComponent::Serialize(json& serializedObject) const
 {
 	Component::Serialize(serializedObject);
 
-	serializedObject["modelPath"] = myModelPath;
+	serializedObject["modelPath"] = StringConverter::FormatForJSONPath(std::string("Bin"), myModelPath);
 
 	// Serialize meshes if needed...
 }

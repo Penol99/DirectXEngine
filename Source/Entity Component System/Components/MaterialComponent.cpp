@@ -258,14 +258,13 @@ void MaterialComponent::RenderImGui()
         ZeroMemory(&ofn, sizeof(ofn));
         ofn.lStructSize = sizeof(ofn);
         ofn.hwndOwner = NULL;
-        ofn.lpstrFilter = "Image Files (*.png;*.jpg;*.bmp)\0*.png;*.jpg;*.bmp\0All Files (*.*)\0*.*\0";
+        ofn.lpstrFilter = "Image Files (*.png;*.jpg;*.bmp;*.dds)\0*.png;*.jpg;*.bmp;*.dds\0All Files (*.*)\0*.*\0";
         ofn.lpstrFile = fileName;
         ofn.nMaxFile = MAX_PATH;
         ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
 
         if (GetOpenFileNameA(&ofn))
         {
-            // Store the selected reflection file path in myReflectionPath variable
             myReflectionPath = ofn.lpstrFile;
             SetReflectionTexture(StringConverter::StringToWide(myReflectionPath));
         }
@@ -279,11 +278,12 @@ void MaterialComponent::RenderImGui()
 void MaterialComponent::Serialize(json& serializedObject) const
 {
     Component::Serialize(serializedObject);
+    ;
 
-    serializedObject["vertexShaderPath"] = myVertexShaderPath;
-    serializedObject["pixelShaderPath"] = myPixelShaderPath;
-    serializedObject["texturePath"] = myTexturePath;
-    serializedObject["reflectionPath"] = myReflectionPath;
+    serializedObject["vertexShaderPath"] = StringConverter::FormatForJSONPath(std::string("Bin"), myVertexShaderPath);
+    serializedObject["pixelShaderPath"] = StringConverter::FormatForJSONPath(std::string("Bin"), myPixelShaderPath);
+    serializedObject["texturePath"] = StringConverter::FormatForJSONPath(std::string("Bin"), myTexturePath);
+    serializedObject["reflectionPath"] = StringConverter::FormatForJSONPath(std::string("Bin"), myReflectionPath);
     // Serialize other properties if needed...
 }
 

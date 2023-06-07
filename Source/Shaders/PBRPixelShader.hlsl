@@ -30,7 +30,7 @@ PixelOutput main(PixelInput input) : SV_TARGET
 {
     PixelOutput output;
     float Shininess = .5f;
-    float3 SpecularColor = float3(0.1f, 0.1f, 0.1f); // Bright white specular color
+    float3 SpecularColor = float3(0.1f, 0.1f, 0.1f); 
     
     // Sample textures
     float4 albedo = albedoTexture.Sample(defaultSampler, input.TexCoord);

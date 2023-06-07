@@ -20,15 +20,15 @@
             "type": "TransformComponent"
         },
         {
-            "modelPath": "E:\\GIT\\DirectXEngine\\Bin\\Assets\\Meshes\\Other\\Man.fbx",
+            "modelPath": "..\\Bin\\Assets\\Meshes\\Other\\Man.fbx",
             "type": "ModelComponent"
         },
         {
-            "pixelShaderPath": "E:\\GIT\\DirectXEngine\\Bin\\Shaders\\PBRPixelShader.cso",
-            "reflectionPath": "E:\\GIT\\DirectXEngine\\Bin\\Assets\\Textures\\reflection.jpg",
-            "texturePath": "E:\\GIT\\DirectXEngine\\Bin\\Assets\\Textures\\Man.jpg",
+            "pixelShaderPath": "..\\Bin\\Shaders\\PBRPixelShader.cso",
+            "reflectionPath": "..\\Bin\\Assets\\Textures\\reflection.jpg",
+            "texturePath": "..\\Bin\\Assets\\Textures\\Man.jpg",
             "type": "MaterialComponent",
-            "vertexShaderPath": "E:\\GIT\\DirectXEngine\\Bin\\Shaders\\PBRVertexShader.cso"
+            "vertexShaderPath": "..\\Bin\\Shaders\\PBRVertexShader.cso"
         }
     ],
     "name": "Game Object"

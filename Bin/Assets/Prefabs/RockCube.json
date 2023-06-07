@@ -1,0 +1,35 @@
+{
+    "children": null,
+    "components": [
+        {
+            "position": {
+                "x": 0.0,
+                "y": 8.199999809265137,
+                "z": 6.900000095367432
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "type": "TransformComponent"
+        },
+        {
+            "modelPath": "...\\Bin\\Assets\\Meshes\\Primitives\\Cube.fbx",
+            "type": "ModelComponent"
+        },
+        {
+            "pixelShaderPath": "...\\Bin\\Shaders\\PBRPixelShader.cso",
+            "reflectionPath": "...\\Bin\\Assets\\Textures\\reflection.jpg",
+            "texturePath": "...\\Bin\\Assets\\Textures\\rocky_texture.jpg",
+            "type": "MaterialComponent",
+            "vertexShaderPath": "...\\Bin\\Shaders\\PBRVertexShader.cso"
+        }
+    ],
+    "name": "Game Object"
+}

@@ -2,36 +2,36 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>E:\GIT\DirectXEngine\Bin\Engine++.exe</FullPath>
+      <FullPath>D:\C++\DirectXEngine\Bin\Engine++.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
-      <FullPath>E:\GIT\DirectXEngine\Bin\Shaders\FunkyPixelShader.cso</FullPath>
+      <FullPath>D:\C++\DirectXEngine\Bin\Shaders\FunkyPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>E:\GIT\DirectXEngine\Bin\Shaders\LinePixelShader.cso</FullPath>
+      <FullPath>D:\C++\DirectXEngine\Bin\Shaders\LinePixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>E:\GIT\DirectXEngine\Bin\Shaders\LineVertexShader.cso</FullPath>
+      <FullPath>D:\C++\DirectXEngine\Bin\Shaders\LineVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>E:\GIT\DirectXEngine\Bin\Shaders\PBRPixelShader.cso</FullPath>
+      <FullPath>D:\C++\DirectXEngine\Bin\Shaders\PBRPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>E:\GIT\DirectXEngine\Bin\Shaders\PBRVertexShader.cso</FullPath>
+      <FullPath>D:\C++\DirectXEngine\Bin\Shaders\PBRVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>E:\GIT\DirectXEngine\Bin\Shaders\StandardPixelShader.cso</FullPath>
+      <FullPath>D:\C++\DirectXEngine\Bin\Shaders\StandardPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>E:\GIT\DirectXEngine\Bin\Shaders\StandardVertexShader.cso</FullPath>
+      <FullPath>D:\C++\DirectXEngine\Bin\Shaders\StandardVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>E:\GIT\DirectXEngine\Bin\Shaders\TerrainPixelShader.cso</FullPath>
+      <FullPath>D:\C++\DirectXEngine\Bin\Shaders\TerrainPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>E:\GIT\DirectXEngine\Bin\Shaders\TerrainVertexShader.cso</FullPath>
+      <FullPath>D:\C++\DirectXEngine\Bin\Shaders\TerrainVertexShader.cso</FullPath>
     </ContentFile>
   </ContentFiles>
   <SatelliteDlls />

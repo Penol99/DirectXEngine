@@ -1,0 +1,109 @@
+{
+    "gameObjects": [
+        {
+            "children": null,
+            "components": [
+                {
+                    "position": {
+                        "x": -73.0999984741211,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotation": {
+                        "x": 0.0,
+                        "y": -0.800000011920929,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "type": "TransformComponent"
+                },
+                {
+                    "modelPath": "..\\Bin\\Assets\\Meshes\\Other\\Man.fbx",
+                    "type": "ModelComponent"
+                },
+                {
+                    "pixelShaderPath": "..\\Bin\\Shaders\\PBRPixelShader.cso",
+                    "reflectionPath": "..\\Bin\\Assets\\Textures\\reflection.jpg",
+                    "texturePath": "..\\Bin\\Assets\\Textures\\Man.jpg",
+                    "type": "MaterialComponent",
+                    "vertexShaderPath": "..\\Bin\\Shaders\\PBRVertexShader.cso"
+                }
+            ],
+            "name": "Man"
+        },
+        {
+            "children": null,
+            "components": [
+                {
+                    "position": {
+                        "x": 69.4000015258789,
+                        "y": -1.7000000476837158,
+                        "z": 118.5
+                    },
+                    "rotation": {
+                        "x": 0.0,
+                        "y": 3.4000000953674316,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "type": "TransformComponent"
+                },
+                {
+                    "modelPath": "D:\\C++\\DirectXEngine\\Bin\\Assets\\Meshes\\Other\\Scooter.fbx",
+                    "type": "ModelComponent"
+                },
+                {
+                    "pixelShaderPath": "..\\Bin\\Shaders\\PBRPixelShader.cso",
+                    "reflectionPath": "..\\Bin\\Assets\\Textures\\reflection.jpg",
+                    "texturePath": "D:\\C++\\DirectXEngine\\Bin\\Assets\\Textures\\Scooter.png",
+                    "type": "MaterialComponent",
+                    "vertexShaderPath": "..\\Bin\\Shaders\\PBRVertexShader.cso"
+                }
+            ],
+            "name": "Scooter"
+        },
+        {
+            "children": null,
+            "components": [
+                {
+                    "position": {
+                        "x": 0.0,
+                        "y": 1.0,
+                        "z": 0.0
+                    },
+                    "rotation": {
+                        "x": 1.559999942779541,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 200.0,
+                        "y": 200.0,
+                        "z": 5.0
+                    },
+                    "type": "TransformComponent"
+                },
+                {
+                    "modelPath": "D:\\C++\\DirectXEngine\\Bin\\Assets\\Meshes\\Primitives\\Cube.fbx",
+                    "type": "ModelComponent"
+                },
+                {
+                    "pixelShaderPath": "..\\Bin\\Shaders\\PBRPixelShader.cso",
+                    "reflectionPath": "..\\Bin\\Assets\\Textures\\reflection.jpg",
+                    "texturePath": "D:\\C++\\DirectXEngine\\Bin\\Assets\\Textures\\grassy_texture.jpg",
+                    "type": "MaterialComponent",
+                    "vertexShaderPath": "..\\Bin\\Shaders\\PBRVertexShader.cso"
+                }
+            ],
+            "name": "Grass"
+        }
+    ]
+}

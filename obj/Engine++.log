@@ -1,10 +1,7 @@
-﻿E:\GIT\DirectXEngine\Source\Shaders\PBRPixelShader.hlsl(29,16-46): warning X3576: semantics in type overridden by variable/function or enclosing type
-  
-  compilation object save succeeded; see E:\GIT\DirectXEngine\Bin\Shaders\PBRPixelShader.cso
-  BoxColliderComponent.cpp
+﻿  StringConverter.cpp
   Generating code
-  0 of 4666 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  5 of 4675 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    38 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
-  Engine++.vcxproj -> E:\GIT\DirectXEngine\Bin\Engine++.exe
+  Engine++.vcxproj -> D:\C++\DirectXEngine\Bin\Engine++.exe
